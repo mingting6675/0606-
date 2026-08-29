@@ -1,0 +1,4034 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小萤的毕业物语 · 城市生存</title>
+<style>
+/* ===== 全局 ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Microsoft YaHei','PingFang SC',sans-serif;
+  background:#1a1a28;color:#d0c8b8;overflow:hidden;
+  user-select:none;-webkit-user-select:none;height:100vh;
+}
+button{cursor:pointer;border:none;outline:none;font-family:inherit;transition:all .2s}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+
+/* ===== 首页 ===== */
+#screen-start{
+  position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 30%,#2a2a44 0%,#141420 70%);
+}
+#screen-start.hidden{display:none}
+.start-char-container{position:relative;margin-bottom:20px}
+#start-char-canvas{display:block}
+.start-title{
+  font-size:2em;font-weight:700;letter-spacing:.05em;margin-bottom:4px;
+  background:linear-gradient(180deg,#f0d080,#c09050);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.start-sub{color:#7878a0;font-size:.9em;margin-bottom:28px}
+.attr-row2{display:flex;gap:10px;margin-bottom:20px}
+.attr-chip{
+  background:#1e1e38;border:1px solid #333350;border-radius:14px;
+  padding:10px 18px;text-align:center;min-width:80px;
+}
+.attr-chip .ac-icon{font-size:22px;display:block}
+.attr-chip .ac-val{font-size:1.5em;font-weight:700;color:#f0c060;display:block}
+.attr-chip .ac-lbl{font-size:.75em;color:#888;display:block}
+.btn-gold{
+  background:linear-gradient(135deg,#c08040,#a06030);color:#fff;
+  font-size:1.05em;padding:12px 36px;border-radius:24px;
+  box-shadow:0 4px 18px rgba(192,128,64,.2);margin:4px;
+}
+.btn-ghost{
+  background:transparent;color:#9080a0;font-size:.9em;
+  padding:8px 24px;border-radius:18px;border:1px solid #333350;margin:4px;
+}
+
+/* ===== 主游戏页 ===== */
+#screen-game{position:fixed;inset:0;display:flex;flex-direction:column}
+#screen-game.hidden{display:none}
+
+/* 顶部栏 */
+#top-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 16px;background:#18182a;z-index:10;border-bottom:1px solid#252540;
+}
+#top-bar .tb-left{display:flex;align-items:center;gap:12px}
+#clock2{font-size:1.2em;font-weight:700;color:#f0c060;font-family:'SF Mono',Consolas,monospace}
+#day2{background:#282848;color:#a098c0;padding:2px 10px;border-radius:10px;font-size:.8em}
+#loc2{color:#888;font-size:.85em}
+#top-bar .tb-right{display:flex;gap:4px}
+#top-bar .tb-right button{
+  background:#202038;color:#9090b0;font-size:.8em;padding:5px 10px;border-radius:12px;
+}
+
+/* 成长属性条 */
+#growth-bar{
+  display:flex;align-items:center;gap:16px;padding:5px 16px;
+  background:#14142a;border-bottom:1px solid#252540;z-index:9;flex-wrap:wrap;
+}
+.gr-item{font-size:.78em;color:#999;display:flex;align-items:center;gap:4px}
+.gr-item .grv{color:#f0c060;font-weight:700}
+.gr-stage{margin-left:auto;font-size:.78em;color:#7ac870;background:#1e2e24;padding:3px 12px;border-radius:12px}
+
+/* 中间区域 flex */
+#game-mid{flex:1;display:flex;overflow:hidden}
+
+/* Canvas 地图 */
+#map-wrap{flex:1;position:relative;min-width:0}
+#map-canvas2{display:block;width:100%;height:100%}
+
+/* 角色+对话区 */
+#char-zone{
+  width:380px;background:#1c1c30;display:flex;flex-direction:column;
+  border-left:1px solid #2a2a44;overflow:hidden;
+}
+/* 角色展示 */
+#char-display{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;background:radial-gradient(ellipse at 50% 70%,#252540 0%,#181828 100%);
+}
+#char-display canvas{display:block}
+.char-name-tag{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  background:#2a2a48;color:#c0b090;padding:3px 14px;border-radius:10px;font-size:.8em;
+}
+/* 对话气泡预览 */
+#dialogue-preview{
+  min-height:60px;padding:12px 16px;background:#202038;
+  border-top:1px solid #2a2a44;font-size:.85em;color:#b0a898;
+  display:flex;align-items:center;gap:8px;
+}
+#dialogue-preview .dp-avatar{
+  width:36px;height:36px;border-radius:50%;background:#3a3a58;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+#dialogue-preview .dp-text{flex:1;line-height:1.4}
+#dialogue-preview .dp-hint{color:#7878a0;font-size:.75em}
+
+/* 底部状态栏 */
+#bottom-bar2{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;
+  background:#18182a;border-top:1px solid#252540;z-index:10;flex-wrap:wrap;
+}
+.bb-pill{
+  display:flex;align-items:center;gap:4px;background:#202038;
+  border-radius:16px;padding:5px 12px;font-size:.82em;white-space:nowrap;
+}
+.bb-pill .bbv{font-weight:700}
+.bb-pill .bbv.gd{color:#7ac870}.bb-pill .bbv.wn{color:#f0c060}.bb-pill .bbv.bd{color:#d87060}
+.bb-pill.sta{border-left:3px solid#5cb85c}
+.bb-pill.mny{border-left:3px solid#f0c060}
+.bb-pill.mod{border-left:3px solid#5bc0de}
+.bb-pill.lod{border-left:3px solid#d9534f}
+.bb-sel{
+  background:#202038;color:#c0b090;border:1px solid#333350;
+  border-radius:16px;padding:6px 14px;font-size:.82em;font-family:inherit;
+}
+.bb-go{
+  background:linear-gradient(135deg,#7ac870,#5a9a50);color:#fff;
+  padding:7px 20px;border-radius:16px;font-size:.88em;
+}
+
+/* ===== 场景对比卡 ===== */
+#scene-card{
+  position:fixed;inset:0;z-index:150;
+  background:rgba(8,8,18,.88);display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);animation:fadeIn2 .4s ease;
+}
+#scene-card.hidden{display:none}
+@keyframes fadeIn2{from{opacity:0}to{opacity:1}}
+.sc-card-inner{
+  background:#1e1e38;border:1px solid#3a3a58;border-radius:20px;
+  padding:24px;max-width:700px;width:94%;text-align:center;
+}
+.sc-card-inner h2{color:#f0c060;margin-bottom:4px;font-size:1.2em}
+.sc-card-inner .sc-sub{color:#888;font-size:.85em;margin-bottom:16px}
+.sc-compare{display:flex;gap:12px;margin-bottom:18px}
+.sc-panel{
+  flex:1;border-radius:14px;padding:16px;text-align:center;min-height:180px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.sc-panel.anime{background:linear-gradient(180deg,#2a3050,#1e2840);border:1px solid#4a5080}
+.sc-panel.reality{background:linear-gradient(180deg,#282820,#1e1e18);border:1px solid#4a4a38}
+.sc-panel .sc-label{font-size:.75em;margin-bottom:8px;padding:2px 10px;border-radius:8px}
+.sc-panel.anime .sc-label{background:#3a4070;color:#a0b0e0}
+.sc-panel.reality .sc-label{background:#4a4030;color:#c0a880}
+.sc-panel .sc-art{font-size:56px;margin:8px 0}
+.sc-panel .sc-desc{font-size:.8em;color:#999;line-height:1.5}
+.sc-continue{
+  background:linear-gradient(135deg,#c08040,#a06030);color:#fff;
+  padding:10px 32px;border-radius:20px;font-size:.95em;
+}
+/* 地点可做的事 */
+.sc-activities{margin-bottom:16px;text-align:left}
+.sc-act-hint{font-size:.8em;color:#a098b8;margin-bottom:8px;text-align:center}
+.sc-act-btn{
+  display:flex;align-items:center;gap:10px;width:100%;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;padding:8px 14px;margin-bottom:8px;cursor:pointer;
+  color:#e0d8c8;text-align:left;transition:.2s;font-family:inherit;
+}
+.sc-act-btn:hover{background:rgba(255,255,255,.08);border-color:#f0c060}
+.sc-act-btn:disabled{opacity:.4;cursor:not-allowed}
+.sc-act-btn:disabled:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)}
+.act-icon{font-size:1.4em;flex:0 0 auto}
+.act-body{display:flex;flex-direction:column;gap:2px;min-width:0}
+.act-name{font-size:.9em;font-weight:bold;color:#f4d080}
+.act-desc{font-size:.76em;color:#a098b8;line-height:1.35}
+.act-meta{font-size:.68em;color:#7a8a6a}
+.act-none{color:#666;font-size:.8em;text-align:center;margin-bottom:16px}
+
+/* ===== 剧情叙事弹窗 ===== */
+#story-overlay{
+  position:fixed;inset:0;z-index:155;
+  background:rgba(8,8,18,.9);display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);animation:fadeIn2 .4s ease;
+}
+#story-overlay.hidden{display:none}
+.story-inner{
+  background:#1e1e38;border:1px solid#3a3a58;border-radius:20px;
+  padding:28px;max-width:560px;width:92%;text-align:center;
+}
+.story-badge{
+  display:inline-block;background:#2a2a48;color:#f0c060;padding:4px 16px;
+  border-radius:14px;font-size:.85em;margin-bottom:16px;
+}
+.story-text{
+  color:#d0c8b8;line-height:2;font-size:.95em;margin-bottom:22px;
+  white-space:pre-wrap;text-align:left;
+}
+
+/* ===== 对话弹窗（沉浸式角色场景） ===== */
+#dialogue-overlay{
+  position:fixed;inset:0;z-index:160;
+  background:rgba(4,4,14,.92);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  animation:fadeIn2 .3s ease;
+}
+#dialogue-overlay.hidden{display:none}
+#dlg-scene-canvas{display:block;border-radius:16px;max-width:95vw;max-height:65vh}
+#dlg-ui-layer{width:100%;max-width:780px;padding:0 16px;text-align:center}
+#dlg-responses{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.dlg-resp-btn{
+  flex:1;min-width:140px;max-width:250px;padding:10px 14px;background:#252545;
+  color:#d0c8b8;border:1px solid#383858;border-radius:14px;font-size:.85em;
+  text-align:left;transition:all .2s;cursor:pointer;
+}
+.dlg-resp-btn:hover{border-color:#f0c060;background:#2a2a4e;transform:translateY(-2px)}
+.dlg-resp-btn .dr-hint{color:#7878a0;font-size:.75em;display:block;margin-top:2px}
+.dlg-click-hint{color:#606080;font-size:.75em;margin-top:8px;animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ===== Toast ===== */
+#toast{
+  position:fixed;top:50px;left:50%;transform:translateX(-50%);
+  background:#2a2a48;color:#d0c8b8;padding:7px 18px;
+  border-radius:16px;z-index:300;opacity:0;transition:opacity .3s;
+  pointer-events:none;font-size:.85em;
+}
+#toast.show{opacity:1}
+
+/* ===== 背包/日志面板 ===== */
+#panel-backpack,#panel-log{
+  position:fixed;top:0;width:300px;height:100%;z-index:170;
+  background:#1a1a30;padding:24px;overflow-y:auto;transition:transform .35s ease;
+}
+#panel-backpack{right:0;border-left:1px solid#303050;transform:translateX(100%)}
+#panel-backpack.open{transform:translateX(0)}
+#panel-log{left:0;border-right:1px solid#303050;transform:translateX(-100%)}
+#panel-log.open{transform:translateX(0)}
+#panel-backpack h3,#panel-log h3{color:#f0c060;margin-bottom:12px;font-size:1.05em}
+.bp-item-card2{
+  background:#222240;border-radius:10px;padding:10px 12px;margin-bottom:6px;
+  border:1px solid#2a2a46;
+}
+.bp-item-card2 .iname{font-weight:600;font-size:.9em}
+.bp-item-card2 .idesc{font-size:.78em;color:#888}
+.bp-item-card2 .iwt{font-size:.75em;color:#d87060}
+.iuse{margin-top:8px;display:inline-block;background:#2a3a5a;color:#a0c0e0;padding:4px 10px;border-radius:8px;font-size:.75em;cursor:pointer;border:none;font-family:inherit}
+.iuse:hover{background:#3a4a6a}
+.iuse.disabled{background:#333;color:#777;cursor:not-allowed}
+.log-line2{padding:7px 0;border-bottom:1px solid#252540;font-size:.82em}
+.log-line2 .lts{color:#666;margin-right:6px;font-size:.8em}
+.pclose{width:100%;margin-top:14px;background:#282848;color:#a0a0c0;padding:10px;border-radius:12px}
+
+/* ===== 成就面板 ===== */
+#ach-overlay{
+  position:fixed;inset:0;z-index:180;display:flex;align-items:center;justify-content:center;
+  background:rgba(8,8,18,.88);backdrop-filter:blur(6px);animation:fadeIn2 .3s ease;
+}
+#ach-overlay.hidden{display:none}
+.ach-inner{
+  background:#1e1e38;border:1px solid#3a3a58;border-radius:20px;padding:24px;
+  max-width:680px;width:94%;max-height:82vh;overflow-y:auto;text-align:center;
+}
+.ach-inner h2{color:#f0c060;margin-bottom:4px;font-size:1.2em}
+.ach-sub{color:#888;font-size:.85em;margin-bottom:16px}
+#ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;text-align:left}
+.ach-card{
+  background:#222240;border:1px solid#2a2a46;border-radius:12px;padding:12px;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.ach-card.locked{opacity:.45;filter:grayscale(1)}
+.ach-icon{font-size:1.6em;flex:0 0 auto}
+.ach-name{font-weight:600;font-size:.9em;color:#f4d080}
+.ach-desc{font-size:.75em;color:#999;line-height:1.4;margin-top:2px}
+
+/* ===== 羁绊面板 ===== */
+#bond-overlay{
+  position:fixed;inset:0;z-index:181;display:flex;align-items:center;justify-content:center;
+  background:rgba(8,8,18,.88);backdrop-filter:blur(6px);animation:fadeIn2 .3s ease;
+}
+#bond-overlay.hidden{display:none}
+.bond-inner{
+  background:#1e1e38;border:1px solid#3a3a58;border-radius:20px;padding:24px;
+  max-width:560px;width:94%;max-height:82vh;overflow-y:auto;text-align:center;
+}
+.bond-inner h2{color:#f0c060;margin-bottom:4px;font-size:1.2em}
+.bond-sub{color:#888;font-size:.85em;margin-bottom:16px}
+#bond-grid{display:flex;flex-direction:column;gap:12px;text-align:left}
+.bond-card{background:#222240;border:1px solid#2a2a46;border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center}
+.bond-avatar{font-size:2em;flex:0 0 auto}
+.bond-body{flex:1}
+.bond-name{font-weight:600;font-size:.95em;color:#f4d080}
+.bond-desc{font-size:.75em;color:#999;margin:2px 0 8px}
+.bond-bar{height:8px;background:#16162c;border-radius:6px;overflow:hidden}
+.bond-fill{height:100%;border-radius:6px;transition:width .4s ease}
+.bond-val{font-size:.75em;color:#c0b090;text-align:right;margin-top:2px}
+
+/* ===== 科普图鉴 ===== */
+#guide-overlay{
+  position:fixed;inset:0;z-index:182;display:flex;align-items:center;justify-content:center;
+  background:rgba(8,8,18,.88);backdrop-filter:blur(6px);animation:fadeIn2 .3s ease;
+}
+#guide-overlay.hidden{display:none}
+.guide-inner{
+  background:#1e1e38;border:1px solid#3a3a58;border-radius:20px;padding:24px;
+  max-width:640px;width:94%;max-height:82vh;overflow-y:auto;text-align:center;
+}
+.guide-inner h2{color:#f0c060;margin-bottom:4px;font-size:1.2em}
+.guide-sub{color:#888;font-size:.85em;margin-bottom:16px}
+#guide-grid{display:flex;flex-direction:column;gap:10px;text-align:left}
+.guide-card{background:#222240;border:1px solid#2a2a46;border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.guide-card.locked{opacity:.55}
+.guide-icon{font-size:1.6em;flex:0 0 auto;line-height:1.2}
+.guide-body{flex:1}
+.guide-name{font-weight:600;font-size:.95em;color:#f4d080}
+.guide-desc{font-size:.78em;color:#b8b0a0;line-height:1.6;margin-top:4px}
+.guide-lock{font-size:.75em;color:#888;margin-top:4px}
+.guide-ach{display:flex;gap:10px;margin-bottom:16px}
+.guide-ach-card{flex:1;background:#1a1a32;border:1px solid#2a2a46;border-radius:12px;padding:10px 12px;text-align:left}
+.guide-ach-card.done{border-color:#f0c060;background:#24203c}
+.guide-ach-top{display:flex;align-items:center;gap:6px;font-size:.82em;color:#d8c8a0;margin-bottom:7px}
+.guide-ach-top .ga-ic{font-size:1.15em}
+.guide-ach-top .ga-st{margin-left:auto;font-size:.72em;color:#888;white-space:nowrap}
+.guide-ach-card.done .ga-st{color:#f0c060}
+.guide-ach-bar{height:6px;background:#0e0e20;border-radius:3px;overflow:hidden}
+.guide-ach-fill{height:100%;background:linear-gradient(90deg,#7ac870,#f0c060);border-radius:3px;transition:width .4s ease}
+.guide-badge{flex:0 0 auto;font-size:.72em;color:#f0c060;background:#2a2438;border:1px solid#f0c060;border-radius:999px;padding:3px 8px;white-space:nowrap;margin-top:2px}
+
+/* ===== 结局页 ===== */
+#screen-ending{
+  position:fixed;inset:0;z-index:250;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 40%,#202040,#101020 70%);
+  text-align:center;padding:40px 20px;
+}
+#screen-ending.hidden{display:none}
+#screen-ending .ei{font-size:64px;margin-bottom:12px}
+#screen-ending .et{font-size:1.7em;font-weight:700;margin-bottom:10px}
+#screen-ending .et.good{color:#7ac870}
+#screen-ending .et.bad{color:#d87060}
+#screen-ending .ed{max-width:460px;color:#a098b8;line-height:1.8;margin-bottom:20px}
+#screen-ending .es{
+  background:#1a1a34;border-radius:14px;padding:18px 28px;margin-bottom:24px;
+  text-align:left;min-width:280px;border:1px solid#2a2a48;
+}
+#screen-ending .es .er{display:flex;justify-content:space-between;margin:4px 0;font-size:.88em}
+
+/* 响应式 */
+@media(max-width:750px){
+  #char-zone{width:180px}
+  #char-display canvas{transform:scale(.7)}
+  .sc-compare{flex-direction:column}
+  #dlg-portrait{width:70px;height:90px;font-size:40px}
+}
+@media(max-width:500px){
+  #game-mid{flex-direction:column}
+  #char-zone{width:100%;flex-direction:row;height:140px}
+  #char-display{flex:0 0 100px}
+  #dialogue-preview{flex:1}
+  #map-wrap{height:200px}
+}
+
+/* ===== 视觉打磨 v2 ===== */
+:root{
+  --gold:#f0c060;--gold-deep:#a06030;--green:#7ac870;
+  --line:#2a2a46;--line-soft:#3a3a58;
+}
+/* 自定义滚动条 */
+.guide-inner::-webkit-scrollbar,.ach-inner::-webkit-scrollbar,.bond-inner::-webkit-scrollbar,#panel-backpack::-webkit-scrollbar,#panel-log::-webkit-scrollbar{width:8px}
+.guide-inner::-webkit-scrollbar-thumb,.ach-inner::-webkit-scrollbar-thumb,.bond-inner::-webkit-scrollbar-thumb,#panel-backpack::-webkit-scrollbar-thumb,#panel-log::-webkit-scrollbar-thumb{background:#3a3a58;border-radius:4px}
+.guide-inner::-webkit-scrollbar-thumb:hover,.ach-inner::-webkit-scrollbar-thumb:hover,.bond-inner::-webkit-scrollbar-thumb:hover{background:#4a4a6a}
+/* 首页氛围 */
+#screen-start{background:radial-gradient(ellipse at 50% 22%,#35355e 0%,#1b1b32 46%,#0f0f18 100%)}
+.start-title{text-shadow:0 2px 24px rgba(240,192,96,.3)}
+.attr-chip{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));backdrop-filter:blur(4px);box-shadow:0 2px 12px rgba(0,0,0,.3);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.attr-chip:hover{transform:translateY(-2px);border-color:#4a4a6a}
+/* 主按钮质感 */
+.btn-gold,.bb-go,.sc-continue{box-shadow:0 4px 16px rgba(192,128,64,.28),0 2px 4px rgba(0,0,0,.3)}
+.btn-gold:hover,.bb-go:hover,.sc-continue:hover{box-shadow:0 6px 24px rgba(192,128,64,.42),0 3px 6px rgba(0,0,0,.35)}
+.btn-ghost:hover{background:rgba(255,255,255,.06);border-color:#4a4a6a;color:#c0b0d0}
+/* 顶部栏工具按钮 */
+#top-bar .tb-right button{background:rgba(255,255,255,.03);color:#a098c0;border:1px solid transparent;font-size:.9em;padding:6px 10px;border-radius:10px}
+#top-bar .tb-right button:hover{background:#2a2a48;border-color:#3a3a58;color:#e0d0a0;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+/* 状态 pill */
+.bb-pill{box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.bb-pill:hover{background:#262648}
+/* 卡片 hover 微交互 */
+.ach-card,.bond-card,.guide-card,.sc-act-btn{transition:transform .2s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease}
+.ach-card:hover,.bond-card:hover,.guide-card:hover{transform:translateY(-2px);border-color:#3a3a58;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.ach-card.locked:hover,.guide-card.locked:hover{transform:none;box-shadow:none;border-color:#2a2a46}
+/* 对话选项 */
+.dlg-resp-btn{box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.dlg-resp-btn:hover{box-shadow:0 5px 16px rgba(0,0,0,.35)}
+/* 时钟发光 */
+#clock2{text-shadow:0 0 12px rgba(240,192,96,.35)}
+/* 结局页动效 */
+#screen-ending{animation:fadeIn2 .5s ease}
+#screen-ending .ei{display:inline-block;animation:endFloat 3.2s ease-in-out infinite;filter:drop-shadow(0 6px 18px rgba(240,192,96,.25))}
+#screen-ending .et{animation:endFadeIn .8s ease both;animation-delay:.15s}
+#screen-ending .ed{animation:endFadeIn .8s ease both;animation-delay:.3s}
+#screen-ending .es{animation:endFadeIn .8s ease both;animation-delay:.45s}
+#screen-ending button{animation:endFadeIn .8s ease both;animation-delay:.6s}
+#screen-ending .et.good{text-shadow:0 0 20px rgba(122,200,112,.35)}
+#screen-ending .et.bad{text-shadow:0 0 20px rgba(216,112,96,.35)}
+@keyframes endFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes endFadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- ===== 首页 ===== -->
+<div id="screen-start">
+  <div class="start-char-container"><canvas id="start-char-canvas" width="160" height="200"></canvas></div>
+  <div class="start-title">小萤的毕业物语</div>
+  <div class="start-sub">城市生存 · 视障女生的求职与成长之路</div>
+  <div class="attr-row2" id="start-attrs">
+    <div class="attr-chip"><span class="ac-icon">🔍</span><span class="ac-val" id="sa-zg">—</span><span class="ac-lbl">感知</span></div>
+    <div class="attr-chip"><span class="ac-icon">🛠️</span><span class="ac-val" id="sa-gj">—</span><span class="ac-lbl">工具使用</span></div>
+    <div class="attr-chip"><span class="ac-icon">💬</span><span class="ac-val" id="sa-gt">—</span><span class="ac-lbl">沟通</span></div>
+  </div>
+  <p style="color:#666;font-size:.78em;margin-bottom:6px;">能力属性随机分配 · 总和固定为12</p>
+  <p style="color:#888;font-size:.75em;margin-bottom:20px;">成长属性（自信·专业·社交·独立）初始 50，随剧情与选择成长</p>
+  <button class="btn-gold" id="btn-start2" onclick="newGame()">🎮 开始旅程</button>
+  <button class="btn-ghost" id="btn-cont2" onclick="continueGame()">📂 继续旅程</button>
+</div>
+
+<!-- ===== 主游戏页 ===== -->
+<div id="screen-game" class="hidden">
+  <div id="top-bar">
+    <div class="tb-left">
+      <span id="clock2">08:00</span><span id="day2">第 1 天</span>
+      <span id="weather2">☀️ 晴</span>
+      <span id="loc2">📍 家</span>
+    </div>
+    <div class="tb-right">
+      <button onclick="toggleBackpack()">🎒</button>
+      <button onclick="toggleLog()">📋</button>
+      <button onclick="toggleBonds()">👥</button>
+      <button onclick="toggleGuide()" title="无障碍科普图鉴">📖</button>
+      <button onclick="toggleAchievements()">🏅</button>
+      <button onclick="doSave()">💾</button>
+    </div>
+  </div>
+  <div id="growth-bar">
+    <span class="gr-item">💪 自信 <span class="grv" id="g-confidence">50</span></span>
+    <span class="gr-item">📚 专业 <span class="grv" id="g-skill">50</span></span>
+    <span class="gr-item">💬 社交 <span class="grv" id="g-social">50</span></span>
+    <span class="gr-item">🏠 独立 <span class="grv" id="g-independence">50</span></span>
+    <span class="gr-stage" id="g-stage">🎓 毕业季</span>
+  </div>
+  <div id="game-mid">
+    <div id="map-wrap"><canvas id="map-canvas2"></canvas></div>
+    <div id="char-zone">
+      <div id="char-display">
+        <canvas id="char-canvas" width="140" height="200"></canvas>
+        <div class="char-name-tag" id="char-name-tag">小萤</div>
+      </div>
+      <div id="dialogue-preview">
+        <div class="dp-avatar" id="dp-avatar">👤</div>
+        <div><div class="dp-text" id="dp-text">点击地图上的建筑开始出行吧...</div><div class="dp-hint" id="dp-hint"></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="bottom-bar2">
+    <div class="bb-pill sta"><span>❤️</span><span class="bbv gd" id="bb-stamina">100</span></div>
+    <div class="bb-pill mny"><span>💰</span><span class="bbv wn" id="bb-money">50</span></div>
+    <div class="bb-pill mod"><span>😊</span><span class="bbv gd" id="bb-mood">60</span></div>
+    <div class="bb-pill lod"><span>🎒</span><span class="bbv" id="bb-load">3.4kg</span></div>
+    <select class="bb-sel" id="sel-transport">
+      <option value="walk">🚶 步行</option>
+      <option value="bus">🚌 公交 ¥2</option>
+      <option value="metro">🚇 地铁 ¥5</option>
+      <option value="taxi">🚕 打车 ¥25</option>
+    </select>
+    <button class="bb-go" id="btn-go2" onclick="startTravel()">出发</button>
+  </div>
+</div>
+
+<!-- ===== 场景对比卡 ===== -->
+<div id="scene-card" class="hidden">
+  <div class="sc-card-inner">
+    <h2 id="sc-title"></h2>
+    <p class="sc-sub" id="sc-sub"></p>
+    <div class="sc-compare">
+      <div class="sc-panel anime">
+        <span class="sc-label">🎨 动漫世界</span>
+        <div class="sc-art" id="sc-anime-art"></div>
+        <p class="sc-desc" id="sc-anime-desc"></p>
+      </div>
+      <div class="sc-panel reality">
+        <span class="sc-label">📸 现实场景</span>
+        <div class="sc-art" id="sc-real-art"></div>
+        <p class="sc-desc" id="sc-real-desc"></p>
+      </div>
+    </div>
+    <div class="sc-activities" id="sc-activities"></div>
+    <button class="sc-continue" id="sc-cont-btn" onclick="closeSceneCard()">继续前行</button>
+  </div>
+</div>
+
+<!-- ===== 剧情叙事弹窗 ===== -->
+<div id="story-overlay" class="hidden">
+  <div class="story-inner">
+    <div class="story-badge" id="story-badge">🎓 毕业季</div>
+    <p class="story-text" id="story-text"></p>
+    <button class="btn-gold" onclick="closeStory()">继续 ▶</button>
+  </div>
+</div>
+
+<!-- ===== 对话弹窗（沉浸式角色场景） ===== -->
+<div id="dialogue-overlay" class="hidden">
+  <canvas id="dlg-scene-canvas"></canvas>
+  <div id="dlg-ui-layer">
+    <div id="dlg-responses"></div>
+    <div class="dlg-click-hint">点击画面继续 ▼</div>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div id="toast"></div>
+
+<!-- ===== 背包 ===== -->
+<div id="panel-backpack">
+  <h3>🎒 随身物品</h3>
+  <p style="color:#888;margin-bottom:14px">总负重：<span style="color:#d87060" id="bp-total2">3.4</span> kg</p>
+  <div id="bp-items2"></div><button class="pclose" onclick="toggleBackpack()">关闭</button>
+</div>
+
+<!-- ===== 日志 ===== -->
+<div id="panel-log">
+  <h3>📋 旅程日志</h3>
+  <div id="log-items2"></div><button class="pclose" onclick="toggleLog()">关闭</button>
+</div>
+
+<!-- ===== 成就 ===== -->
+<div id="ach-overlay" class="hidden">
+  <div class="ach-inner">
+    <h2>🏅 成就</h2>
+    <p class="ach-sub" id="ach-count"></p>
+    <div id="ach-grid"></div>
+    <button class="pclose" onclick="toggleAchievements()">关闭</button>
+  </div>
+</div>
+
+<!-- ===== 羁绊 ===== -->
+<div id="bond-overlay" class="hidden">
+  <div class="bond-inner">
+    <h2>👥 羁绊</h2>
+    <p class="bond-sub">与小萤同行的人，会记住每一份温暖</p>
+    <div id="bond-grid"></div>
+    <button class="pclose" onclick="toggleBonds()">关闭</button>
+  </div>
+</div>
+
+<!-- ===== 科普图鉴 ===== -->
+<div id="guide-overlay" class="hidden">
+  <div class="guide-inner">
+    <h2>📖 无障碍科普图鉴</h2>
+    <p class="guide-sub" id="guide-count"></p>
+    <div class="guide-ach" id="guide-ach"></div>
+    <div id="guide-grid"></div>
+    <button class="pclose" onclick="toggleGuide()">关闭</button>
+  </div>
+</div>
+
+<!-- ===== 结局 ===== -->
+<div id="screen-ending" class="hidden">
+  <div class="ei" id="end-icon2"></div>
+  <div class="et" id="end-title2"></div>
+  <p class="ed" id="end-desc2"></p>
+  <div class="es" id="end-stats2"></div>
+  <button class="btn-gold" onclick="restartGame()">🔄 重新开始</button>
+</div>
+
+<script>
+// ============================================================
+// 角色绘制 (CSS Canvas 替代 - 直接在 Canvas 上绘制动漫女孩)
+// ============================================================
+function drawAnimeGirl(canvas, scale, expression) {
+  scale = scale || 1; expression = expression || 'neutral';
+  const c = canvas.getContext('2d');
+  const s = scale;
+  // Use a larger base coordinate system
+  const W = 200 * s, H = 280 * s;
+  canvas.width = W; canvas.height = H;
+  c.clearRect(0, 0, W, H);
+  // Center at 100*s horizontally
+  const cx = 100 * s;
+
+  // Helper: draw filled circle
+  function circ(x, y, r) { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); }
+  // Helper: draw filled ellipse
+  function ellip(x, y, rx, ry, rot) { c.beginPath(); c.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); c.fill(); }
+
+  // === GROUND SHADOW ===
+  c.fillStyle = 'rgba(0,0,0,0.18)';
+  ellip(cx, 260*s, 50*s, 8*s);
+
+  // === LEGS ===
+  c.fillStyle = '#fce4cc';
+  c.fillRect(cx-14*s, 200*s, 12*s, 40*s);
+  c.fillRect(cx+2*s, 200*s, 12*s, 40*s);
+  // White stockings
+  c.fillStyle = '#fff';
+  c.fillRect(cx-14*s, 215*s, 12*s, 22*s);
+  c.fillRect(cx+2*s, 215*s, 12*s, 22*s);
+  // Pink shoes with yellow trim
+  c.fillStyle = '#f8b0c0';
+  c.fillRect(cx-16*s, 238*s, 14*s, 8*s);
+  c.fillRect(cx+0*s, 238*s, 14*s, 8*s);
+  c.fillStyle = '#fcd878';
+  c.fillRect(cx-15*s, 239*s, 12*s, 2*s);
+  c.fillRect(cx+1*s, 239*s, 12*s, 2*s);
+  // Shoe toes
+  c.fillStyle = '#f8b0c0';
+  ellip(cx-9*s, 246*s, 8*s, 3*s);
+  ellip(cx+9*s, 246*s, 8*s, 3*s);
+
+  // === DRESS (pink gradient qipao style) ===
+  const dressGrad = c.createLinearGradient(0, 130*s, 0, 210*s);
+  dressGrad.addColorStop(0, '#fdd8e4');
+  dressGrad.addColorStop(0.35, '#fcc0d4');
+  dressGrad.addColorStop(0.7, '#f8a8c0');
+  dressGrad.addColorStop(1, '#f090b4');
+  c.fillStyle = dressGrad;
+  c.beginPath();
+  c.moveTo(cx-22*s, 110*s);
+  c.quadraticCurveTo(cx-28*s, 150*s, cx-24*s, 195*s);
+  c.quadraticCurveTo(cx-18*s, 210*s, cx-4*s, 212*s);
+  c.quadraticCurveTo(cx, 215*s, cx+4*s, 212*s);
+  c.quadraticCurveTo(cx+18*s, 210*s, cx+24*s, 195*s);
+  c.quadraticCurveTo(cx+28*s, 150*s, cx+22*s, 110*s);
+  c.closePath();
+  c.fill();
+  // Dress shading lines
+  c.strokeStyle = '#e898b0'; c.lineWidth = 0.5*s;
+  c.beginPath(); c.moveTo(cx-16*s, 140*s); c.quadraticCurveTo(cx-20*s, 170*s, cx-15*s, 205*s); c.stroke();
+  c.beginPath(); c.moveTo(cx+16*s, 140*s); c.quadraticCurveTo(cx+20*s, 170*s, cx+15*s, 205*s); c.stroke();
+  c.beginPath(); c.moveTo(cx, 130*s); c.lineTo(cx, 210*s); c.stroke();
+
+  // === YELLOW BELT + BOW ===
+  c.fillStyle = '#fcd878';
+  c.fillRect(cx-26*s, 128*s, 52*s, 10*s);
+  c.fillStyle = '#f8c860';
+  c.fillRect(cx-26*s, 128*s, 52*s, 2*s);
+  c.fillRect(cx-26*s, 136*s, 52*s, 2*s);
+  // Side bows
+  c.fillStyle = '#fcd878';
+  c.beginPath(); c.moveTo(cx-26*s, 130*s);
+  c.quadraticCurveTo(cx-38*s, 118*s, cx-30*s, 136*s);
+  c.quadraticCurveTo(cx-28*s, 142*s, cx-26*s, 136*s);
+  c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(cx+26*s, 130*s);
+  c.quadraticCurveTo(cx+38*s, 118*s, cx+30*s, 136*s);
+  c.quadraticCurveTo(cx+28*s, 142*s, cx+26*s, 136*s);
+  c.closePath(); c.fill();
+  // Center bow knot
+  c.fillStyle = '#fcd878';
+  circ(cx, 133*s, 5*s);
+  c.fillStyle = '#f8c860';
+  circ(cx, 132*s, 3*s);
+
+  // === UPPER BODY ===
+  const topGrad = c.createLinearGradient(0, 80*s, 0, 110*s);
+  topGrad.addColorStop(0, '#fdd8e4');
+  topGrad.addColorStop(1, '#fcc0d4');
+  c.fillStyle = topGrad;
+  c.beginPath();
+  c.moveTo(cx-16*s, 72*s);
+  c.quadraticCurveTo(cx-22*s, 90*s, cx-22*s, 110*s);
+  c.lineTo(cx+22*s, 110*s);
+  c.quadraticCurveTo(cx+22*s, 90*s, cx+16*s, 72*s);
+  c.closePath();
+  c.fill();
+  // Neckline
+  c.fillStyle = '#fce4cc';
+  c.beginPath(); c.arc(cx, 70*s, 11*s, 0, Math.PI * 2); c.fill();
+  // Collar bow
+  c.fillStyle = '#fcd878';
+  c.beginPath(); c.moveTo(cx, 78*s); c.lineTo(cx-7*s, 74*s); c.lineTo(cx-3*s, 80*s); c.lineTo(cx, 78*s); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(cx, 78*s); c.lineTo(cx+7*s, 74*s); c.lineTo(cx+3*s, 80*s); c.lineTo(cx, 78*s); c.closePath(); c.fill();
+  circ(cx, 76*s, 3*s);
+
+  // === PUFF SLEEVES ===
+  c.fillStyle = '#fcc0d4';
+  ellip(cx-24*s, 88*s, 10*s, 14*s, -0.2);
+  ellip(cx+24*s, 88*s, 10*s, 14*s, 0.2);
+  // Arms
+  c.fillStyle = '#fce4cc';
+  ellip(cx-22*s, 105*s, 4*s, 16*s, -0.3);
+  ellip(cx+22*s, 105*s, 4*s, 16*s, 0.3);
+  // Hands
+  circ(cx-20*s, 118*s, 4*s);
+  circ(cx+20*s, 118*s, 4*s);
+
+  // === HEAD ===
+  c.fillStyle = '#fce4cc';
+  c.beginPath(); c.arc(cx, 42*s, 32*s, 0, Math.PI * 2); c.fill();
+  // Ears
+  c.fillStyle = '#f0d0b8';
+  ellip(cx-30*s, 42*s, 3.5*s, 6*s);
+  ellip(cx+30*s, 42*s, 3.5*s, 6*s);
+
+  // === RABBIT EARS ===
+  function drawRabbitEar(baseX, baseY, tipX, tipY) {
+    c.fillStyle = '#fce4cc';
+    c.strokeStyle = '#e8c0b0'; c.lineWidth = 0.8*s;
+    c.beginPath();
+    c.moveTo(baseX, baseY);
+    c.quadraticCurveTo(tipX - 6*s, tipY + 20*s, tipX, tipY);
+    c.quadraticCurveTo(tipX + 6*s, tipY + 20*s, baseX + 10*s, baseY);
+    c.lineTo(baseX, baseY);
+    c.closePath();
+    c.fill(); c.stroke();
+    // Inner pink
+    c.fillStyle = '#f8b8c8';
+    c.beginPath();
+    c.moveTo(baseX + 3*s, baseY + 2*s);
+    c.quadraticCurveTo(tipX - 2*s, tipY + 15*s, tipX, tipY + 3*s);
+    c.quadraticCurveTo(tipX + 2*s, tipY + 15*s, baseX + 7*s, baseY + 2*s);
+    c.closePath();
+    c.fill();
+  }
+  drawRabbitEar(cx-14*s, 10*s, cx-24*s, -32*s);
+  drawRabbitEar(cx+14*s, 10*s, cx+24*s, -32*s);
+  // Ear headband
+  c.fillStyle = '#f8b8c8'; c.strokeStyle = '#e8c0b0'; c.lineWidth = 0.6*s;
+  c.fillRect(cx-28*s, 8*s, 56*s, 3*s);
+  c.strokeRect(cx-28*s, 8*s, 56*s, 3*s);
+
+  // === HAIR ===
+  c.fillStyle = '#2a1612';
+  // Back of hair
+  c.beginPath(); c.arc(cx, 30*s, 33*s, Math.PI, Math.PI * 2); c.fill();
+  c.fillRect(cx-33*s, 28*s, 66*s, 16*s);
+  // Hair sheen
+  c.fillStyle = '#3a2218';
+  c.beginPath(); c.ellipse(cx-6*s, 20*s, 14*s, 6*s, -0.1, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#2a1612';
+
+  // Bangs - detailed scalloped edge
+  c.beginPath();
+  c.moveTo(cx-32*s, 24*s);
+  const bangs = [
+    [-32, 24], [-30, 32], [-27, 22], [-24, 34],
+    [-20, 20], [-16, 33], [-12, 18], [-8, 31],
+    [-4, 19], [0, 32], [4, 19], [8, 31],
+    [12, 18], [16, 33], [20, 20], [24, 34],
+    [27, 22], [30, 32], [32, 24]
+  ];
+  bangs.forEach(([bx, by], i) => {
+    if (i === 0) c.moveTo(cx + bx*s - (bx < -30 ? 2*s : 0), cy(by));
+    else c.lineTo(cx + bx*s, by*s);
+  });
+  c.lineTo(cx + 33*s, 18*s);
+  c.lineTo(cx - 33*s, 18*s);
+  c.closePath();
+  c.fill();
+
+  function cy(y) { return y * s; }
+
+  // Side hair (long flowing)
+  c.fillStyle = '#2a1612';
+  c.beginPath();
+  c.moveTo(cx-30*s, 30*s);
+  c.quadraticCurveTo(cx-38*s, 50*s, cx-42*s, 80*s);
+  c.quadraticCurveTo(cx-44*s, 110*s, cx-40*s, 145*s);
+  c.quadraticCurveTo(cx-36*s, 125*s, cx-35*s, 80*s);
+  c.quadraticCurveTo(cx-32*s, 50*s, cx-28*s, 34*s);
+  c.closePath();
+  c.fill();
+  c.beginPath();
+  c.moveTo(cx+30*s, 30*s);
+  c.quadraticCurveTo(cx+38*s, 50*s, cx+42*s, 80*s);
+  c.quadraticCurveTo(cx+44*s, 110*s, cx+40*s, 145*s);
+  c.quadraticCurveTo(cx+36*s, 125*s, cx+35*s, 80*s);
+  c.quadraticCurveTo(cx+32*s, 50*s, cx+28*s, 34*s);
+  c.closePath();
+  c.fill();
+
+  // BRAID (left side, thick)
+  c.fillStyle = '#2a1612';
+  c.beginPath();
+  c.moveTo(cx-38*s, 45*s);
+  c.quadraticCurveTo(cx-48*s, 70*s, cx-50*s, 100*s);
+  c.quadraticCurveTo(cx-52*s, 130*s, cx-46*s, 158*s);
+  c.quadraticCurveTo(cx-42*s, 150*s, cx-44*s, 120*s);
+  c.quadraticCurveTo(cx-44*s, 85*s, cx-40*s, 60*s);
+  c.quadraticCurveTo(cx-36*s, 48*s, cx-36*s, 42*s);
+  c.closePath();
+  c.fill();
+  // Braid segments
+  for (let i = 0; i < 6; i++) {
+    c.strokeStyle = 'rgba(60, 30, 20, 0.3)'; c.lineWidth = 0.7*s;
+    const by = 55*s + i * 18*s;
+    c.beginPath();
+    c.moveTo(cx-48*s - (i % 2) * 3*s, by);
+    c.quadraticCurveTo(cx-44*s, by + 5*s, cx-42*s, by);
+    c.stroke();
+  }
+  // Braid end bow
+  c.fillStyle = '#fcd878';
+  c.beginPath(); c.moveTo(cx-48*s, 152*s); c.lineTo(cx-58*s, 148*s); c.lineTo(cx-52*s, 158*s); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(cx-48*s, 152*s); c.lineTo(cx-56*s, 162*s); c.lineTo(cx-52*s, 150*s); c.closePath(); c.fill();
+
+  // Hair highlight strands
+  c.strokeStyle = 'rgba(80, 50, 40, 0.2)'; c.lineWidth = 0.8*s;
+  c.beginPath(); c.moveTo(cx-20*s, 20*s); c.quadraticCurveTo(cx-15*s, 14*s, cx-8*s, 20*s); c.stroke();
+  c.beginPath(); c.moveTo(cx-30*s, 38*s); c.quadraticCurveTo(cx-36*s, 60*s, cx-38*s, 90*s); c.stroke();
+  c.beginPath(); c.moveTo(cx+30*s, 38*s); c.quadraticCurveTo(cx+36*s, 60*s, cx+38*s, 90*s); c.stroke();
+
+  // === EYEBROWS ===
+  c.strokeStyle = '#1a0806'; c.lineWidth = 1.2*s;
+  c.beginPath(); c.moveTo(cx-22*s, 22*s); c.quadraticCurveTo(cx-14*s, 19*s, cx-8*s, 21*s); c.stroke();
+  c.beginPath(); c.moveTo(cx+8*s, 21*s); c.quadraticCurveTo(cx+14*s, 19*s, cx+22*s, 22*s); c.stroke();
+
+  // === EYES ===
+  const eyeY = 34*s;
+  function drawEye(ex, ey, flip) {
+    const dir = flip ? -1 : 1;
+    // Eye white
+    c.fillStyle = '#fff';
+    c.beginPath(); c.ellipse(ex, ey, 11*s, 11.5*s, 0, 0, Math.PI * 2); c.fill();
+    // Upper lash line
+    c.strokeStyle = '#1a0806'; c.lineWidth = 1.3*s;
+    c.beginPath(); c.arc(ex, ey, 12*s, Math.PI * 1.08, Math.PI * 1.92); c.stroke();
+    // Iris gradient
+    const irisGrad = c.createRadialGradient(ex, ey + 1*s, 0, ex, ey + 1*s, 9*s);
+    irisGrad.addColorStop(0, '#6a4a32');
+    irisGrad.addColorStop(0.5, '#3a1a10');
+    irisGrad.addColorStop(0.85, '#1a0808');
+    irisGrad.addColorStop(1, '#0a0208');
+    c.fillStyle = irisGrad;
+    c.beginPath(); c.ellipse(ex - 1*s * dir, ey + 1*s, 7.5*s, 8*s, 0, 0, Math.PI * 2); c.fill();
+    // Pupil
+    c.fillStyle = '#000';
+    c.beginPath(); c.ellipse(ex - 1*s * dir, ey + 2*s, 3.5*s, 4*s, 0, 0, Math.PI * 2); c.fill();
+    // Main highlight
+    c.fillStyle = '#fff';
+    c.beginPath(); c.arc(ex - 2*s * dir, ey - 3*s, 3.2*s, 0, Math.PI * 2); c.fill();
+    // Secondary highlight
+    c.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    c.beginPath(); c.arc(ex + 2*s * dir, ey + 5*s, 1.5*s, 0, Math.PI * 2); c.fill();
+    // Bottom catchlight
+    c.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    c.beginPath(); c.arc(ex - 4*s * dir, ey + 7*s, 1*s, 0, Math.PI * 2); c.fill();
+    // Eyelashes
+    c.strokeStyle = '#1a0806'; c.lineWidth = 1*s;
+    for (let i = 0; i < 4; i++) {
+      const ang = Math.PI * 1.08 + i * 0.22;
+      const lx = ex + Math.cos(ang) * 12.5*s;
+      const ly = ey + Math.sin(ang) * 12.5*s;
+      c.beginPath(); c.moveTo(lx, ly);
+      c.lineTo(lx - 2*s * dir, ly - 2*s);
+      c.stroke();
+    }
+  }
+  drawEye(cx-12*s, eyeY, true);
+  drawEye(cx+12*s, eyeY, false);
+
+  // === EXPRESSION ===
+  if (expression === 'happy') {
+    c.fillStyle = '#fce4cc';
+    c.fillRect(cx-22*s, 28*s, 18*s, 10*s);
+    c.fillRect(cx+4*s, 28*s, 18*s, 10*s);
+    c.strokeStyle = '#1a1a2e'; c.lineWidth = 1.2*s;
+    c.beginPath(); c.arc(cx-12*s, 42*s, 5.5*s, 0, Math.PI); c.stroke();
+    c.beginPath(); c.arc(cx+12*s, 42*s, 5.5*s, 0, Math.PI); c.stroke();
+    c.fillStyle = '#e08080';
+    c.beginPath(); c.arc(cx, 54*s, 3.5*s, 0, Math.PI); c.fill();
+  } else if (expression === 'sad') {
+    c.fillStyle = '#fce4cc';
+    c.fillRect(cx-22*s, 30*s, 18*s, 8*s);
+    c.fillRect(cx+4*s, 30*s, 18*s, 8*s);
+    c.strokeStyle = '#1a1a2e'; c.lineWidth = 1*s;
+    c.beginPath(); c.arc(cx-12*s, 46*s, 4.5*s, 0.2 * Math.PI, 0.8 * Math.PI); c.stroke();
+    c.beginPath(); c.arc(cx+12*s, 46*s, 4.5*s, 0.2 * Math.PI, 0.8 * Math.PI); c.stroke();
+    c.strokeStyle = '#c08080'; c.lineWidth = 0.9*s;
+    c.beginPath(); c.arc(cx, 60*s, 3*s, Math.PI, Math.PI * 2); c.stroke();
+  } else {
+    c.fillStyle = '#e09090';
+    c.beginPath(); c.arc(cx, 52*s, 2.5*s, 0, Math.PI); c.fill();
+  }
+
+  // === NOSE ===
+  c.fillStyle = '#e8c8a8';
+  c.beginPath(); c.arc(cx, 45*s, 2*s, 0, Math.PI * 2); c.fill();
+
+  // === BLUSH ===
+  c.fillStyle = 'rgba(240, 150, 160, 0.28)';
+  ellip(cx-22*s, 46*s, 5.5*s, 3*s);
+  ellip(cx+22*s, 46*s, 5.5*s, 3*s);
+
+  // === FLOWER HAIR CLIP ===
+  c.fillStyle = '#fcd878';
+  for (let p = 0; p < 5; p++) {
+    const a = p * Math.PI * 2 / 5;
+    circ(cx-14*s + Math.cos(a) * 4.5*s, 14*s + Math.sin(a) * 4.5*s, 2.5*s);
+  }
+  c.fillStyle = '#f8a8c0';
+  circ(cx-14*s, 14*s, 3.5*s);
+}
+
+// ============================================================
+// 场景数据
+// ============================================================
+const SCENES = {
+  home:{
+    name:'家',animeArt:'🏠✨',realArt:'🏠',
+    animeDesc:'温馨的小公寓，暖黄的灯光从窗户透出，小萤的书桌上摊开着今天的出行计划。',
+    realDesc:'一间普通的出租屋。视障人士的家需要保持物品固定位置，任何移动都可能造成困扰。门口的盲道是连接外部世界的第一条路。',
+    arriveMsg:'回到温暖的家，小萤舒了一口气。'
+  },
+  busstop:{
+    name:'公交站',animeArt:'🚌✨',realArt:'🚌',
+    animeDesc:'樱花树下的公交站台，阳光透过花瓣洒在候车椅上。小萤握着导盲杖静静等候。',
+    realDesc:'嘈杂的公交站。视障人士需要靠听觉判断来的是哪路车，很多时候司机不会注意到有视障乘客在等车。站台的盲文标识常常被广告遮挡。',
+    arriveMsg:'公交站到了，小萤仔细听着每一辆驶近的公交车。'
+  },
+  station:{
+    name:'地铁站',animeArt:'🚇✨',realArt:'🚇',
+    animeDesc:'明亮的地铁站大厅，彩色导览线在地上延伸。自动扶梯旁有清晰的盲文指示牌。',
+    realDesc:'地铁站的声环境极其复杂——广播、列车轰鸣、人流嘈杂。无障碍电梯经常需要找工作人员才能使用，盲道有时会被行李或人群阻断。',
+    arriveMsg:'地铁站的广播声此起彼伏，小萤握紧了导盲杖。'
+  },
+  shop:{
+    name:'便利店',animeArt:'🏪✨',realArt:'🏪',
+    animeDesc:'街角温暖的便利店，自动门叮咚一声打开。货架整齐排列，店员微笑着看向门口。',
+    realDesc:'便利店的货架布局经常变动，视障顾客很难独立找到想要的东西。收银台的位置、支付方式都需要摸索或求助。',
+    arriveMsg:'熟悉的便利店门铃声，小萤走进了店内。'
+  },
+  hospital:{
+    name:'医院',animeArt:'🏥✨',realArt:'🏥',
+    animeDesc:'洁白的医院大楼，无障碍通道宽敞平坦。导诊台的护士小姐姐正在微笑着等候。',
+    realDesc:'大医院里科室繁多、指示复杂。视障人士独自就医需要耗费大量精力——挂号、找科室、等叫号，每一步都充满挑战。',
+    arriveMsg:'医院里人来人往，消毒水的气味弥漫在空气中。'
+  },
+  mall:{
+    name:'商场',animeArt:'🏬✨',realArt:'🏬',
+    animeDesc:'华丽的购物中心，中庭的水晶吊灯闪烁如星空。橱窗里的衣服琳琅满目。',
+    realDesc:'商场是视障人士出行难度最高的场所之一。强光、音乐、人声、各种气味混杂在一起，完全失去方向感。大部分导览系统都是视觉化的。',
+    arriveMsg:'商场里的音乐和人群声浪扑面而来。'
+  },
+  park:{
+    name:'公园',animeArt:'🌳✨',realArt:'🌳',
+    animeDesc:'绿树成荫的公园，鸟鸣声此起彼伏。小萤坐在长椅上，感受着微风拂过脸颊。',
+    realDesc:'公园是视障人士难得的放松空间。没有视觉，但鸟鸣、花香、微风都能被充分感知。不过不拴绳的宠物和随意停放的电动车仍是隐患。',
+    arriveMsg:'公园到了，清新的空气混着花香扑面而来。'
+  },
+  library:{
+    name:'图书馆',animeArt:'📚✨',realArt:'📚',
+    animeDesc:'安静的图书馆，阳光透过高大的窗户洒在书架上。盲文阅览室里，一排排凸起的书页静静等待着读者。',
+    realDesc:'图书馆设有盲文阅览室和有声读物区，视障读者可以借盲文书、用读屏电脑。不过盲文书种类有限，很多新书还没有盲文版。',
+    arriveMsg:'图书馆到了，熟悉的书香气让小萤平静下来。'
+  },
+  community:{
+    name:'社区中心',animeArt:'🏛️✨',realArt:'🏛️',
+    animeDesc:'温馨的社区服务中心，工作人员耐心地接待着居民。公告栏上贴着各种活动和便民服务通知。',
+    realDesc:'社区服务中心提供无障碍出行预约、助残政策咨询、兴趣小组等服务，是视障人士获取生活支持、认识朋友的重要场所。',
+    arriveMsg:'社区中心到了，小萤听到了熟悉的问候声。'
+  },
+  cafe:{
+    name:'咖啡馆',animeArt:'☕✨',realArt:'☕',
+    animeDesc:'温暖的街角咖啡馆，咖啡香弥漫。柔和的爵士乐轻轻流淌，小萤约了朋友在这里见面。',
+    realDesc:'咖啡馆是视障人士社交的好去处，但嘈杂的人声和音乐也会影响听觉判断。店员若能主动读出菜单，会带来很大的帮助。',
+    arriveMsg:'咖啡馆到了，浓郁的咖啡香让小萤心情愉悦。'
+  },
+  bank:{
+    name:'银行',animeArt:'🏦✨',realArt:'🏦',
+    animeDesc:'气派的银行大厅，取号机发出清脆的提示音。大堂经理微笑着引导小萤到窗口办理业务。',
+    realDesc:'银行的自助设备大多是触摸屏，没有盲文和语音提示。柜台叫号常常只靠电子屏显示，视障人士很难知道什么时候轮到自己。',
+    arriveMsg:'银行大厅里飘着淡淡的消毒水味，小萤握紧了手里的存折。'
+  },
+  pharmacy:{
+    name:'药店',animeArt:'💊✨',realArt:'💊',
+    animeDesc:'明亮的药店里，药剂师正耐心地为小萤介绍每种药的用法，货架上的标签清晰可读。',
+    realDesc:'药品说明书全是密密麻麻的小字，对视障人士来说等于"天书"。没有语音说明书或盲文标签时，他们只能靠药剂师口头告知，很容易漏记或搞混。',
+    arriveMsg:'药店的药味扑面而来，小萤握紧了口袋里的处方。'
+  }
+};
+
+// ============================================================
+// 地点专属活动（到达后可主动做的事）
+// ============================================================
+const LOCATION_ACTIVITIES = {
+  home:[
+    {id:'rest',name:'好好休息',icon:'🛏️',desc:'躺在熟悉的床上睡一会儿，恢复体力',time:60,cost:0,fx:{stamina:+25,mood:+3}},
+    {id:'cook',name:'做一顿饭',icon:'🍳',desc:'自己下厨，省钱又健康',time:40,cost:0,fx:{stamina:+15,mood:+5}},
+    {id:'audiobook_review',name:'听有声书复习',icon:'🎧',desc:'戴上耳机听一段专业课程，温故知新',time:30,cost:0,fx:{skill:+3,mood:+2}},
+  ],
+  busstop:[
+    {id:'listen_bus',name:'听站台广播',icon:'🔊',desc:'仔细听广播，熟悉公交线路和报站',time:20,cost:0,fx:{confidence:+2}},
+    {id:'chat_waiter',name:'和等车的人聊天',icon:'💬',desc:'和同路等车的人聊几句，锻炼社交',time:30,cost:0,fx:{social:+3,mood:+2}},
+  ],
+  station:[
+    {id:'ask_route',name:'询问无障碍路线',icon:'🗺️',desc:'向工作人员了解无障碍电梯和换乘通道',time:20,cost:0,fx:{independence:+3,confidence:+2}},
+    {id:'practice_guide',name:'练习走盲道',icon:'🦯',desc:'沿着站台盲道来回走，练习用导盲杖探路',time:20,cost:0,fx:{independence:+3,confidence:+2}},
+  ],
+  mall:[
+    {id:'navigate_mall',name:'练习导航',icon:'🧭',desc:'在嘈杂的商场里练习找路，锻炼听觉定位',time:40,cost:0,fx:{confidence:+4,stamina:-5}},
+    {id:'browse_store',name:'逛店听导购介绍',icon:'🛍️',desc:'让导购介绍商品，练习倾听和交流',time:30,cost:0,fx:{mood:+4,social:+2}},
+  ],
+  shop:[
+    {id:'buy_supplies',name:'买点补给',icon:'🛒',desc:'买水和食物，为接下来的行程做准备',time:20,cost:20,fx:{stamina:+10,mood:+2}},
+    {id:'chat_clerk',name:'和店员聊聊',icon:'💬',desc:'和熟悉的店员寒暄几句',time:15,cost:0,fx:{social:+3,mood:+2}},
+  ],
+  hospital:[
+    {id:'checkup',name:'常规体检',icon:'🩺',desc:'做个简单的身体检查',time:60,cost:30,fx:{stamina:+20,mood:+2}},
+    {id:'rehab_consult',name:'咨询康复训练',icon:'💪',desc:'向医生了解视障人士的定向行走训练',time:40,cost:0,fx:{independence:+4,confidence:+2}},
+  ],
+  park:[
+    {id:'walk_park',name:'散步',icon:'🚶',desc:'在公园小径慢慢走一圈，放松心情',time:30,cost:0,fx:{stamina:-5,mood:+8}},
+    {id:'birdsong',name:'听鸟鸣',icon:'🎵',desc:'坐在长椅上静静听鸟鸣，感受自然',time:20,cost:0,fx:{mood:+6,confidence:+2}},
+    {id:'chat_walker',name:'和遛弯的人聊天',icon:'🐕',desc:'和公园里遛弯的人搭话，认识邻里',time:20,cost:0,fx:{social:+3,mood:+2}},
+  ],
+  library:[
+    {id:'study',name:'学习充电',icon:'📖',desc:'用读屏电脑学习专业知识',time:90,cost:0,fx:{skill:+6,stamina:-5}},
+    {id:'audiobook',name:'借有声书',icon:'🎧',desc:'借一本有声书带回去听',time:30,cost:0,fx:{skill:+3,mood:+4}},
+    {id:'braille_teacher',name:'请教盲文老师',icon:'🖐️',desc:'向盲文阅览室的老师请教盲文阅读技巧',time:30,cost:0,fx:{skill:+2,confidence:+2}},
+    {id:'part_time_library',name:'整理图书兼职',icon:'📚',desc:'帮忙整理书架、转录有声书，赚点外快',time:150,cost:0,fx:{money:+30,skill:+3,stamina:-10}},
+  ],
+  community:[
+    {id:'book_service',name:'预约无障碍服务',icon:'📋',desc:'登记接送、代购、陪诊等便民服务',time:30,cost:0,fx:{independence:+5}},
+    {id:'interest_group',name:'参加兴趣小组',icon:'🎨',desc:'加入社区兴趣小组，认识新朋友',time:60,cost:0,fx:{social:+6,mood:+3}},
+  ],
+  cafe:[
+    {id:'coffee',name:'点一杯咖啡',icon:'☕',desc:'享受一杯香浓的咖啡',time:30,cost:15,fx:{mood:+8}},
+    {id:'chat_friend',name:'和朋友聊天',icon:'💬',desc:'约朋友来喝咖啡，聊聊近况',time:60,cost:15,fx:{social:+5,mood:+5}},
+    {id:'part_time_cafe',name:'兼职打工',icon:'🧑‍🍳',desc:'在咖啡馆帮忙半天，赚点零花钱',time:150,cost:0,fx:{money:+40,stamina:-15,social:+2}},
+  ],
+  bank:[
+    {id:'bank_service',name:'办理银行业务',icon:'🏦',desc:'请大堂经理引导到窗口办理存取款',time:40,cost:0,fx:{independence:+4,confidence:+2}},
+    {id:'learn_atm',name:'了解无障碍ATM',icon:'💳',desc:'询问是否有语音提示的ATM机',time:20,cost:0,fx:{confidence:+3}},
+  ],
+  pharmacy:[
+    {id:'buy_medicine',name:'买药',icon:'💊',desc:'凭处方买常用药，请药剂师口述用法',time:30,cost:25,fx:{stamina:+10}},
+    {id:'ask_med_usage',name:'询问用药说明',icon:'📋',desc:'请药剂师把用法用量录成语音',time:20,cost:0,fx:{confidence:+2,mood:+2}},
+  ],
+};
+
+// ============================================================
+// 对话库 (NPC对话替代问答式事件)
+// ============================================================
+const DIALOGUES = [
+  // 负面遭遇
+  { id:'d01',type:'negative',speaker:'路人甲',avatar:'🧑',
+    lines:[
+      {text:'"不好意思……请问地铁站往哪边走？"',who:'小萤',expr:'neutral'},
+      {text:'"呃，往前走左转吧……"',who:'路人甲',expr:'neutral'},
+      {text:'（小萤沿着对方说的方向走去，却发现前面是死胡同。那人根本没认真指路。）',who:'narrator',expr:'neutral'},
+      {text:'（叹了口气。又一次，被敷衍了。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'继续找别人问路',fx:{mood:-3},hint:'心情-3'},
+      {text:'打开手机导航',fx:{stamina:-3},hint:'体力-3'},
+      {text:'站在原地等一会儿',fx:{mood:-2},hint:'心情-2'},
+    ]
+  },
+  { id:'d02',type:'negative',speaker:'公交司机',avatar:'👨‍✈️',
+    lines:[
+      {text:'（小萤挥动导盲杖示意停车，但公交车没有减速……）',who:'narrator',expr:'neutral'},
+      {text:'（车开走了。站台上只剩下她和扬起的灰尘。）',who:'narrator',expr:'sad'},
+      {text:'"……又没看到我吗。"',who:'小萤',expr:'sad'},
+    ],
+    responses:[
+      {text:'耐心等下一班',fx:{mood:-4},hint:'心情-4'},
+      {text:'向旁边等车的人求助',fx:{mood:-1},hint:'心情-1'},
+      {text:'换乘地铁',fx:{money:-5,stamina:-5},hint:'金钱-5, 体力-5'},
+    ]
+  },
+  { id:'d03',type:'negative',speaker:'商场保安',avatar:'👮',
+    lines:[
+      {text:'（商场里的音乐震耳欲聋，小萤完全无法通过听觉辨认方向。）',who:'narrator',expr:'neutral'},
+      {text:'"请问……服务台在哪里？"',who:'小萤',expr:'neutral'},
+      {text:'"那边。"（保安随手一指，完全没注意到她看不见。）',who:'商场保安',expr:'neutral'},
+      {text:'（小萤站在原地，四周的声音像潮水一样涌来。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'大声再问一次',fx:{mood:-5},hint:'心情-5'},
+      {text:'摸墙找服务台',fx:{stamina:-8,mood:-3},hint:'体力-8, 心情-3'},
+      {text:'用手机查商场平面图',fx:{stamina:-2,independence:+2},hint:'体力-2 独立+2'},
+    ]
+  },
+  { id:'d04',type:'negative',speaker:'路人',avatar:'🚶',
+    lines:[
+      {text:'（前方盲道被共享单车完全挡死。小萤的导盲杖敲在了金属车架上。）',who:'narrator',expr:'neutral'},
+      {text:'"又是这样……"',who:'小萤',expr:'sad'},
+      {text:'（她需要做一个决定。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'小心绕过',fx:{stamina:-5,mood:-3},hint:'体力-5, 心情-3'},
+      {text:'大声喊"请挪一下车"',fx:{mood:-5},hint:'心情-5'},
+      {text:'用导盲杖探出缝隙',fx:{stamina:-3,mood:-1,independence:+2},hint:'体力-3 心情-1 独立+2'},
+    ]
+  },
+  // 善意遭遇
+  { id:'d05',type:'positive',speaker:'好心路人',avatar:'👩',
+    lines:[
+      {text:'（小萤在路口犹豫不决时，一个温柔的声音在身旁响起。）',who:'narrator',expr:'neutral'},
+      {text:'"你好，你看起来好像不太确定方向？需要帮助吗？"',who:'好心路人',expr:'happy'},
+      {text:'"啊……是的，谢谢你。我在找去地铁站的路。"',who:'小萤',expr:'happy'},
+      {text:'"我正好顺路，一起走过去吧。前面有个台阶，注意脚下。"',who:'好心路人',expr:'happy'},
+    ],
+    responses:[
+      {text:'开心地接受帮助',fx:{mood:+8},hint:'心情+8'},
+      {text:'感谢后自己走',fx:{mood:+3},hint:'心情+3'},
+      {text:'和对方聊聊天',fx:{mood:+6},hint:'心情+6'},
+    ]
+  },
+  { id:'d06',type:'positive',speaker:'地铁工作人员',avatar:'👨‍🏭',
+    lines:[
+      {text:'"您好！需要引导服务吗？我看到您拿着导盲杖。"',who:'地铁工作人员',expr:'happy'},
+      {text:'"啊，太好了，我正愁找不到闸机口……"',who:'小萤',expr:'happy'},
+      {text:'"来，请搭着我的手臂。闸机在您正前方约20米，我会带您过去。"',who:'地铁工作人员',expr:'happy'},
+      {text:'（小萤心里暖暖的。这座城市里还是有好心人的。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'接受专业引导',fx:{mood:+5},hint:'心情+5'},
+      {text:'问无障碍路线信息',fx:{mood:+4},hint:'心情+4'},
+      {text:'感谢后自己试着走',fx:{mood:+3},hint:'心情+3'},
+    ]
+  },
+  { id:'d07',type:'positive',speaker:'小女孩',avatar:'👧',
+    lines:[
+      {text:'"姐姐！你要去哪里？我认识这里的路！"',who:'小女孩',expr:'happy'},
+      {text:'（一个小学生模样的女孩跑过来，眼睛亮晶晶的。）',who:'narrator',expr:'happy'},
+      {text:'"我在找便利店……"',who:'小萤',expr:'happy'},
+      {text:'"我知道！就在前面拐角！我带你过去！"',who:'小女孩',expr:'happy'},
+      {text:'（孩子纯真的善意，是这个世界最温暖的礼物。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'让孩子带路',fx:{mood:+10},hint:'心情+10'},
+      {text:'感谢后让孩子回家',fx:{mood:+6},hint:'心情+6'},
+      {text:'和孩子聊聊天',fx:{mood:+8},hint:'心情+8'},
+    ]
+  },
+  { id:'d08',type:'positive',speaker:'志愿者',avatar:'🧑‍🤝‍🧑',
+    lines:[
+      {text:'"你好！我是社区志愿者。有什么可以帮你的吗？"',who:'志愿者',expr:'happy'},
+      {text:'（一位穿红马甲的年轻人面带微笑地站在小萤面前。）',who:'narrator',expr:'neutral'},
+      {text:'"我想去社区服务中心……但一直找不到路。"',who:'小萤',expr:'neutral'},
+      {text:'"我带你去！而且我们社区有专门的无障碍服务，以后可以提前预约。"',who:'志愿者',expr:'happy'},
+    ],
+    responses:[
+      {text:'请志愿者带路',fx:{mood:+6},hint:'心情+6'},
+      {text:'了解更多无障碍服务',fx:{mood:+4},hint:'心情+4'},
+      {text:'感谢后自己走剩下的路',fx:{mood:+3},hint:'心情+3'},
+    ]
+  },
+  // 中性遭遇
+  { id:'d09',type:'neutral',speaker:'——',avatar:'🚶',
+    lines:[
+      {text:'（到了一个不太熟悉的路口。四周的车流声、店铺广播声交织在一起。）',who:'narrator',expr:'neutral'},
+      {text:'"我记得……上次好像是从这边走的？"',who:'小萤',expr:'neutral'},
+      {text:'（她努力回忆着之前走过的路线。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'凭记忆走下去',fx:{stamina:-3},hint:'体力-3'},
+      {text:'仔细听声音判断',fx:{stamina:-2},hint:'体力-2'},
+      {text:'摸墙找路标',fx:{stamina:-4},hint:'体力-4'},
+      {text:'先靠边坐下，定定神再走',fx:{stamina:+2,mood:+1},hint:'体力+2 心情+1'},
+    ]
+  },
+  { id:'d10',type:'neutral',speaker:'——',avatar:'📱',
+    lines:[
+      {text:'（手机发出低电量警告。导航——她最依赖的出行工具——马上就要关机了。）',who:'narrator',expr:'neutral'},
+      {text:'"糟糕……还有5%。得想个办法。"',who:'小萤',expr:'sad'},
+    ],
+    responses:[
+      {text:'关掉导航，凭自己走',fx:{stamina:-4},hint:'体力-4'},
+      {text:'快速赶到目的地',fx:{stamina:-5},hint:'体力-5'},
+      {text:'找地方充电',fx:{money:-5,mood:-1},hint:'金钱-5, 心情-1'},
+    ]
+  },
+  { id:'d11',type:'neutral',speaker:'——',avatar:'☔',
+    lines:[
+      {text:'（突然下起了雨。雨声遮盖了所有环境音，路面变得湿滑。）',who:'narrator',expr:'neutral'},
+      {text:'"下雨了……声音全被盖住了。"',who:'小萤',expr:'sad'},
+      {text:'（雨中出行对视障人士来说意味着失去最重要的感知渠道。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'撑伞小心前行',fx:{stamina:-8,mood:-2},hint:'体力-8, 心情-2'},
+      {text:'找屋檐避雨',fx:{stamina:-1,mood:-1},hint:'体力-1, 心情-1'},
+      {text:'打车',fx:{money:-20,mood:-1},hint:'金钱-20, 心情-1'},
+    ]
+  },
+  { id:'d12',type:'neutral',speaker:'——',avatar:'🚧',
+    lines:[
+      {text:'（前方施工，熟悉的路线被围挡封住了。）',who:'narrator',expr:'neutral'},
+      {text:'"这里……之前明明可以走的。"',who:'小萤',expr:'neutral'},
+      {text:'（路线的突然改变对任何人都是麻烦，对视障人士更是挑战。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'问工人怎么绕行',fx:{stamina:-2,mood:+1},hint:'体力-2, 心情+1'},
+      {text:'自己找路',fx:{stamina:-6,mood:-2},hint:'体力-6, 心情-2'},
+      {text:'用导航重规划',fx:{stamina:-3},hint:'体力-3'},
+      {text:'先歇一歇，喝口水再重新找路',fx:{stamina:+2,independence:+1},hint:'体力+2 独立+1'},
+    ]
+  },
+  // 新增地点相关事件（公园/图书馆/社区中心/咖啡馆）
+  { id:'d13',type:'positive',speaker:'图书馆管理员',avatar:'👩‍🏫',location:'library',
+    lines:[
+      {text:'（小萤在盲文阅览室摸索时，一个温和的声音在身旁响起。）',who:'narrator',expr:'neutral'},
+      {text:'"需要帮忙吗？我们新到了一批有声书，我可以帮你登记借阅。"',who:'图书馆管理员',expr:'happy'},
+      {text:'"太好了，我正想找几本关于音频制作的书……"',who:'小萤',expr:'happy'},
+      {text:'"这边请。盲文阅览室有读屏电脑，也可以预约专人辅助阅读。"',who:'图书馆管理员',expr:'happy'},
+    ],
+    responses:[
+      {text:'认真了解有声书资源',fx:{skill:+4,confidence:+3},hint:'专业+4 自信+3'},
+      {text:'请管理员帮忙找盲文书',fx:{skill:+3,social:+2},hint:'专业+3 社交+2'},
+      {text:'感谢后自己慢慢找',fx:{independence:+4},hint:'独立+4'},
+    ]
+  },
+  { id:'d14',type:'positive',speaker:'视障朋友',avatar:'🧑‍🦯',location:'park',
+    lines:[
+      {text:'（小萤坐在公园长椅上，另一位拿着导盲杖的人在她身旁坐下。）',who:'narrator',expr:'neutral'},
+      {text:'"你也常来这个公园吗？这条路的每个台阶我都摸熟了。"',who:'视障朋友',expr:'happy'},
+      {text:'"我第一次来……这里的鸟叫真好听。"',who:'小萤',expr:'happy'},
+      {text:'（两个看不见的人，却在这片绿色里聊得格外投缘。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'互相交流出行技巧',fx:{social:+5,confidence:+3},hint:'社交+5 自信+3'},
+      {text:'聊聊各自的生活',fx:{social:+4,mood:+5},hint:'社交+4 心情+5'},
+      {text:'交换联系方式',fx:{social:+6},hint:'社交+6'},
+    ]
+  },
+  { id:'d15',type:'positive',speaker:'咖啡馆店员',avatar:'🧑‍🍳',location:'cafe',
+    lines:[
+      {text:'（小萤推开咖啡馆的门，店员立刻迎了上来。）',who:'narrator',expr:'neutral'},
+      {text:'"欢迎光临！需要我给您读一下今天的菜单吗？"',who:'咖啡馆店员',expr:'happy'},
+      {text:'"啊，谢谢你，那太好了。"',who:'小萤',expr:'happy'},
+      {text:'（店员耐心地逐项介绍，没有一丝不耐烦。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'请店员推荐招牌',fx:{social:+3,mood:+4},hint:'社交+3 心情+4'},
+      {text:'点一杯拿铁',fx:{money:-15,mood:+6},hint:'金钱-15 心情+6'},
+      {text:'谢谢后自己点单',fx:{confidence:+3},hint:'自信+3'},
+    ]
+  },
+  { id:'d16',type:'positive',speaker:'社区志愿者',avatar:'🧑‍🤝‍🧑',location:'community',
+    lines:[
+      {text:'（社区服务中心里，一位红马甲志愿者热情地招呼小萤。）',who:'narrator',expr:'neutral'},
+      {text:'"我们社区可以预约接送、代购、陪诊，都可以线上申请！"',who:'社区志愿者',expr:'happy'},
+      {text:'"原来还有这些服务……我完全不知道。"',who:'小萤',expr:'neutral'},
+      {text:'"来，我教你用手机申请，以后出门就方便多了。"',who:'社区志愿者',expr:'happy'},
+    ],
+    responses:[
+      {text:'登记无障碍服务',fx:{independence:+5},hint:'独立+5'},
+      {text:'加入社区兴趣小组',fx:{social:+4,independence:+2},hint:'社交+4 独立+2'},
+      {text:'了解助残政策',fx:{skill:+3,independence:+2},hint:'专业+3 独立+2'},
+    ]
+  },
+  // 中性
+  { id:'d17',type:'neutral',speaker:'——',avatar:'🌳',location:'park',
+    lines:[
+      {text:'（小萤坐在公园长椅上，耳边是此起彼伏的鸟鸣。）',who:'narrator',expr:'neutral'},
+      {text:'（风穿过树叶，沙沙作响。心情难得的平静。）',who:'narrator',expr:'neutral'},
+      {text:'"真安静啊……"',who:'小萤',expr:'happy'},
+    ],
+    responses:[
+      {text:'多坐一会儿',fx:{mood:+3,stamina:+2},hint:'心情+3 体力+2'},
+      {text:'起来走走',fx:{stamina:-2,mood:+1},hint:'体力-2 心情+1'},
+      {text:'记录下这一刻',fx:{confidence:+2},hint:'自信+2'},
+    ]
+  },
+  { id:'d18',type:'neutral',speaker:'——',avatar:'📚',location:'library',
+    lines:[
+      {text:'（小萤想找的一本专业书还没有盲文版。）',who:'narrator',expr:'neutral'},
+      {text:'（电子版用读屏软件听，但排版混乱，读得断断续续。）',who:'narrator',expr:'neutral'},
+      {text:'"还是得想想办法。"',who:'小萤',expr:'neutral'},
+    ],
+    responses:[
+      {text:'请管理员找替代书',fx:{stamina:-2},hint:'体力-2'},
+      {text:'用读屏软件慢慢听',fx:{stamina:-4,skill:+2},hint:'体力-4 专业+2'},
+      {text:'记下来下次再来',fx:{mood:-1},hint:'心情-1'},
+    ]
+  },
+  { id:'d19',type:'neutral',speaker:'——',avatar:'☕',location:'cafe',
+    lines:[
+      {text:'（咖啡馆里音乐声、谈话声、磨豆声混在一起。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤努力想听清店员的询问，但声音全糊在了一起。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'请店员大声重复',fx:{mood:-1,social:+1},hint:'心情-1 社交+1'},
+      {text:'换到安静角落',fx:{stamina:-2},hint:'体力-2'},
+      {text:'用手机打字点单',fx:{confidence:+2},hint:'自信+2'},
+      {text:'点杯温水，坐下慢慢听',fx:{stamina:+2,mood:+1},hint:'体力+2 心情+1'},
+    ]
+  },
+  // 负面
+  { id:'d20',type:'negative',speaker:'——',avatar:'🐕',location:'park',
+    lines:[
+      {text:'（一只没拴绳的狗突然冲过来，在小萤脚边打转。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤僵在原地，导盲杖差点脱手。）',who:'narrator',expr:'sad'},
+      {text:'"别怕别怕，它不咬人。"（狗主人的声音远远传来，漫不经心。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'提醒主人拴好狗',fx:{mood:-4},hint:'心情-4'},
+      {text:'赶紧离开',fx:{stamina:-4,mood:-2},hint:'体力-4 心情-2'},
+      {text:'原地不动等狗走开',fx:{mood:-3},hint:'心情-3'},
+    ]
+  },
+  { id:'d21',type:'negative',speaker:'——',avatar:'📚',location:'library',
+    lines:[
+      {text:'（图书馆的无障碍电梯在维修，盲文阅览室却在三楼。）',who:'narrator',expr:'neutral'},
+      {text:'"看来只能爬楼梯了……"',who:'小萤',expr:'sad'},
+      {text:'（楼梯又长又陡，小萤只能一级一级地数着台阶。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'慢慢爬楼梯',fx:{stamina:-8,mood:-3,independence:+2},hint:'体力-8 心情-3 独立+2'},
+      {text:'请工作人员搀扶',fx:{mood:-2,social:+2},hint:'心情-2 社交+2'},
+      {text:'改天再来',fx:{mood:-4},hint:'心情-4'},
+    ]
+  },
+  // 补充随机事件（让座/没电/导盲杖/过度帮忙/求职同路人/无障碍设施）
+  { id:'d22',type:'positive',speaker:'好心大姐',avatar:'👩',
+    lines:[
+      {text:'（早高峰的公交车上挤满了人，小萤抓着扶手，随着车身摇晃。）',who:'narrator',expr:'neutral'},
+      {text:'"姑娘，来，坐我这儿！你看不见，站着太危险了。"',who:'好心大姐',expr:'happy'},
+      {text:'"谢谢您……"',who:'小萤',expr:'happy'},
+      {text:'（大姐一直扶到小萤坐稳，才松开手。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'道谢后坐下了',fx:{mood:+5,social:+2},hint:'心情+5 社交+2'},
+      {text:'和大姐聊了几句',fx:{social:+4,mood:+3},hint:'社交+4 心情+3'},
+      {text:'婉拒但记下这份善意',fx:{confidence:+3},hint:'自信+3'},
+    ]
+  },
+  { id:'d23',type:'negative',speaker:'——',avatar:'📱',
+    lines:[
+      {text:'（走到半路，手机提示音突然一响——没电关机了。）',who:'narrator',expr:'neutral'},
+      {text:'（导航和读屏软件全部中断，眼前的世界仿佛又暗了一层。）',who:'narrator',expr:'sad'},
+      {text:'"糟了……"',who:'小萤',expr:'sad'},
+      {text:'（没了导航，小萤只能靠记忆和听觉摸索着走。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'靠记忆慢慢找路',fx:{stamina:-5,independence:+2},hint:'体力-5 独立+2'},
+      {text:'向路人借充电宝',fx:{social:+3,mood:+1},hint:'社交+3 心情+1'},
+      {text:'找个商店求助',fx:{stamina:-2,confidence:+1},hint:'体力-2 自信+1'},
+    ]
+  },
+  { id:'d24',type:'negative',speaker:'——',avatar:'🦯',
+    lines:[
+      {text:'（人群中有人急匆匆地挤过，一脚踩在了小萤的导盲杖上。）',who:'narrator',expr:'neutral'},
+      {text:'（"咔"的一声，导盲杖应声而断。）',who:'narrator',expr:'sad'},
+      {text:'"我的杖……"',who:'小萤',expr:'sad'},
+      {text:'（那人已经消失在人群里，连句道歉都没有。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'先想办法回家拿备用杖',fx:{stamina:-6,mood:-3},hint:'体力-6 心情-3'},
+      {text:'请路人帮忙打车',fx:{mood:-2,social:+2},hint:'心情-2 社交+2'},
+      {text:'联系家人求助',fx:{mood:-1,independence:-2},hint:'心情-1 独立-2'},
+    ]
+  },
+  { id:'d25',type:'neutral',speaker:'——',avatar:'🙋',
+    lines:[
+      {text:'（小萤正要过马路，突然有人一把抓住了她的胳膊。）',who:'narrator',expr:'neutral'},
+      {text:'"来，我扶你过去！"（对方不由分说地拉着她往前走。）',who:'narrator',expr:'neutral'},
+      {text:'"啊，不用，我自己可以……"',who:'小萤',expr:'neutral'},
+      {text:'（对方的好意很真，但这种方式让她有些不适。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'礼貌地说明自己能行',fx:{confidence:+3,social:-1},hint:'自信+3 社交-1'},
+      {text:'接受帮助并道谢',fx:{mood:+2,social:+2},hint:'心情+2 社交+2'},
+      {text:'教对方正确的引导方式',fx:{skill:+2,social:+1},hint:'专业+2 社交+1'},
+    ]
+  },
+  { id:'d26',type:'positive',speaker:'求职伙伴',avatar:'🧑‍💼',
+    lines:[
+      {text:'（在招聘会现场，小萤听到旁边也有人在咨询无障碍岗位。）',who:'narrator',expr:'neutral'},
+      {text:'"你也是来投听澜科技的吗？我也是视障求职者！"',who:'求职伙伴',expr:'happy'},
+      {text:'"真的吗？太好了，我还以为只有我一个人……"',who:'小萤',expr:'happy'},
+      {text:'（两个同路人互相鼓励，交换了彼此的求职经验。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'互相交流求职经验',fx:{social:+4,skill:+3},hint:'社交+4 专业+3'},
+      {text:'互相打气鼓励',fx:{confidence:+4,mood:+4},hint:'自信+4 心情+4'},
+      {text:'交换联系方式',fx:{social:+5},hint:'社交+5'},
+    ]
+  },
+  { id:'d27',type:'positive',speaker:'商场保洁',avatar:'🧹',
+    lines:[
+      {text:'（小萤在商场里找无障碍洗手间，绕了很久都没找到。）',who:'narrator',expr:'neutral'},
+      {text:'"小姑娘，找厕所吗？我带你去，就在电梯旁边。"',who:'商场保洁',expr:'happy'},
+      {text:'"谢谢你，我找了好久……"',who:'小萤',expr:'happy'},
+      {text:'（保洁阿姨一直领她到门口，还提醒她地面有点滑。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'真诚地道谢',fx:{mood:+5,social:+2},hint:'心情+5 社交+2'},
+      {text:'记下无障碍设施的位置',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+      {text:'和阿姨聊了几句',fx:{social:+3,mood:+3},hint:'社交+3 心情+3'},
+    ]
+  },
+  // 天气联动事件（雨天/大风天）
+  { id:'d28',type:'negative',speaker:'——',avatar:'🌧️',weather:'rain',
+    lines:[
+      {text:'（雨越下越大，小萤一手撑伞一手拿导盲杖，走得很吃力。）',who:'narrator',expr:'sad'},
+      {text:'（盲道被雨水覆盖，凹凸的路面更难辨认，积水也分不清深浅。）',who:'narrator',expr:'sad'},
+      {text:'"雨天出行，真的太不容易了……"',who:'小萤',expr:'sad'},
+    ],
+    responses:[
+      {text:'放慢脚步小心走',fx:{stamina:-4,mood:-2,confidence:+1},hint:'体力-4 心情-2 自信+1'},
+      {text:'找个屋檐躲雨',fx:{stamina:-1,mood:+1},hint:'体力-1 心情+1'},
+      {text:'打车回家',fx:{money:-20,stamina:-1},hint:'金钱-20 体力-1'},
+    ]
+  },
+  { id:'d29',type:'neutral',speaker:'——',avatar:'💨',weather:'wind',
+    lines:[
+      {text:'（一阵大风刮过，把周围的声音全吹散了。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤努力辨认方向，但风声中什么也听不清。）',who:'narrator',expr:'neutral'},
+      {text:'（失去了听觉的辅助，世界变得格外空旷。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'紧紧握住导盲杖',fx:{stamina:-2,confidence:+1},hint:'体力-2 自信+1'},
+      {text:'在避风处等风停',fx:{mood:+1},hint:'心情+1'},
+      {text:'请路人帮忙确认方向',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+    ]
+  },
+  // ===== 朋友支线：小雨（大学挚友） =====
+  { id:'d30',type:'positive',speaker:'小雨',avatar:'👩‍🎓',bond:{npc:'小雨',amt:5},
+    lines:[
+      {text:'（手机震动，是小雨的语音来电。你点开免提，她的声音立刻蹦了出来。）',who:'narrator',expr:'neutral'},
+      {text:'「小萤！今天过得怎么样？我刚忙完，第一件事就是给你打电话！」',who:'小雨',expr:'happy'},
+      {text:'「还行……我今天出门办事，一路还算顺利。」你笑了笑，心里暖暖的。',who:'小萤',expr:'happy'},
+      {text:'「那就好！有事一定要跟我说哦，我永远是你的后援团！」',who:'小雨',expr:'happy'},
+    ],
+    responses:[
+      {text:'「有你这个朋友真好」',fx:{social:+5,mood:+3},hint:'社交+5 心情+3'},
+      {text:'跟她聊聊今天的趣事',fx:{mood:+5},hint:'心情+5'},
+      {text:'「你也要照顾好自己呀」',fx:{social:+4},hint:'社交+4'},
+    ]
+  },
+  { id:'d31',type:'positive',speaker:'小雨',avatar:'👩‍🎓',bond:{npc:'小雨',amt:5},
+    lines:[
+      {text:'「小萤！这周末有空吗？我发现了一家很好吃的火锅店，想去试试！」小雨在语音里兴奋地说。',who:'小雨',expr:'happy'},
+      {text:'（你犹豫了一下。火锅店人多嘈杂，对你来说并不轻松。）',who:'narrator',expr:'neutral'},
+      {text:'「我知道你担心什么啦，那家店很安静，还有服务员引导，我提前踩过点了！」',who:'小雨',expr:'happy'},
+    ],
+    responses:[
+      {text:'「好呀，跟你一起去我放心」',fx:{social:+6,mood:+4},hint:'社交+6 心情+4'},
+      {text:'「还是改天吧，我怕人多」',fx:{independence:+2},hint:'独立+2'},
+      {text:'「那你来接我吗？」',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+    ]
+  },
+  { id:'d32',type:'neutral',speaker:'小雨',avatar:'👩‍🎓',bond:{npc:'小雨',amt:4},
+    lines:[
+      {text:'「小萤……我昨天面试又没消息了。」小雨的声音难得地低落。',who:'小雨',expr:'sad'},
+      {text:'「我是不是很没用啊，投了那么多简历都没回音。」',who:'小雨',expr:'sad'},
+      {text:'（原来一向乐观的小雨，也有这样的时刻。你想说点什么安慰她。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「你不是没用，只是机会还没到」',fx:{social:+5,confidence:+2},hint:'社交+5 自信+2'},
+      {text:'分享你自己的求职心得',fx:{confidence:+4},hint:'自信+4'},
+      {text:'「我们一起加油吧」',fx:{social:+3,mood:+3},hint:'社交+3 心情+3'},
+    ]
+  },
+  // ===== 导师支线：林薇（产品总监） =====
+  { id:'d33',type:'positive',speaker:'林薇',avatar:'👩‍💼',minDay:5,bond:{npc:'林薇',amt:5},
+    lines:[
+      {text:'（手机弹出一条微信消息，是林薇总监发来的。）',who:'narrator',expr:'neutral'},
+      {text:'「小萤，我看过你发来的资料了。做得很认真，继续保持。」',who:'林薇',expr:'neutral'},
+      {text:'（短短一句话，却让你心跳快了一拍。被认可的感觉真好。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢林总监，我会继续努力」',fx:{confidence:+5,mood:+3},hint:'自信+5 心情+3'},
+      {text:'借机请教一个问题',fx:{skill:+4,confidence:+2},hint:'专业+4 自信+2'},
+      {text:'「有您的指导我踏实多了」',fx:{social:+4},hint:'社交+4'},
+    ]
+  },
+  { id:'d34',type:'positive',speaker:'林薇',avatar:'👩‍💼',minDay:5,bond:{npc:'林薇',amt:6},
+    lines:[
+      {text:'「小萤，你知道我们为什么做无障碍产品吗？」林薇在一次沟通中问道。',who:'林薇',expr:'neutral'},
+      {text:'「我妹妹也是视障者。小时候我看着她因为一个没字幕的视频、一个没提示音的App被挡在外面。」她的声音很轻。',who:'林薇',expr:'sad'},
+      {text:'「所以我想做出真正能被每个人使用的产品。你的加入，对我们很重要。」',who:'林薇',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「我会把自己的体验都用上」',fx:{confidence:+6,social:+3},hint:'自信+6 社交+3'},
+      {text:'「谢谢您愿意听我的想法」',fx:{social:+5,mood:+2},hint:'社交+5 心情+2'},
+      {text:'「我也有过很多这样的时刻」',fx:{independence:+3,confidence:+3},hint:'独立+3 自信+3'},
+    ]
+  },
+  { id:'d35',type:'neutral',speaker:'林薇',avatar:'👩‍💼',minDay:5,bond:{npc:'林薇',amt:4},
+    lines:[
+      {text:'「小萤，今天先到这里吧。别太拼了，注意休息。」林薇的声音里带着关心。',who:'林薇',expr:'neutral'},
+      {text:'「工作很重要，但你的身体和状态更重要。我们希望你在这里能长久地走下去。」',who:'林薇',expr:'neutral'},
+      {text:'（这样被当作一个人——而不是一台机器——对待，让你有些触动。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「好的，我会注意的」',fx:{mood:+3},hint:'心情+3'},
+      {text:'「谢谢您，这句话对我很重要」',fx:{confidence:+4,mood:+2},hint:'自信+4 心情+2'},
+      {text:'「我再把手头这点做完」',fx:{skill:+4,stamina:-4},hint:'专业+4 体力-4'},
+    ]
+  },
+  // ===== 同事支线：阿凯（工位旁） =====
+  { id:'d36',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:6,bond:{npc:'阿凯',amt:5},
+    lines:[
+      {text:'「小萤，你那个读屏软件是不是语速有点快？我帮你调慢点？」阿凯探过头来。',who:'同事阿凯',expr:'happy'},
+      {text:'「啊……是的，有些地方我跟不上。」你有点不好意思。',who:'小萤',expr:'neutral'},
+      {text:'「别客气！我还研究了下键盘快捷键，这样你操作能更快。要不要一起看看？」',who:'同事阿凯',expr:'happy'},
+    ],
+    responses:[
+      {text:'「好呀，谢谢你」',fx:{skill:+6,social:+3},hint:'专业+6 社交+3'},
+      {text:'「我自己再摸索一下就好」',fx:{independence:+5},hint:'独立+5'},
+      {text:'「会不会太麻烦你？」',fx:{social:+4,mood:+2},hint:'社交+4 心情+2'},
+    ]
+  },
+  { id:'d37',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:6,bond:{npc:'阿凯',amt:5},
+    lines:[
+      {text:'「小萤，中午一起吃饭吗？公司附近有家很安静的小面馆。」阿凯在下班前问。',who:'同事阿凯',expr:'happy'},
+      {text:'（你犹豫了一下。和不熟悉的同事一起吃饭，总让你有些紧张。）',who:'narrator',expr:'neutral'},
+      {text:'「那家店没什么人，我可以帮你描述菜单。一起去吧，就当熟悉下环境。」',who:'同事阿凯',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「好，那就麻烦你带路了」',fx:{social:+5,mood:+3},hint:'社交+5 心情+3'},
+      {text:'「今天想自己待一会儿」',fx:{independence:+4},hint:'独立+4'},
+      {text:'「下次吧，我想先把工作理顺」',fx:{skill:+3},hint:'专业+3'},
+    ]
+  },
+  { id:'d38',type:'neutral',speaker:'同事阿凯',avatar:'👨‍💻',minDay:6,bond:{npc:'阿凯',amt:4},
+    lines:[
+      {text:'「小萤，跟你分享个经验——咱们这活儿，最怕闷头硬做，有问题早点说，能少走很多弯路。」阿凯边整理工位边说。',who:'同事阿凯',expr:'neutral'},
+      {text:'「我一开始也是什么都憋着，结果返工了好几回。」他笑着挠挠头。',who:'同事阿凯',expr:'happy'},
+      {text:'（原来大家都有过这样的阶段。你默默记下了这句话。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「谢谢你的提醒，我记住了」',fx:{confidence:+3,social:+2},hint:'自信+3 社交+2'},
+      {text:'「我也老怕麻烦别人」',fx:{social:+4},hint:'社交+4'},
+      {text:'「那你后来怎么改的？」',fx:{skill:+4},hint:'专业+4'},
+    ]
+  },
+  // ===== 真实挑战科普（视障出行痛点） =====
+  { id:'d39',type:'negative',speaker:'——',avatar:'🚦',
+    lines:[
+      {text:'（十字路口。车流声忽远忽近，小萤站在斑马线前，等着那声"过马路"的提示音。）',who:'narrator',expr:'neutral'},
+      {text:'（可是这个路口没有安装语音提示。她只能凭车流声的间隙判断是否安全。）',who:'narrator',expr:'sad'},
+      {text:'（这一刻，过马路成了一场需要全神贯注的冒险。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'耐心等有人同行，跟着人群过',fx:{mood:-2,stamina:-2},hint:'心情-2 体力-2'},
+      {text:'向路人求助"可以带我过马路吗"',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'绕远路走有提示音的人行天桥',fx:{stamina:-5,mood:-1},hint:'体力-5 心情-1'},
+    ]
+  },
+  { id:'d40',type:'negative',speaker:'——',avatar:'🛗',
+    lines:[
+      {text:'（电梯里只有电子屏在跳动着楼层数字，没有语音播报。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤屏住呼吸，竖起耳朵听"叮"的声音，却分不清到底停在了几楼。）',who:'narrator',expr:'sad'},
+      {text:'（对看不到屏幕的人来说，每一层都像在拆盲盒。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'每停一层就探头问一句',fx:{social:+2,stamina:-2},hint:'社交+2 体力-2'},
+      {text:'请同乘的人到楼层时提醒一下',fx:{social:+3,mood:-1},hint:'社交+3 心情-1'},
+      {text:'干脆走楼梯',fx:{stamina:-6,independence:+2},hint:'体力-6 独立+2'},
+    ]
+  },
+  { id:'d41',type:'negative',speaker:'——',avatar:'💳',
+    lines:[
+      {text:'（小萤想取点现金。可眼前的ATM是纯触屏，屏幕冷冰冰的，没有任何语音和盲文。）',who:'narrator',expr:'neutral'},
+      {text:'（她犹豫着，手指悬在屏幕上方，不知道按下去会发生什么。）',who:'narrator',expr:'sad'},
+      {text:'（现金、银行卡，这些对健全人再简单不过的事，对她却是一道道无形的墙。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'去柜台请工作人员代办',fx:{stamina:-4,mood:-1},hint:'体力-4 心情-1'},
+      {text:'打电话请银行客服远程指导',fx:{stamina:-3,confidence:+1},hint:'体力-3 自信+1'},
+      {text:'先用手机银行，以后再取现金',fx:{confidence:+2},hint:'自信+2'},
+    ]
+  },
+  { id:'d42',type:'neutral',speaker:'——',avatar:'📦',
+    lines:[
+      {text:'（手机响了，是快递。"您的包裹到了，麻烦下楼取一下。"）',who:'narrator',expr:'neutral'},
+      {text:'（下楼、找快递柜、输取件码……这些对别人来说一分钟的事，小萤却要摸索很久。）',who:'narrator',expr:'neutral'},
+      {text:'（智能快递柜的屏幕同样没有语音提示。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'请快递员放到代收点，改天找人帮忙取',fx:{mood:-2},hint:'心情-2'},
+      {text:'下楼慢慢找，用读屏软件记取件码',fx:{stamina:-4,independence:+2},hint:'体力-4 独立+2'},
+      {text:'请邻居帮忙代收',fx:{social:+3,mood:-1},hint:'社交+3 心情-1'},
+    ]
+  },
+  { id:'d43',type:'negative',speaker:'——',avatar:'🚌',
+    lines:[
+      {text:'（公交车没有到站播报，小萤只能靠数站数来估算位置。）',who:'narrator',expr:'neutral'},
+      {text:'（车厢里人声嘈杂，她数着数着就乱了，等反应过来，车已经开过了好几站。）',who:'narrator',expr:'sad'},
+      {text:'（"坐过站"这三个字，对看不到窗外的人来说，是家常便饭。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'向司机求助，请他在目的地提醒',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'下车重新导航走回去',fx:{stamina:-6,mood:-2},hint:'体力-6 心情-2'},
+      {text:'用手机导航实时定位',fx:{stamina:-2,confidence:+1},hint:'体力-2 自信+1'},
+    ]
+  },
+  { id:'d44',type:'negative',speaker:'——',avatar:'🚧',
+    lines:[
+      {text:'（熟悉的路上突然多了施工围挡，盲道被拦腰截断。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤的导盲杖敲在铁皮围挡上，发出"当当"的响声。她记忆中的路线，今天走不通了。）',who:'narrator',expr:'sad'},
+      {text:'（视障人士最依赖的"固定路线"，一旦被打乱，就相当于推倒重来。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'沿着围挡慢慢绕，重新找路',fx:{stamina:-5,mood:-2},hint:'体力-5 心情-2'},
+      {text:'问附近的人怎么绕过去',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'用导航重新规划一条无障碍路线',fx:{stamina:-3,confidence:+2},hint:'体力-3 自信+2'},
+    ]
+  },
+  // ===== 中后期事件（第5天：入职准备） =====
+  { id:'d45',type:'positive',speaker:'小雨',avatar:'👩‍🎓',minDay:5,bond:{npc:'小雨',amt:6},
+    lines:[
+      {text:'「小萤！马上要入职了，是不是又紧张又期待？」小雨在电话那头咯咯地笑。',who:'小雨',expr:'happy'},
+      {text:'「说真的，我心里还是有点没底……新环境、新同事，全都是陌生的。」你坦白道。',who:'小萤',expr:'neutral'},
+      {text:'「别怕！你想想，你可是一个人在这座城市撑了七天的人呀。入职算什么！」',who:'小雨',expr:'happy'},
+      {text:'（被这么一说，你忽然觉得，好像也没那么可怕了。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「对，我已经不是七天前的我了」',fx:{confidence:+5,mood:+3},hint:'自信+5 心情+3'},
+      {text:'「到时候还要多靠你打气」',fx:{social:+4,mood:+2},hint:'社交+4 心情+2'},
+      {text:'「我会提前把通勤路线走熟的」',fx:{independence:+5},hint:'独立+5'},
+    ]
+  },
+  { id:'d46',type:'neutral',speaker:'——',avatar:'🕐',minDay:5,
+    lines:[
+      {text:'（入职前一天，你决定提前把"家 → 公司"的通勤路线走一遍。）',who:'narrator',expr:'neutral'},
+      {text:'（盲道、换乘点、无障碍电梯、公司大门的朝向……你在心里默默记下每一个细节。）',who:'narrator',expr:'neutral'},
+      {text:'（明天是第一天，绝对不能迟到。这是你给自己立下的第一条规矩。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'反复走三遍，把路线刻进脑子里',fx:{independence:+5,stamina:-4},hint:'独立+5 体力-4'},
+      {text:'记录沿途的地标声音',fx:{confidence:+3,independence:+3},hint:'自信+3 独立+3'},
+      {text:'走一遍就收工，保存体力',fx:{stamina:+2},hint:'体力+2'},
+    ]
+  },
+  { id:'d47',type:'negative',speaker:'——',avatar:'📄',minDay:5,
+    lines:[
+      {text:'（入职材料要准备身份证复印件、证件照、体检报告……）',who:'narrator',expr:'neutral'},
+      {text:'（你摸索着整理这些文件，却发现自己看不到哪张是正面、哪张是反面。）',who:'narrator',expr:'sad'},
+      {text:'（这些健全人眼里"顺手就能办"的小事，对你来说每一步都要额外想个办法。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'请打印店老板帮忙整理',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'用手机拍下来读屏核对',fx:{stamina:-3,confidence:+2},hint:'体力-3 自信+2'},
+      {text:'提前按顺序贴好标签，分袋装',fx:{independence:+3,mood:-1},hint:'独立+3 心情-1'},
+    ]
+  },
+  // ===== 中后期事件（第6天：入职第一天） =====
+  { id:'d48',type:'negative',speaker:'——',avatar:'🚪',minDay:6,
+    lines:[
+      {text:'（入职第一天，你到了公司，却在一排一模一样的工位之间迷了路。）',who:'narrator',expr:'neutral'},
+      {text:'（没有盲文标识，工位号全在屏幕和门牌上。你抱着包，站在走廊里不知所措。）',who:'narrator',expr:'sad'},
+      {text:'（那种"第一天就给人添麻烦"的羞耻感，一点点涌了上来。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'鼓起勇气问路过的同事',fx:{social:+3,mood:-2},hint:'社交+3 心情-2'},
+      {text:'给阿凯发消息求助',fx:{social:+2,mood:+1},hint:'社交+2 心情+1'},
+      {text:'靠着墙边慢慢找，记住每个转角',fx:{stamina:-4,independence:+3},hint:'体力-4 独立+3'},
+    ]
+  },
+  { id:'d49',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:6,bond:{npc:'阿凯',amt:5},
+    lines:[
+      {text:'「小萤，中午带你去食堂！我帮你报菜名，今天有番茄牛腩，挺香的。」阿凯热情地说。',who:'同事阿凯',expr:'happy'},
+      {text:'（食堂里人声鼎沸。你努力分辨着窗口的位置，心里有点打鼓。）',who:'narrator',expr:'neutral'},
+      {text:'「别紧张，跟我走。以后你摸熟了，自己也能来。」阿凯放慢脚步配合你。',who:'同事阿凯',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「谢谢你，我慢慢记路」',fx:{social:+4,mood:+3},hint:'社交+4 心情+3'},
+      {text:'「食堂的无障碍设施怎么样？」',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+      {text:'「下次换我请你！」',fx:{social:+5,mood:+2},hint:'社交+5 心情+2'},
+    ]
+  },
+  { id:'d50',type:'neutral',speaker:'——',avatar:'🧯',minDay:6,
+    lines:[
+      {text:'（下午公司组织消防演练，刺耳的警报声突然响彻整层楼。）',who:'narrator',expr:'neutral'},
+      {text:'（声音淹没了一切，你一时分不清该往哪个方向撤离。）',who:'narrator',expr:'sad'},
+      {text:'（紧急情况下，看不见的人比谁都更需要明确的指引。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'向身边同事求助，跟着人声走',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'提前记下离工位最近的安全出口',fx:{independence:+4,confidence:+2},hint:'独立+4 自信+2'},
+      {text:'事后向行政提出无障碍疏散建议',fx:{skill:+3,confidence:+2},hint:'专业+3 自信+2'},
+    ]
+  },
+  // ===== 中后期事件（第7天：回顾成长） =====
+  { id:'d51',type:'positive',speaker:'小雨',avatar:'👩‍🎓',minDay:7,bond:{npc:'小雨',amt:7},
+    lines:[
+      {text:'「小萤！恭喜你，第一周顺利度过！」小雨的声音从电话那头传来，雀跃得像要跳起来。',who:'小雨',expr:'happy'},
+      {text:'「嗯……真的像做梦一样。七天前我还在为毕业发愁，现在居然已经在上班了。」你感慨道。',who:'小萤',expr:'happy'},
+      {text:'「我就知道你可以的！这周一定要好好庆祝一下！」',who:'小雨',expr:'happy'},
+    ],
+    responses:[
+      {text:'「这七天，多亏有你们」',fx:{social:+5,mood:+4},hint:'社交+5 心情+4'},
+      {text:'「周末一起吃火锅吧」',fx:{social:+5,mood:+3},hint:'社交+5 心情+3'},
+      {text:'「我终于开始独立生活了」',fx:{independence:+5,confidence:+4},hint:'独立+5 自信+4'},
+    ]
+  },
+  { id:'d52',type:'positive',speaker:'林薇',avatar:'👩‍💼',minDay:7,bond:{npc:'林薇',amt:7},
+    lines:[
+      {text:'「小萤，这一周的表现，出乎我的意料。」林薇在周会结束后单独留下你。',who:'林薇',expr:'neutral'},
+      {text:'「你不仅适应得很快，还主动提出了几处无障碍体验的改进建议。团队都很认可。」',who:'林薇',expr:'neutral'},
+      {text:'（被当着面这样肯定，你的眼眶有些发热。原来被看见、被需要，是这样的感觉。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢林总监，我会继续努力」',fx:{confidence:+6,mood:+3},hint:'自信+6 心情+3'},
+      {text:'「是你们让我觉得被接纳了」',fx:{social:+5,mood:+3},hint:'社交+5 心情+3'},
+      {text:'「我还有很多想学的」',fx:{skill:+5,confidence:+3},hint:'专业+5 自信+3'},
+    ]
+  },
+  { id:'d53',type:'neutral',speaker:'——',avatar:'🌆',minDay:7,
+    lines:[
+      {text:'（下班路上，你一个人走在熟悉的盲道上。天边的晚霞，你虽然看不见，却能从空气的温度里感受到。）',who:'narrator',expr:'neutral'},
+      {text:'（七天前，你还是那个连出门都害怕的女孩。而此刻，你闭着眼也能走回那个叫"家"的地方。）',who:'narrator',expr:'happy'},
+      {text:'（这座陌生的城市，终于有了一条属于你的路。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'深呼吸，享受这份平静',fx:{mood:+5,confidence:+2},hint:'心情+5 自信+2'},
+      {text:'给爸妈打个电话报平安',fx:{mood:+4,social:+2},hint:'心情+4 社交+2'},
+      {text:'在手机上记录这段日子',fx:{confidence:+4,independence:+2},hint:'自信+4 独立+2'},
+    ]
+  },
+  // ===== 中后期天气联动事件 =====
+  { id:'d54',type:'negative',speaker:'——',avatar:'🌧️',minDay:6,weather:'rain',
+    lines:[
+      {text:'（入职第一天，下班时分突然下起了暴雨。）',who:'narrator',expr:'neutral'},
+      {text:'（雨声铺天盖地，淹没了一切路标和车流声。你站在写字楼门口，攥紧了导盲杖。）',who:'narrator',expr:'sad'},
+      {text:'（刚入职，你不好意思开口让同事送，只能自己想办法回家。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'打车回家',fx:{money:-20,stamina:-1},hint:'金钱-20 体力-1'},
+      {text:'等雨小一点再走',fx:{mood:-1,stamina:+1,independence:+1},hint:'心情-1 体力+1 独立+1'},
+      {text:'硬着头皮冒雨走',fx:{stamina:-6,mood:-3,confidence:+2},hint:'体力-6 心情-3 自信+2'},
+    ]
+  },
+  { id:'d55',type:'neutral',speaker:'——',avatar:'💨',minDay:7,weather:'wind',
+    lines:[
+      {text:'（最后一天下班，一阵大风卷过街道，吹得路旁的招牌"哐哐"作响。）',who:'narrator',expr:'neutral'},
+      {text:'（风声中什么也听不清。可你忽然发现，自己已经不像第一天那样慌张了。）',who:'narrator',expr:'neutral'},
+      {text:'（原来七天，真的能改变一个人。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'握紧导盲杖，稳步向前',fx:{stamina:-3,confidence:+2},hint:'体力-3 自信+2'},
+      {text:'在门廊下等风小些',fx:{mood:+1},hint:'心情+1'},
+      {text:'回想这七天走过的风雨',fx:{mood:+3,confidence:+1},hint:'心情+3 自信+1'},
+    ]
+  },
+  // ===== 第7天：阿凯专属 =====
+  { id:'d56',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:7,bond:{npc:'阿凯',amt:7},
+    lines:[
+      {text:'「小萤，这个给你。」阿凯把一段音频文件发到了你的工作群里。',who:'同事阿凯',expr:'happy'},
+      {text:'「我这两天把咱们常用的快捷键、操作流程，都录成语音清单了。你以后找起来方便。」',who:'同事阿凯',expr:'happy'},
+      {text:'（你点开一听，每一条都念得清清楚楚，连停顿都替你留好了。）',who:'narrator',expr:'happy'},
+      {text:'（原来被同事这样放在心上，是这么暖的事。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「这对我太有用了，谢谢你」',fx:{skill:+5,social:+3},hint:'专业+5 社交+3'},
+      {text:'「我也帮你整理份盲文版的交接文档」',fx:{social:+4,confidence:+3},hint:'社交+4 自信+3'},
+      {text:'「有你这样的同事真好」',fx:{social:+5,mood:+3},hint:'社交+5 心情+3'},
+    ]
+  },
+  // ===== 地点专属事件（银行/药店/医院/商店） =====
+  { id:'d57',type:'positive',speaker:'大堂经理',avatar:'🏦',location:'bank',
+    lines:[
+      {text:'（小萤走进银行，导盲杖点着地面，一时找不到取号机在哪里。）',who:'narrator',expr:'neutral'},
+      {text:'「您好！我是这里的大堂经理。需要帮您取号、引导到窗口吗？」',who:'大堂经理',expr:'happy'},
+      {text:'（经理全程陪同，还详细告诉她哪里有无障碍通道和语音取号。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'请经理引导办理业务',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+      {text:'了解无障碍取号机的位置',fx:{independence:+4,confidence:+2},hint:'独立+4 自信+2'},
+      {text:'顺便查了账户，发现一笔遗忘的小存款',fx:{money:+15,mood:+3},hint:'金钱+15 心情+3'},
+      {text:'谢谢后自己慢慢熟悉',fx:{confidence:+3},hint:'自信+3'},
+    ]
+  },
+  { id:'d58',type:'positive',speaker:'药剂师',avatar:'💊',location:'pharmacy',
+    lines:[
+      {text:'（小萤把处方递进窗口，却看不清药盒上的字。）',who:'narrator',expr:'neutral'},
+      {text:'「您稍等，我帮您把用法用量录成语音，发到您手机上，回家照着听就行。」',who:'药剂师',expr:'happy'},
+      {text:'（药剂师还贴心地把药盒分门别类，用不同触感的标签做了记号。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'认真听用药说明',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
+      {text:'请药剂师把标签做触感区分',fx:{independence:+4},hint:'独立+4'},
+      {text:'「谢谢您，这样我安心多了」',fx:{mood:+4,social:+2},hint:'心情+4 社交+2'},
+    ]
+  },
+  { id:'d59',type:'neutral',speaker:'——',avatar:'🏥',location:'hospital',
+    lines:[
+      {text:'（医院的走廊又长又嘈杂，科室指示牌全是没有语音的电子屏。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤捏着手里的挂号单，在人群里努力辨认着方向。）',who:'narrator',expr:'sad'},
+      {text:'（医院，这个每个人都不愿意多来的地方，对看不到的人来说格外艰难。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'去导诊台请护士带路',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'提前用手机预约陪诊服务',fx:{independence:+3,money:-10},hint:'独立+3 金钱-10'},
+      {text:'沿着墙边的扶手慢慢找',fx:{stamina:-4,independence:+2},hint:'体力-4 独立+2'},
+    ]
+  },
+  { id:'d60',type:'positive',speaker:'店员',avatar:'🛍️',location:'shop',
+    lines:[
+      {text:'（小萤想买条围巾，却看不清颜色和款式。）',who:'narrator',expr:'neutral'},
+      {text:'「需要帮忙吗？我可以一条条给您描述颜色、质地，您摸摸看。」',who:'店员',expr:'happy'},
+      {text:'（店员没有一丝不耐烦，耐心地陪着她一条条试。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'请店员详细描述',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+      {text:'自己摸一摸质地再决定',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+      {text:'结账时店员告知有优惠，退回差价',fx:{money:+8,mood:+2},hint:'金钱+8 心情+2'},
+      {text:'「谢谢你的耐心」',fx:{mood:+3,social:+2},hint:'心情+3 社交+2'},
+    ]
+  },
+  // ===== 地点专属事件（家/公交站/地铁站/商场） =====
+  { id:'d61',type:'neutral',speaker:'——',avatar:'🏠',location:'home',
+    lines:[
+      {text:'（回到这个租来的小房间，一切还是出门前的样子。）',who:'narrator',expr:'neutral'},
+      {text:'（你把导盲杖靠在门边，摸索着开了灯——虽然灯光对你来说只是微弱的明暗。）',who:'narrator',expr:'neutral'},
+      {text:'（家，是这座陌生城市里唯一可以完全放松下来的地方。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'好好休息一会儿',fx:{stamina:+6,mood:+2},hint:'体力+6 心情+2'},
+      {text:'整理一下房间',fx:{independence:+3,mood:+1},hint:'独立+3 心情+1'},
+      {text:'给家里报个平安',fx:{mood:+4,social:+2},hint:'心情+4 社交+2'},
+    ]
+  },
+  { id:'d62',type:'neutral',speaker:'——',avatar:'🚌',location:'busstop',
+    lines:[
+      {text:'（公交站台上，小萤竖着耳朵，努力从车流声中分辨出自己等的那一路车。）',who:'narrator',expr:'neutral'},
+      {text:'（没有语音报站，她只能一辆一辆地数着到站的公交，心里默念着车牌。）',who:'narrator',expr:'neutral'},
+      {text:'（等公交，这个对健全人稀松平常的事，对她却需要十二分的专注。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'向旁边的人打听车次',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'用手机查实时公交',fx:{confidence:+2,stamina:-1},hint:'自信+2 体力-1'},
+      {text:'耐心数着每辆到站的车',fx:{stamina:-2,independence:+2},hint:'体力-2 独立+2'},
+      {text:'在候车亭的座位上坐下等',fx:{stamina:+2},hint:'体力+2'},
+    ]
+  },
+  { id:'d63',type:'positive',speaker:'地铁志愿者',avatar:'🚇',location:'station',
+    lines:[
+      {text:'（地铁站里，一位身穿志愿服的工作人员主动迎了上来。）',who:'narrator',expr:'neutral'},
+      {text:'「您好！我可以引导您从无障碍电梯进站、上车，到站后也会有人接应。」',who:'地铁志愿者',expr:'happy'},
+      {text:'（小萤心里一暖。原来只要开口，这座城市总能伸出援手。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'接受引导，记下无障碍路线',fx:{independence:+4,mood:+2},hint:'独立+4 心情+2'},
+      {text:'「谢谢您，我下次自己试试」',fx:{confidence:+4},hint:'自信+4'},
+      {text:'了解更多无障碍换乘信息',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+    ]
+  },
+  { id:'d64',type:'neutral',speaker:'——',avatar:'🏬',location:'mall',
+    lines:[
+      {text:'（商场里，广播声、音乐声、叫卖声交织成一片嘈杂。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤努力辨别着扶梯和电梯的位置，脚步不自觉地慢了下来。）',who:'narrator',expr:'neutral'},
+      {text:'（大型商场，对视障者来说是一座需要重新学习认路的小迷宫。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'去服务台请工作人员带路',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'用导盲杖探路，跟着地面指引',fx:{stamina:-3,independence:+2},hint:'体力-3 独立+2'},
+      {text:'先找个安静角落定定神',fx:{mood:+2,stamina:+1},hint:'心情+2 体力+1'},
+    ]
+  },
+  { id:'d65',type:'positive',speaker:'房东阿姨',avatar:'🏠',location:'home',
+    lines:[
+      {text:'（门被轻轻敲响。是房东阿姨，端着一碗热腾腾的汤。）',who:'narrator',expr:'neutral'},
+      {text:'「小萤啊，我看你一个人住，给你端碗汤。天冷了，喝点暖的。」',who:'房东阿姨',expr:'happy'},
+      {text:'（你接过碗，温热的触感从掌心传来，眼眶忽然有点酸。）',who:'narrator',expr:'happy'},
+      {text:'（原来这座陌生的城市里，也有人悄悄惦记着你。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢阿姨，太麻烦您了」',fx:{mood:+6,social:+3},hint:'心情+6 社交+3'},
+      {text:'请阿姨进来坐坐',fx:{social:+4,mood:+3},hint:'社交+4 心情+3'},
+      {text:'记下这份温暖，改天回赠',fx:{mood:+4,confidence:+2},hint:'心情+4 自信+2'},
+    ]
+  },
+  { id:'d66',type:'positive',speaker:'老爷爷',avatar:'👴',location:'busstop',
+    lines:[
+      {text:'（小萤在站台边等车，旁边一位老爷爷主动搭话。）',who:'narrator',expr:'neutral'},
+      {text:'「姑娘，你等几路车？我眼神好，帮你盯着，来了喊你。」',who:'老爷爷',expr:'happy'},
+      {text:'（有了这双"眼睛"，你紧绷的肩膀终于松了下来。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢爷爷，我坐23路」',fx:{mood:+5,social:+3},hint:'心情+5 社交+3'},
+      {text:'和爷爷聊聊家常',fx:{social:+4,mood:+3},hint:'社交+4 心情+3'},
+      {text:'「我自己听声音就行，不麻烦您」',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+    ]
+  },
+  { id:'d67',type:'neutral',speaker:'——',avatar:'🚇',location:'station',
+    lines:[
+      {text:'（早高峰的地铁站，人流像潮水一样涌来。）',who:'narrator',expr:'neutral'},
+      {text:'（脚步声、广播声、列车呼啸声……所有声音搅在一起，让你寸步难行。）',who:'narrator',expr:'sad'},
+      {text:'（你只能在原地站定，等这波人流过去。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'贴着墙边等人流过去',fx:{stamina:-2,confidence:+1},hint:'体力-2 自信+1'},
+      {text:'向工作人员求助',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'错峰再走，先到角落休息',fx:{stamina:+2,mood:+1},hint:'体力+2 心情+1'},
+    ]
+  },
+  { id:'d68',type:'negative',speaker:'——',avatar:'🛗',location:'mall',
+    lines:[
+      {text:'（商场里的无障碍电梯临时停运，而目的地却在四楼。）',who:'narrator',expr:'neutral'},
+      {text:'（扶梯又陡又滑，小萤站在旁边，迟迟不敢踏上去。）',who:'narrator',expr:'sad'},
+      {text:'（大型商场的无障碍设施，一旦出问题，就成了最难跨越的障碍。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'请工作人员搀扶乘扶梯',fx:{social:+2,mood:-2},hint:'社交+2 心情-2'},
+      {text:'改天再来',fx:{mood:-3},hint:'心情-3'},
+      {text:'找货梯从后门上去',fx:{stamina:-4,independence:+2},hint:'体力-4 独立+2'},
+    ]
+  },
+  { id:'d69',type:'positive',speaker:'导诊护士',avatar:'👩‍⚕️',location:'hospital',
+    lines:[
+      {text:'（小萤捏着挂号单，在嘈杂的门诊大厅里不知所措。）',who:'narrator',expr:'neutral'},
+      {text:'「您好，我看出您需要帮助。我扶您去对应科室，您别急。」',who:'导诊护士',expr:'happy'},
+      {text:'（护士一路搀扶，还耐心地告诉她下次可以提前预约陪诊。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢您，我安心多了」',fx:{mood:+5,social:+2},hint:'心情+5 社交+2'},
+      {text:'了解医院的无障碍就诊服务',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+      {text:'「麻烦您带我到科室门口就好」',fx:{independence:+4},hint:'独立+4'},
+    ]
+  },
+  { id:'d70',type:'neutral',speaker:'——',avatar:'🏪',location:'shop',
+    lines:[
+      {text:'（便利店的货架上摆满了包装相似的瓶瓶罐罐，你分不清哪个是想要的那个。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤摸索着拿起一罐，又放下，迟迟无法确定。）',who:'narrator',expr:'neutral'},
+      {text:'（买瓶饮料，对健全人是顺手的事，对你却需要额外的办法。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'请店员帮忙拿',fx:{social:+2,mood:+1},hint:'社交+2 心情+1'},
+      {text:'用手机读屏扫条码',fx:{stamina:-2,confidence:+2},hint:'体力-2 自信+2'},
+      {text:'买熟悉的品牌，凭手感认',fx:{independence:+3},hint:'独立+3'},
+    ]
+  },
+  { id:'d71',type:'neutral',speaker:'——',avatar:'🏛️',location:'community',
+    lines:[
+      {text:'（社区中心的活动室门口，一群老人正围在一起下棋，笑声不断。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤犹豫着，不知道该不该进去。她想认识新朋友，却又怕自己格格不入。）',who:'narrator',expr:'neutral'},
+      {text:'（融入一座城市，有时比找到一份工作更难。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'鼓起勇气走进去',fx:{social:+4,confidence:+2},hint:'社交+4 自信+2'},
+      {text:'先在外面听听热闹',fx:{mood:+2},hint:'心情+2'},
+      {text:'下次准备好再来',fx:{mood:-1},hint:'心情-1'},
+    ]
+  },
+  { id:'d72',type:'neutral',speaker:'——',avatar:'💳',location:'bank',
+    lines:[
+      {text:'（银行大厅里，取号机"滴"地吐出一张纸条。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤捏着号码纸，却看不到屏幕上叫到几号了。）',who:'narrator',expr:'neutral'},
+      {text:'（她只能竖起耳朵，听广播里断断续续的号码。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'请大堂经理提醒叫号',fx:{social:+2,mood:+1},hint:'社交+2 心情+1'},
+      {text:'靠近叫号屏听语音',fx:{stamina:-2,confidence:+1},hint:'体力-2 自信+1'},
+      {text:'用手机银行先办理',fx:{confidence:+2},hint:'自信+2'},
+    ]
+  },
+  { id:'d73',type:'neutral',speaker:'——',avatar:'💊',location:'pharmacy',
+    lines:[
+      {text:'（药店的自动售药机前，小萤对着触屏犯了难。）',who:'narrator',expr:'neutral'},
+      {text:'（没有语音提示，也没有店员在旁边，她只能干站着。）',who:'narrator',expr:'sad'},
+      {text:'（自助设备越普及，对视障者而言，需要求助的场景就越多。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'去柜台请店员帮忙',fx:{social:+2,mood:+1},hint:'社交+2 心情+1'},
+      {text:'提前在手机上查好药品',fx:{confidence:+2,stamina:-1},hint:'自信+2 体力-1'},
+      {text:'下次避开无人售药机',fx:{mood:-1},hint:'心情-1'},
+    ]
+  },
+  // ===== 羁绊扩充：林薇（入职后交集） =====
+  { id:'d74',type:'positive',speaker:'林薇',avatar:'👩‍💼',minDay:6,bond:{npc:'林薇',amt:7},
+    lines:[
+      {text:'「小萤，我们的新版本做了无障碍优化，正需要真实用户的体验反馈。」林薇走到你工位旁。',who:'林薇',expr:'neutral'},
+      {text:'「你愿意帮忙体验一下吗？你的感受，比我们开会讨论十次都更有价值。」',who:'林薇',expr:'neutral'},
+      {text:'（被这样认真对待，你忽然觉得自己并不是"被照顾"的对象，而是"被需要"的人。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「当然愿意，这正是我想做的」',fx:{confidence:+6,skill:+3},hint:'自信+6 专业+3'},
+      {text:'「我先认真走一遍流程再反馈」',fx:{skill:+5,independence:+3},hint:'专业+5 独立+3'},
+      {text:'「谢谢您这么重视我的意见」',fx:{social:+4,mood:+3},hint:'社交+4 心情+3'},
+    ]
+  },
+  { id:'d75',type:'positive',speaker:'林薇',avatar:'👩‍💼',minDay:7,bond:{npc:'林薇',amt:7},
+    lines:[
+      {text:'「小萤，这一周你成长得比我想象中还要快。」林薇在复盘时说。',who:'林薇',expr:'neutral'},
+      {text:'「我打算下个项目让你参与更多，从方案讨论就开始。你有这个潜力。」',who:'林薇',expr:'happy'},
+      {text:'（原来被信任、被寄予厚望，是这样的感觉。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「我会努力不辜负您的期望」',fx:{confidence:+6,mood:+3},hint:'自信+6 心情+3'},
+      {text:'「我想先从理解用户开始」',fx:{skill:+5,independence:+2},hint:'专业+5 独立+2'},
+      {text:'「有您带着，我踏实多了」',fx:{social:+5,mood:+3},hint:'社交+5 心情+3'},
+    ]
+  },
+  // ===== 羁绊扩充：阿凯（同事日常） =====
+  { id:'d76',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:6,bond:{npc:'阿凯',amt:6},
+    lines:[
+      {text:'「小萤，我看你总侧着身子够键盘，是不是高度不舒服？」阿凯盯着你的工位看了一会儿。',who:'同事阿凯',expr:'neutral'},
+      {text:'「我帮你把显示器角度、键盘位置都调到顺手的位置，你感受一下。」',who:'同事阿凯',expr:'happy'},
+      {text:'（一个不起眼的小调整，却让一整天的工作都舒服了许多。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「真的舒服多了，谢谢你」',fx:{mood:+4,social:+3},hint:'心情+4 社交+3'},
+      {text:'「你观察得真仔细」',fx:{social:+4,confidence:+2},hint:'社交+4 自信+2'},
+      {text:'「下次我也帮你看看」',fx:{social:+5},hint:'社交+5'},
+    ]
+  },
+  { id:'d77',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:6,bond:{npc:'阿凯',amt:6},
+    lines:[
+      {text:'「小萤，下午茶时间！我多买了一杯奶茶，给你。」阿凯把温热的杯子递到你手里。',who:'同事阿凯',expr:'happy'},
+      {text:'（你捧着奶茶，听他有一搭没一搭地聊着今天的趣事。）',who:'narrator',expr:'happy'},
+      {text:'（原来同事之间，也可以这样轻松地相处。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢，下次换我请」',fx:{social:+5,mood:+3},hint:'社交+5 心情+3'},
+      {text:'和他聊聊工作上的小烦恼',fx:{social:+4,confidence:+2},hint:'社交+4 自信+2'},
+      {text:'「有你这样的同事真好」',fx:{mood:+4,social:+3},hint:'心情+4 社交+3'},
+    ]
+  },
+  { id:'d78',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:7,bond:{npc:'阿凯',amt:7},
+    lines:[
+      {text:'「小萤，我最近一直在想，怎么把无障碍做得更自然。」阿凯在茶水间里认真地说。',who:'同事阿凯',expr:'neutral'},
+      {text:'「我越了解你的使用习惯，越觉得这里面有太多可以改进的地方。想听听你的想法。」',who:'同事阿凯',expr:'happy'},
+      {text:'（原来你的每一句日常反馈，都被他认真地记在了心里。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'认真分享自己的使用体验',fx:{skill:+5,confidence:+3},hint:'专业+5 自信+3'},
+      {text:'「我们可以一起做点东西」',fx:{confidence:+6,social:+3},hint:'自信+6 社交+3'},
+      {text:'「谢谢你愿意听我说这些」',fx:{social:+5,mood:+3},hint:'社交+5 心情+3'},
+    ]
+  },
+  // ===== 隐藏事件（特定条件触发） =====
+  { id:'d79',type:'positive',speaker:'——',avatar:'🌧️',minDay:2,cond:()=>GS.weather==='rain'&&GS.currentLocation==='park',
+    lines:[
+      {text:'（雨中的公园，几乎没有什么人。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤坐在亭子里，听雨滴打在树叶上，又顺着屋檐滴落。）',who:'narrator',expr:'neutral'},
+      {text:'（雨声遮住了所有嘈杂，世界反而变得格外宁静。这是雨天难得的馈赠。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'静静听雨，享受这片刻宁静',fx:{mood:+8,confidence:+2},hint:'心情+8 自信+2'},
+      {text:'伸出手，感受雨滴',fx:{mood:+6},hint:'心情+6'},
+      {text:'录下这雨声，留作纪念',fx:{confidence:+3,mood:+3},hint:'自信+3 心情+3'},
+    ]
+  },
+  { id:'d80',type:'positive',speaker:'——',avatar:'🥣',cond:()=>GS.money<10,
+    lines:[
+      {text:'（钱包里的钱所剩无几，小萤在便利店门口站了很久，还是没进去。）',who:'narrator',expr:'sad'},
+      {text:'（这时，一位刚从店里出来的阿姨看出了什么，递来一份热乎乎的盒饭。）',who:'narrator',expr:'neutral'},
+      {text:'「姑娘，没吃饭吧？这个给你，别饿着。」她不由分说地把盒饭塞进你手里。',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢您，我以后一定报答」',fx:{mood:+6,social:+2},hint:'心情+6 社交+2'},
+      {text:'「我、我不能白拿……」「拿着！天大的事吃饱再说」',fx:{mood:+5,confidence:+2},hint:'心情+5 自信+2'},
+      {text:'记下这份来自陌生人的温暖',fx:{mood:+4,social:+2},hint:'心情+4 社交+2'},
+    ]
+  },
+  { id:'d81',type:'positive',speaker:'——',avatar:'🌙',minDay:7,cond:()=>GS.mood>=80,
+    lines:[
+      {text:'（第七天的夜晚，你躺在床上，心情是从未有过的平静。）',who:'narrator',expr:'neutral'},
+      {text:'（回想这七天：从第一天连出门都害怕，到现在能一个人走遍这座城市的每个角落。）',who:'narrator',expr:'happy'},
+      {text:'（你摸了摸枕边的导盲杖，忽然笑了。原来成长，是这么安静而笃定的一件事。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「明天也要继续加油」',fx:{confidence:+5,mood:+3},hint:'自信+5 心情+3'},
+      {text:'给明天的自己录段话',fx:{confidence:+4,independence:+2},hint:'自信+4 独立+2'},
+      {text:'安然入睡',fx:{mood:+5,stamina:+5},hint:'心情+5 体力+5'},
+    ]
+  },
+  // ===== 隐藏事件：成长与羁绊的特殊情境 =====
+  { id:'d82',type:'positive',speaker:'——',avatar:'🧃',cond:()=>GS.stamina<=15&&GS.day>=2,
+    lines:[
+      {text:'（连续奔波让小萤筋疲力尽，导盲杖在地面上点得越来越慢。）',who:'narrator',expr:'sad'},
+      {text:'（她靠在路边的长椅上，闭着眼，想缓一缓再走。）',who:'narrator',expr:'sad'},
+      {text:'（这时，一个稚嫩的声音在耳边响起：「姐姐，你是不是累了？给你我的果汁！」）',who:'narrator',expr:'happy'},
+      {text:'（一个小男孩递来一瓶还没拆封的果汁，眼睛亮晶晶的。疲惫，好像也被冲淡了几分。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢你呀，小朋友」',fx:{mood:+6,stamina:+3},hint:'心情+6 体力+3'},
+      {text:'「姐姐不累，你自己喝吧」（心里却很暖）',fx:{mood:+5,confidence:+2},hint:'心情+5 自信+2'},
+      {text:'摸摸他的头，道谢后继续赶路',fx:{mood:+4,stamina:+2},hint:'心情+4 体力+2'},
+    ]
+  },
+  { id:'d83',type:'positive',speaker:'——',avatar:'🦯',cond:()=>GS.independence>=80,
+    lines:[
+      {text:'（今天，小萤一个人办成了好多事：自己查路线、自己买东西、自己处理突发状况。）',who:'narrator',expr:'neutral'},
+      {text:'（回到家，她把导盲杖靠好，忽然意识到——自己已经很久没因为"独自出门"而害怕了。）',who:'narrator',expr:'happy'},
+      {text:'（原来独立，不是突然学会的，而是一点一点，在这些琐碎的日子里长出来的。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「我好像，真的可以一个人生活了」',fx:{confidence:+6,mood:+4},hint:'自信+6 心情+4'},
+      {text:'给父母报个平安，说自己过得很好',fx:{mood:+5,social:+2},hint:'心情+5 社交+2'},
+      {text:'奖励自己一顿好吃的',fx:{mood:+5},hint:'心情+5'},
+    ]
+  },
+  { id:'d84',type:'positive',speaker:'——',avatar:'💬',minDay:6,cond:()=>{const b=GS.bonds||{};return (b['小雨']||0)>=40&&(b['林薇']||0)>=40&&(b['阿凯']||0)>=40;},
+    lines:[
+      {text:'（手机同时震动了几下。是小雨、林薇、阿凯，三个人不约而同地发来了消息。）',who:'narrator',expr:'neutral'},
+      {text:'（小雨分享了一首好听的歌，林薇提醒你明天降温记得加衣，阿凯发来一张工位上的绿植照片。）',who:'narrator',expr:'happy'},
+      {text:'（原来在这座城市里，你已经有了三个牵挂你的人。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'一一认真回复他们',fx:{social:+5,mood:+4},hint:'社交+5 心情+4'},
+      {text:'把这份温暖截图收藏',fx:{mood:+4,confidence:+2},hint:'心情+4 自信+2'},
+      {text:'「有你们真好」',fx:{mood:+6,social:+3},hint:'心情+6 社交+3'},
+    ]
+  },
+  { id:'d85',type:'positive',speaker:'——',avatar:'💰',cond:()=>(GS.achievements||[]).includes('rich'),
+    lines:[
+      {text:'（你打开手机银行，反复确认那个数字。这是你工作以来，第一次有了属于自己的存款。）',who:'narrator',expr:'happy'},
+      {text:'（300块不算多，但每一分都是你自己挣来的。这份踏实，比任何安慰都更管用。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'再核对一遍账户',fx:{confidence:+3},hint:'自信+3'},
+      {text:'给自己加个鸡腿',fx:{mood:+4,money:-20},hint:'心情+4 金钱-20'},
+      {text:'给妈妈报个平安',fx:{social:+3,mood:+3},hint:'社交+3 心情+3'},
+    ]
+  },
+  { id:'d86',type:'positive',speaker:'——',avatar:'🧠',cond:()=>(GS.achievements||[]).includes('science_fan'),
+    lines:[
+      {text:'（手机里的无障碍科普图鉴已经点亮了小半张地图。你这才发现，自己不知不觉走了这么远。）',who:'narrator',expr:'happy'},
+      {text:'（每一个地点，都藏着你摸索出来的经验：哪条路有盲道，哪家店的店员会主动帮忙。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'继续点亮更多地点',fx:{skill:+3,confidence:+2},hint:'专业+3 自信+2'},
+      {text:'把经验分享到群里',fx:{social:+4},hint:'社交+4'},
+    ]
+  },
+  { id:'d87',type:'positive',speaker:'——',avatar:'📈',cond:()=>(GS.achievements||[]).includes('perfectionist'),
+    lines:[
+      {text:'（回看这一路：自信、专业、社交、独立，四项成长，齐头并进。）',who:'narrator',expr:'happy'},
+      {text:'（你不再只是「能活下去」，而是「活得越来越像自己」。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'给自己一个大大的肯定',fx:{confidence:+4,mood:+3},hint:'自信+4 心情+3'},
+      {text:'「我做到了」',fx:{mood:+5},hint:'心情+5'},
+    ]
+  },
+  { id:'d88',type:'positive',speaker:'——',avatar:'🌞',cond:()=>(GS.achievements||[]).includes('energetic'),
+    lines:[
+      {text:'（今天的你，心情好得像是要飘起来。连平时最怕的下坡路，都走得轻快。）',who:'narrator',expr:'happy'},
+      {text:'（原来「快乐」不是等来的，是你一点点从生活里挣出来的。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'把这份好心情分享给朋友',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+      {text:'哼一首喜欢的歌',fx:{mood:+4},hint:'心情+4'},
+    ]
+  },
+  { id:'d89',type:'positive',speaker:'——',avatar:'✨',cond:()=>(GS.achievements||[]).includes('talent'),
+    lines:[
+      {text:'（你发现自己有一项特别敏锐的能力。它像是一束光，在黑暗里为你照亮了方向。）',who:'narrator',expr:'happy'},
+      {text:'（视障从不是「残缺」，而是让你练出了另一种看见世界的方式。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'好好珍惜这份天赋',fx:{confidence:+3,skill:+2},hint:'自信+3 专业+2'},
+      {text:'用这份能力帮助更多人',fx:{social:+3,independence:+2},hint:'社交+3 独立+2'},
+    ]
+  },
+  { id:'d90',type:'positive',speaker:'——',avatar:'🗺️',cond:()=>(GS.achievements||[]).includes('explorer'),
+    lines:[
+      {text:'（你走遍了这座城市的十二个角落。每一个地方，都从地图上的一个名字，变成了脚下的路。）',who:'narrator',expr:'happy'},
+      {text:'（城市不再是一个庞大的、令人畏惧的迷宫。它成了你熟悉的家。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'画下属于自己的城市地图',fx:{confidence:+3,skill:+3},hint:'自信+3 专业+3'},
+      {text:'带朋友去你最喜欢的地方',fx:{social:+4,mood:+2},hint:'社交+4 心情+2'},
+    ]
+  },
+  { id:'d91',type:'neutral',speaker:'——',avatar:'🌃',minDay:1,cond:()=>GS.time>=1200,
+    lines:[
+      {text:'（夜深了。你坐在窗边，听着楼下车流渐渐稀疏下去。）',who:'narrator',expr:'neutral'},
+      {text:'（这座城市很大，而你只有自己。可「只有自己」这件事，你已经练习了很多年。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'早点休息，明天继续',fx:{stamina:+8,mood:+2},hint:'体力+8 心情+2'},
+      {text:'给自己列好明天的计划',fx:{independence:+3},hint:'独立+3'},
+    ]
+  },
+  { id:'d92',type:'positive',speaker:'——',avatar:'🌙',minDay:3,cond:()=>GS.time>=1200,
+    lines:[
+      {text:'（夜晚最适合复盘。你把这几天的经历在脑海里过了一遍。）',who:'narrator',expr:'neutral'},
+      {text:'（从投出第一份简历，到一次次碰壁，再到学会在陌生的路口求助——你其实一直在往前走。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'把这些进步记下来',fx:{confidence:+3,skill:+2},hint:'自信+3 专业+2'},
+      {text:'「我比自己以为的更勇敢」',fx:{confidence:+4},hint:'自信+4'},
+    ]
+  },
+  { id:'d93',type:'neutral',speaker:'——',avatar:'☕',minDay:5,cond:()=>GS.time>=1200,
+    lines:[
+      {text:'（入职前的最后一个夜晚，你有点累，也有点兴奋。）',who:'narrator',expr:'neutral'},
+      {text:'（明天开始，你就不再是「找工作的人」，而是「有工作的人」了。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'泡一杯热牛奶，放松一下',fx:{mood:+3,stamina:+5},hint:'心情+3 体力+5'},
+      {text:'把明天要带的东西准备好',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+    ]
+  },
+  { id:'d94',type:'positive',speaker:'——',avatar:'✨',minDay:6,cond:()=>GS.time>=1200,
+    lines:[
+      {text:'（一周快结束了。你躺在床上，回想这七天的每一步。）',who:'narrator',expr:'happy'},
+      {text:'（从迷茫到坚定，从害怕到勇敢——你真的走了很远很远。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'感谢坚持到现在的自己',fx:{confidence:+4,mood:+4},hint:'自信+4 心情+4'},
+      {text:'写下这一周的心得',fx:{skill:+3,independence:+3},hint:'专业+3 独立+3'},
+    ]
+  },
+  { id:'d95',type:'positive',speaker:'——',avatar:'🎧',minDay:6,
+    lines:[
+      {text:'（入职第二天，林薇交给你第一个正式任务：为一款无障碍音频 App 录制并校对界面提示音。）',who:'narrator',expr:'neutral'},
+      {text:'（你戴上耳机，把每一条提示音听了一遍又一遍，直到节奏、语气、停顿都恰到好处。）',who:'narrator',expr:'happy'},
+      {text:'（当成品播放出来的那一刻，你忽然明白——原来看不见的人，恰恰最懂得"声音"应该是什么样子。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'反复打磨，做到最好',fx:{skill:+6,mood:+3},hint:'专业+6 心情+3'},
+      {text:'把自己的听觉体验写进建议里',fx:{skill:+4,confidence:+3},hint:'专业+4 自信+3'},
+      {text:'「原来我的耳朵这么有用」',fx:{confidence:+4,skill:+3},hint:'自信+4 专业+3'},
+    ]
+  },
+  { id:'d96',type:'neutral',speaker:'——',avatar:'⌨️',minDay:6,
+    lines:[
+      {text:'（下午，你需要用一款协作软件处理文档，可它的读屏兼容性很差，光标一直在乱跳。）',who:'narrator',expr:'sad'},
+      {text:'（换了三种读屏、调了十几处设置，眼睛的幻影和屏幕里的文字缠在一起，你急出了一头汗。）',who:'narrator',expr:'sad'},
+      {text:'（可你没有放弃。既然这条路走不通，就换一条。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'请教阿凯，一起排查问题',fx:{social:+3,skill:+3},hint:'社交+3 专业+3'},
+      {text:'自己慢慢摸索，整理成经验',fx:{skill:+4,independence:+3},hint:'专业+4 独立+3'},
+      {text:'向技术部反馈兼容性问题',fx:{skill:+3,confidence:+2,social:+2},hint:'专业+3 自信+2 社交+2'},
+    ]
+  },
+  { id:'d97',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:7,bond:{npc:'阿凯',amt:7},
+    lines:[
+      {text:'「小萤，你上周提的那个读屏优化建议，技术部已经采纳了！」阿凯兴奋地跑过来。',who:'同事阿凯',expr:'happy'},
+      {text:'「他们说你提的问题特别细，连老员工都没想到。现在新版本正在改。」',who:'同事阿凯',expr:'happy'},
+      {text:'（你的建议，真的让一款产品变得对更多人友好了。这份"被需要"的成就感，沉甸甸的。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「太好了！这是我该做的」',fx:{confidence:+5,skill:+4},hint:'自信+5 专业+4'},
+      {text:'「希望能帮到更多像我一样的人」',fx:{social:+5,mood:+4},hint:'社交+5 心情+4'},
+      {text:'「我们一起把它做得更好」',fx:{social:+4,confidence:+3},hint:'社交+4 自信+3'},
+    ]
+  },
+  { id:'d98',type:'negative',speaker:'——',avatar:'📬',minDay:3,
+    lines:[
+      {text:'（投出去的简历，一封接一封，都石沉大海。）',who:'narrator',expr:'sad'},
+      {text:'（邮箱里只有自动回复的"已收到"，没有一家约你面试。你开始怀疑：是不是"视障"这两个字，让它们连机会都不愿意给。）',who:'narrator',expr:'sad'},
+      {text:'（这种沉默，比直接的拒绝更磨人。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'再投几家，不能就这么放弃',fx:{stamina:-3,mood:-2,confidence:+2},hint:'体力-3 心情-2 自信+2'},
+      {text:'调整简历，把能力放在最前面',fx:{skill:+3,mood:-1},hint:'专业+3 心情-1'},
+      {text:'给小雨打个电话说说心里话',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+    ]
+  },
+  { id:'d99',type:'negative',speaker:'——',avatar:'📞',minDay:4,
+    lines:[
+      {text:'（电话响了。你接起来，对方说是某公司人事。）',who:'narrator',expr:'neutral'},
+      {text:'（你屏住呼吸，手心全是汗——可对方只是例行核实信息，然后说"有结果会通知你"。）',who:'narrator',expr:'sad'},
+      {text:'（挂断电话，那一点点刚燃起的希望，又落回了原地。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'深呼吸，告诉自己别想太多',fx:{mood:+1},hint:'心情+1'},
+      {text:'把注意力转到学新技能上',fx:{skill:+3,independence:+2},hint:'专业+3 独立+2'},
+      {text:'出门散散步，透透气',fx:{stamina:-2,mood:+3},hint:'体力-2 心情+3'},
+    ]
+  },
+  { id:'d100',type:'negative',speaker:'——',avatar:'🪞',minDay:5,
+    lines:[
+      {text:'（面试前一晚，你对着镜子练习自我介绍，练着练着突然卡住了。）',who:'narrator',expr:'sad'},
+      {text:'（"如果面试官问起我的视力，我该怎么回答？"这个问题像根刺，扎在喉咙里。）',who:'narrator',expr:'sad'},
+      {text:'（你既怕被同情，又怕被误解。这种不确定，比面试本身更让人喘不过气。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'把准备好的话再默念几遍',fx:{confidence:+3,mood:-1},hint:'自信+3 心情-1'},
+      {text:'「我的能力，不需要解释」',fx:{confidence:+4},hint:'自信+4'},
+      {text:'向林薇请教面试经验',fx:{social:+3,skill:+2},hint:'社交+3 专业+2'},
+    ]
+  },
+  { id:'d101',type:'positive',speaker:'小雨',avatar:'👩‍🎓',minDay:7,bond:{npc:'小雨',amt:8},
+    lines:[
+      {text:'「小萤，这一周辛苦啦。」小雨的声音里带着笑，也带着一点点不舍。',who:'小雨',expr:'happy'},
+      {text:'「这七天，你从不敢出门，到一个人在城市里站稳脚跟……我替你骄傲。」',who:'小雨',expr:'happy'},
+      {text:'「以后的路还长着呢，我们都会越来越好的。周末我请你吃火锅，就当庆祝你的新生！」',who:'小雨',expr:'happy'},
+    ],
+    responses:[
+      {text:'「好，说定了，谁都不许反悔」',fx:{social:+6,mood:+5},hint:'社交+6 心情+5'},
+      {text:'「没有你，我撑不到今天」',fx:{social:+5,confidence:+3},hint:'社交+5 自信+3'},
+      {text:'「我们一定会越来越好的」',fx:{mood:+5,confidence:+3},hint:'心情+5 自信+3'},
+    ]
+  },
+  { id:'d102',type:'positive',speaker:'林薇',avatar:'👩‍💼',minDay:7,bond:{npc:'林薇',amt:8},
+    lines:[
+      {text:'「小萤，一周的试用结束了。我想正式跟你聊聊。」林薇的声音温和而郑重。',who:'林薇',expr:'neutral'},
+      {text:'「你让我看到了一个残障人士真正被看见、被需要的样子。这条路，你走得很漂亮。」',who:'林薇',expr:'happy'},
+      {text:'（这是你人生中，第一次从"总监"口中听到这样的评价。你忽然觉得，所有的辛苦都值得。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢您给了我机会」',fx:{confidence:+5,social:+3},hint:'自信+5 社交+3'},
+      {text:'「是您让我相信自己可以」',fx:{confidence:+5,mood:+3},hint:'自信+5 心情+3'},
+      {text:'「我会继续努力，不辜负您的信任」',fx:{confidence:+4,skill:+3},hint:'自信+4 专业+3'},
+    ]
+  },
+  { id:'d103',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:7,bond:{npc:'阿凯',amt:8},
+    lines:[
+      {text:'「小萤，明天就是新的一周了，我突然有点感慨。」阿凯靠在工位上，难得地认真。',who:'同事阿凯',expr:'neutral'},
+      {text:'「刚认识你的时候，我还担心你适应不了。结果这一周，反倒是你帮了我不少忙。」',who:'同事阿凯',expr:'happy'},
+      {text:'「以后啊，咱俩就正式是搭档了。有事你说话，我随叫随到。」',who:'同事阿凯',expr:'happy'},
+    ],
+    responses:[
+      {text:'「有你这样的搭档，我很安心」',fx:{social:+5,mood:+4},hint:'社交+5 心情+4'},
+      {text:'「互相照应，一起加油」',fx:{social:+5,confidence:+3},hint:'社交+5 自信+3'},
+      {text:'「那以后工作上的事，就多麻烦你啦」',fx:{social:+4,skill:+2},hint:'社交+4 专业+2'},
+    ]
+  },
+  { id:'d104',type:'positive',speaker:'——',avatar:'🌅',minDay:1,
+    lines:[
+      {text:'（清晨，你站在出租屋的窗前，深深吸了一口气。）',who:'narrator',expr:'neutral'},
+      {text:'（这是你在这个陌生城市里的第一个早晨。空气里有早点铺的香味，还有远处公交车的报站声。）',who:'narrator',expr:'happy'},
+      {text:'（"从今天起，这里就是我的家了。"你在心里，郑重地对自己说。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'给自己泡一杯热茶',fx:{mood:+4,stamina:+3},hint:'心情+4 体力+3'},
+      {text:'打开窗，听听这座城市的声音',fx:{mood:+3,confidence:+2},hint:'心情+3 自信+2'},
+      {text:'列下今天要办的事',fx:{independence:+3},hint:'独立+3'},
+    ]
+  },
+  { id:'d105',type:'neutral',speaker:'——',avatar:'🦯',minDay:1,
+    lines:[
+      {text:'（出门前，你最后检查了一遍随身物品：导盲杖、手机、钥匙、钱包。）',who:'narrator',expr:'neutral'},
+      {text:'（这些是你和世界之间仅有的连接。每一样都放回固定位置，闭着眼也能摸到。）',who:'narrator',expr:'neutral'},
+      {text:'（对看不见的人来说，秩序不是强迫症，是安全感。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'再确认一遍，然后出发',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+      {text:'翻钱包时发现夹层里有张遗忘的零钱',fx:{money:+10,mood:+2},hint:'金钱+10 心情+2'},
+      {text:'给手机设好导航语音',fx:{stamina:-1,confidence:+2},hint:'体力-1 自信+2'},
+      {text:'深呼吸，告诉自己"我可以"',fx:{mood:+2,confidence:+2},hint:'心情+2 自信+2'},
+    ]
+  },
+  { id:'d106',type:'positive',speaker:'房东阿姨',avatar:'👵',minDay:1,
+    lines:[
+      {text:'（你刚出楼道，房东阿姨就迎了上来。）',who:'narrator',expr:'neutral'},
+      {text:'"小萤啊，出门办事？阿姨跟你说，咱们这栋楼门口就有个斜坡，不用下台阶，你摸着扶手走就稳当。"',who:'房东阿姨',expr:'happy'},
+      {text:'"有啥不方便的，尽管跟阿姨说。楼上楼下都是邻居，能搭把手的。"',who:'房东阿姨',expr:'happy'},
+    ],
+    responses:[
+      {text:'"谢谢阿姨，我记住了"',fx:{mood:+4,social:+2},hint:'心情+4 社交+2'},
+      {text:'记下楼门口的斜坡和扶手位置',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+      {text:'"以后可能真要麻烦您了"',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+    ]
+  },
+];
+
+// ============================================================
+// 剧情主线系统（小萤成长记融入）
+// ============================================================
+const STORY_STAGES = {
+  0:{label:'🎓 毕业季', day:1, type:'dialogue', dialogueId:'story_grad'},
+  1:{label:'📮 投简历', day:2, type:'narrate', badge:'📮 求职 · 投简历',
+     text:'你花了整整两天时间，用读屏软件一个岗位一个岗位地筛选。\n\n「音频编辑」「内容运营」「无障碍测试」「客服」……每个岗位你都认真看了要求。\n\n其中有一家叫「听澜科技」的公司吸引了你的注意——他们专门做无障碍音频产品，招聘信息里明确写了「欢迎视障人士应聘」。\n\n这是你第一次在招聘启事上看到这样的表述。\n\n你投出了简历，然后开始了漫长的等待。'},
+  2:{label:'🏢 面试日', day:3, type:'dialogue', dialogueId:'story_interview'},
+  3:{label:'⏳ 等待结果', day:4, type:'dialogue', dialogueId:'story_wait'},
+  4:{label:'📞 收到offer', day:5, type:'dialogue', dialogueId:'story_offer'},
+  5:{label:'💼 入职第一天', day:6, type:'dialogue', dialogueId:'story_firstday'},
+  6:{label:'🌟 一周回顾', day:7, type:'dialogue', dialogueId:'story_review'},
+  7:{label:'🎉 新的开始', day:7, type:'ending'}
+};
+
+const STORY_DIALOGUES = {
+  story_grad:{
+    speaker:'小雨',avatar:'👩‍🎓',type:'positive',
+    lines:[
+      {text:'「小萤！我们毕业啦！」小雨跑过来抱住你，声音里满是兴奋。',who:'小雨',expr:'happy'},
+      {text:'「是啊……终于毕业了。」你摸着手中的毕业证书，上面有盲文，你能摸到自己的名字。',who:'小萤',expr:'happy'},
+      {text:'「你接下来有什么打算？找工作还是考研？我真的好舍不得你。」',who:'小雨',expr:'neutral'},
+      {text:'（你沉默了一下。视障人士找工作，从来都不是一件容易的事。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「我要去大公司，做音频内容方向的工作」',fx:{confidence:5,skill:3},hint:'自信+5 专业+3'},
+      {text:'「我想先看看有哪些机会，不着急」',fx:{independence:3,social:2},hint:'独立+3 社交+2'},
+      {text:'「其实我有点害怕……外面对视障人士不太友好」',fx:{social:5,confidence:-3},hint:'社交+5 自信-3'},
+    ]
+  },
+  story_interview:{
+    speaker:'林薇',avatar:'👩‍💼',type:'neutral',
+    lines:[
+      {text:'「你好小萤，我是听澜科技的产品总监林薇。请坐。」她的声音温和但专业。',who:'林薇',expr:'neutral'},
+      {text:'「您好，谢谢您给我这次面试的机会。」',who:'小萤',expr:'neutral'},
+      {text:'「我看到你的简历——你在学校做过一个无障碍音频项目？能详细说说吗？」',who:'林薇',expr:'neutral'},
+      {text:'（你深吸一口气。这个问题你准备了很多遍，但这一刻还是有些紧张。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'详细展示技术细节，强调专业能力',fx:{skill:8,confidence:5},hint:'专业+8 自信+5'},
+      {text:'先讲你为什么会关注无障碍，再讲项目',fx:{social:8,confidence:3},hint:'社交+8 自信+3'},
+      {text:'坦诚讲你的优势和需要支持的地方',fx:{independence:5,social:5},hint:'独立+5 社交+5'},
+    ]
+  },
+  story_offer_audio:{
+    speaker:'林薇',avatar:'👩‍💼',type:'positive',
+    lines:[
+      {text:'（手机响了。来电显示是林薇总监。你深吸一口气，按下接听键。）',who:'narrator',expr:'neutral'},
+      {text:'「小萤，我们决定录用你。下周一入职，职位是音频内容专员。」',who:'林薇',expr:'happy'},
+      {text:'「面试时你对音频项目技术细节的把握，让我们印象很深。我们相信你会是个好内容制作人。」',who:'林薇',expr:'happy'},
+      {text:'「公司会为你配好无障碍设备，通勤也有补贴。我们希望你能安心工作。」',who:'林薇',expr:'happy'},
+      {text:'「谢谢！我一定会努力的！」你握着手机，眼泪差点掉下来。',who:'小萤',expr:'happy'},
+      {text:'（挂了电话，你一个人在房间里笑了很久。这是你的第一份工作，也是你独立生活的真正开始。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「我会用实力证明自己！」',fx:{confidence:5},hint:'自信+5'},
+      {text:'「谢谢你们给我这个机会。」',fx:{social:5},hint:'社交+5'},
+      {text:'「我会尽快适应新环境的。」',fx:{independence:5},hint:'独立+5'},
+      {text:'「我周末先踩点通勤路线，别第一天就迟到」',fx:{independence:+8,confidence:+2},hint:'独立+8 自信+2'},
+    ]
+  },
+  story_offer_consultant:{
+    speaker:'林薇',avatar:'👩‍💼',type:'positive',
+    lines:[
+      {text:'（手机响了。来电显示是林薇总监。你深吸一口气，按下接听键。）',who:'narrator',expr:'neutral'},
+      {text:'「小萤，我们决定录用你。职位是——无障碍体验顾问。」',who:'林薇',expr:'happy'},
+      {text:'「面试时你讲的「为什么关注无障碍」，让我们看到你对用户的理解。这个岗位需要你直接和视障用户对话。」',who:'林薇',expr:'happy'},
+      {text:'「公司会为你配好无障碍设备，通勤也有补贴。我们希望你能安心工作。」',who:'林薇',expr:'happy'},
+      {text:'「谢谢！我一定会努力的！」你握着手机，眼泪差点掉下来。',who:'小萤',expr:'happy'},
+      {text:'（挂了电话，你一个人在房间里笑了很久。这是你的第一份工作，也是你独立生活的真正开始。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「我会用实力证明自己！」',fx:{confidence:5},hint:'自信+5'},
+      {text:'「谢谢你们给我这个机会。」',fx:{social:5},hint:'社交+5'},
+      {text:'「我会尽快适应新环境的。」',fx:{independence:5},hint:'独立+5'},
+      {text:'「我周末先踩点通勤路线，别第一天就迟到」',fx:{independence:+8,confidence:+2},hint:'独立+8 自信+2'},
+    ]
+  },
+  story_offer_tester:{
+    speaker:'林薇',avatar:'👩‍💼',type:'positive',
+    lines:[
+      {text:'（手机响了。来电显示是林薇总监。你深吸一口气，按下接听键。）',who:'narrator',expr:'neutral'},
+      {text:'「小萤，我们决定录用你。职位是——无障碍测试专员。」',who:'林薇',expr:'happy'},
+      {text:'「面试时你坦诚地讲了优势，也讲了需要支持的地方。这种真实，正是测试岗位最需要的品质。」',who:'林薇',expr:'happy'},
+      {text:'「公司会为你配好无障碍设备，通勤也有补贴。我们希望你能安心工作。」',who:'林薇',expr:'happy'},
+      {text:'「谢谢！我一定会努力的！」你握着手机，眼泪差点掉下来。',who:'小萤',expr:'happy'},
+      {text:'（挂了电话，你一个人在房间里笑了很久。这是你的第一份工作，也是你独立生活的真正开始。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「我会用实力证明自己！」',fx:{confidence:5},hint:'自信+5'},
+      {text:'「谢谢你们给我这个机会。」',fx:{social:5},hint:'社交+5'},
+      {text:'「我会尽快适应新环境的。」',fx:{independence:5},hint:'独立+5'},
+      {text:'「我周末先踩点通勤路线，别第一天就迟到」',fx:{independence:+8,confidence:+2},hint:'独立+8 自信+2'},
+    ]
+  },
+  story_wait:{
+    speaker:'小雨',avatar:'👩‍🎓',type:'neutral',
+    lines:[
+      {text:'（手机响了。是小雨的电话。你正盯着天花板发呆。）',who:'narrator',expr:'neutral'},
+      {text:'「小萤！面试怎么样？我听你昨天发语音的声音好像不太对。」小雨的声音里带着担心。',who:'小雨',expr:'neutral'},
+      {text:'「还行……就是结果还没出。我这两天总在想自己哪里说得不够好。」',who:'小萤',expr:'sad'},
+      {text:'「别瞎想啦！你那么认真准备，肯定没问题的。要不要出来走走？别一个人闷着。」',who:'小雨',expr:'happy'},
+    ],
+    responses:[
+      {text:'「好，出来逛逛，正好转移下注意力」',fx:{social:+6,mood:+3},hint:'社交+6 心情+3'},
+      {text:'「我想在家练练专业软件，充实自己」',fx:{skill:+6,confidence:+3},hint:'专业+6 自信+3'},
+      {text:'「我先自己出去散散步，透透气」',fx:{independence:+5,mood:+2},hint:'独立+5 心情+2'},
+    ]
+  },
+  story_firstday:{
+    speaker:'同事阿凯',avatar:'👨‍💻',type:'positive',
+    lines:[
+      {text:'（入职第一天，林薇把公司上上下下带你走了一遍，最后把你介绍给工位旁的同事阿凯。你的岗位是——{position}。）',who:'narrator',expr:'neutral'},
+      {text:'「你好，我是阿凯，坐你旁边。以后有不懂的随时喊我！」一个热情的男声传来。',who:'同事阿凯',expr:'happy'},
+      {text:'（{setup}。一切都比想象中周到。）',who:'narrator',expr:'neutral'},
+      {text:'「谢谢……我、我会努力跟上大家的。」你有些紧张，但也有些期待。',who:'小萤',expr:'neutral'},
+    ],
+    responses:[
+      {text:'主动向阿凯了解团队的工作流程',fx:{social:+8,confidence:+4},hint:'社交+8 自信+4'},
+      {text:'先熟悉工位上的无障碍设备',fx:{skill:+6,independence:+4},hint:'专业+6 独立+4'},
+      {text:'认真记录林薇交代的第一周任务',fx:{skill:+8,confidence:+3},hint:'专业+8 自信+3'},
+    ]
+  },
+  story_review:{
+    speaker:'小雨',avatar:'👩‍🎓',type:'positive',
+    lines:[
+      {text:'（入职一周了。这天晚上，小雨的电话又打了过来。）',who:'narrator',expr:'neutral'},
+      {text:'「小萤！这一周怎么样？上班还顺利吗？」小雨的声音还是那么元气满满。',who:'小雨',expr:'happy'},
+      {text:'（你回想这七天——从毕业那天的忐忑，到投简历、面试、offer、入职……像做了一场梦。）',who:'narrator',expr:'neutral'},
+      {text:'「挺好的。虽然还是有很多不方便，但我……好像没那么害怕了。」',who:'小萤',expr:'happy'},
+    ],
+    responses:[
+      {text:'「我靠自己走到了今天」',fx:{independence:+6,confidence:+4},hint:'独立+6 自信+4'},
+      {text:'「多亏了身边每一个帮我的人」',fx:{social:+6,mood:+4},hint:'社交+6 心情+4'},
+      {text:'「我会继续加油的」',fx:{confidence:+8},hint:'自信+8'},
+    ]
+  }
+};
+
+// ============================================================
+// 游戏状态
+// ============================================================
+const LOCATIONS = {
+  home:{id:'home',name:'家',icon:'🏠',cx:.15,cy:.78,color:'#e8c870'},
+  busstop:{id:'busstop',name:'公交站',icon:'🚌',cx:.25,cy:.48,color:'#80b8d8'},
+  station:{id:'station',name:'地铁站',icon:'🚇',cx:.42,cy:.16,color:'#d88878'},
+  mall:{id:'mall',name:'商场',icon:'🏬',cx:.62,cy:.36,color:'#c8a0e8'},
+  shop:{id:'shop',name:'便利店',icon:'🏪',cx:.80,cy:.62,color:'#90c878'},
+  hospital:{id:'hospital',name:'医院',icon:'🏥',cx:.76,cy:.16,color:'#f0a0a0'},
+  park:{id:'park',name:'公园',icon:'🌳',cx:.30,cy:.26,color:'#90c878'},
+  library:{id:'library',name:'图书馆',icon:'📚',cx:.48,cy:.62,color:'#c8a0d8'},
+  community:{id:'community',name:'社区中心',icon:'🏛️',cx:.12,cy:.38,color:'#e8b878'},
+  cafe:{id:'cafe',name:'咖啡馆',icon:'☕',cx:.72,cy:.74,color:'#d8a888'},
+  bank:{id:'bank',name:'银行',icon:'🏦',cx:.36,cy:.80,color:'#d8b878'},
+  pharmacy:{id:'pharmacy',name:'药店',icon:'💊',cx:.86,cy:.32,color:'#80d0b0'},
+};
+
+const TRANSPORT = {
+  walk:{id:'walk',name:'步行',timeMin:20,timeMax:30,stamina:-25,money:0,eventRate:.60},
+  bus:{id:'bus',name:'公交',timeMin:10,timeMax:18,stamina:-12,money:-2,eventRate:.45},
+  metro:{id:'metro',name:'地铁',timeMin:5,timeMax:12,stamina:-7,money:-5,eventRate:.25},
+  taxi:{id:'taxi',name:'打车',timeMin:8,timeMax:15,stamina:-3,money:-25,eventRate:.10,indoor:true},
+};
+
+const DEFAULT_STATE = {
+  perception:0,toolUse:0,communication:0,
+  stamina:100,money:70,mood:60,
+  currentLocation:'home',time:480,day:1,
+  inventory:[
+    {id:'cane',name:'导盲杖',weight:1.5,desc:'基本的出行辅助工具'},
+    {id:'phone',name:'智能手机',weight:.3,desc:'装有读屏和导航软件'},
+    {id:'water',name:'水壶',weight:.8,desc:'随身携带的饮用水'},
+    {id:'wallet',name:'零钱包',weight:.3,desc:'装了证件和现金'},
+    {id:'keys',name:'钥匙串',weight:.3,desc:'家门和信箱钥匙'},
+    {id:'headphones',name:'骨传导耳机',weight:.2,desc:'听取导航语音同时保持环境感知'},
+  ],
+  // 成长属性（小萤成长记）：自信/专业/社交/独立
+  confidence:50,skill:50,social:50,independence:50,
+  // 剧情主线进度：0毕业 1求职 2面试 3等待 4offer 5入职 6完成
+  storyStage:0,storyFlags:{},storyTriggeredToday:false,
+  eventLog:[],triggeredEvents:[],triggeredDialogues:[],
+  travelsCompleted:0,totalEventsTriggered:0,
+  gameOver:false,selectedDest:null,doneActivities:{},achievements:[],visitedLocations:['home'],weather:'sunny',usedItems:{},bonds:{小雨:30,林薇:10,阿凯:5},bondMilestones:{}
+};
+
+// ============================================================
+// 成就系统
+// ============================================================
+const ACHIEVEMENTS = [
+  {id:'first_travel',name:'初次启程',icon:'🎒',desc:'完成第一次出行',cond:()=>GS.travelsCompleted>=1,reward:{stamina:+5}},
+  {id:'city_walker',name:'城市漫步者',icon:'🚶',desc:'累计出行10次',cond:()=>GS.travelsCompleted>=10,reward:{money:+30}},
+  {id:'explorer',name:'城市探索家',icon:'🗺️',desc:'到访全部12个地点',cond:()=>(GS.visitedLocations||[]).length>=12,reward:{confidence:+5}},
+  {id:'event_veteran',name:'事件老手',icon:'🎲',desc:'触发10次随机事件',cond:()=>GS.totalEventsTriggered>=10,reward:{skill:+3}},
+  {id:'confident',name:'自信满满',icon:'💪',desc:'自信达到70',cond:()=>GS.confidence>=70,reward:{money:+20}},
+  {id:'pro',name:'专业高手',icon:'📚',desc:'专业达到70',cond:()=>GS.skill>=70,reward:{money:+20}},
+  {id:'socialite',name:'人脉达人',icon:'💬',desc:'社交达到70',cond:()=>GS.social>=70,reward:{money:+20}},
+  {id:'independent',name:'独立自主',icon:'🏠',desc:'独立达到70',cond:()=>GS.independence>=70,reward:{money:+20}},
+  {id:'graduate',name:'职场新星',icon:'🌟',desc:'完成入职主线',cond:()=>GS.storyStage>=6,reward:{confidence:+10,skill:+10}},
+  {id:'survivor',name:'生存达人',icon:'🏆',desc:'坚持到第7天',cond:()=>GS.day>=7,reward:{money:+50}},
+  {id:'soulmate',name:'挚友',icon:'💞',desc:'与某位朋友羁绊达到60',cond:()=>Object.values(GS.bonds||{}).some(v=>v>=60),reward:{social:+5,mood:+5}},
+  {id:'science_fan',name:'科普爱好者',icon:'🧠',desc:'到访6个地点，解锁半本无障碍科普图鉴',cond:()=>(GS.visitedLocations||[]).length>=6,reward:{skill:+3}},
+  {id:'best_friend',name:'知己',icon:'💝',desc:'与某位朋友羁绊达到80',cond:()=>Object.values(GS.bonds||{}).some(v=>v>=80),reward:{social:+8,mood:+5}},
+  {id:'social_butterfly',name:'左右逢源',icon:'🤝',desc:'三位朋友羁绊都达到40',cond:()=>{const b=GS.bonds||{};return (b['小雨']||0)>=40&&(b['林薇']||0)>=40&&(b['阿凯']||0)>=40;},reward:{social:+5,money:+20}},
+  {id:'talent',name:'天赋异禀',icon:'✨',desc:'某项能力初始达到5',cond:()=>GS.perception>=5||GS.toolUse>=5||GS.communication>=5,reward:{confidence:+3}},
+  {id:'energetic',name:'元气满满',icon:'🌞',desc:'心情达到90',cond:()=>GS.mood>=90,reward:{stamina:+10}},
+  {id:'rich',name:'第一桶金',icon:'💰',desc:'存款达到300',cond:()=>GS.money>=300,reward:{mood:+5}},
+  {id:'perfectionist',name:'全面发展',icon:'📈',desc:'四项成长属性都达到60',cond:()=>GS.confidence>=60&&GS.skill>=60&&GS.social>=60&&GS.independence>=60,reward:{money:+30}},
+];
+
+// ============================================================
+// 天气系统
+// ============================================================
+const WEATHERS = {
+  sunny:{name:'晴',icon:'☀️',staminaMul:1.0,moodDrift:0},
+  rain:{name:'雨',icon:'🌧️',staminaMul:1.25,moodDrift:-3},
+  wind:{name:'风',icon:'💨',staminaMul:1.1,moodDrift:-2},
+};
+function rollWeather(){
+  const pool=['sunny','sunny','sunny','rain','wind'];
+  GS.weather=pool[Math.floor(Math.random()*pool.length)];
+}
+
+// ============================================================
+// 背包可消耗道具
+// ============================================================
+const USABLE_ITEMS = {
+  water:{name:'喝水',icon:'💧',fx:{stamina:+8,mood:+1}},
+  headphones:{name:'听音乐',icon:'🎵',fx:{mood:+5}},
+};
+
+let GS=null,previewAttr=null,mapData2=null,animFrame2=null,particles2=[];
+let sceneCardCallback=null; // 场景卡关闭后的回调
+
+// ---- 工具 ----
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function fmtTime(m){const h=Math.floor(m/60),mn=m%60;return String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')}
+function calcLoad(){return GS.inventory.reduce((s,it)=>s+it.weight,0)}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2200);
+}
+function addLog(text){GS.eventLog.unshift({time:GS.time,day:GS.day,text});if(GS.eventLog.length>100)GS.eventLog.length=100}
+
+function rollAttributes(){
+  let a,b,c;
+  do{a=rand(1,5);b=rand(1,5);c=12-a-b;}while(c<1||c>6);
+  const arr=[a,b,c];for(let i=arr.length-1;i>0;i--){const j=rand(0,i);[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return{perception:arr[0],toolUse:arr[1],communication:arr[2]};
+}
+
+// ---- 存档 ----
+function saveGame(){localStorage.setItem('vision_sim_v3',JSON.stringify(JSON.parse(JSON.stringify(GS))))}
+function loadGame(){const r=localStorage.getItem('vision_sim_v3');if(!r)return null;try{return JSON.parse(r)}catch(e){return null}}
+
+// ---- 角色绘制 ----
+function drawCurrentCharacter(expression='neutral'){
+  const c=document.getElementById('char-canvas');
+  if(c)drawAnimeGirl(c,1.4,expression);
+}
+
+// ---- 对话系统（沉浸式Canvas场景+角色动画） ----
+let currentDialogue=null,currentDialogueStep=0,currentDialogueCallback=null;
+let dlgAnimFrame=null,dlgTime=0,dlgEntrance=0;
+let sceneCanvas,sceneCtx,sceneW,sceneH;
+
+// ====== 动画角色绘制 ======
+// 绘制带动画的chibi小萤
+function drawXiaoyingAnimated(ctx,cx,cy,scale,expr,animTime,isSpeaking){
+  ctx.save();ctx.translate(cx,cy);
+  const s=scale;
+  const breathe=Math.sin(animTime*0.002)*1.5; // 呼吸
+  const speakBounce=isSpeaking?Math.sin(animTime*0.015)*3:0; // 说话弹跳
+  const totalBounce=breathe+speakBounce;
+  const blinkCycle=Math.sin(animTime*0.005);
+  const isBlinking=blinkCycle>0.92;
+
+  // === 阴影 ===
+  ctx.fillStyle='rgba(0,0,0,.25)';
+  ctx.beginPath();ctx.ellipse(0,95*s+totalBounce*0.5,28*s,8*s,0,0,Math.PI*2);ctx.fill();
+
+  // === 鞋子（粉色圆头） ===
+  ctx.fillStyle='#f4a8b8';
+  ctx.beginPath();ctx.ellipse(-7*s,92*s+totalBounce,7*s,3*s,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(7*s,92*s+totalBounce,7*s,3*s,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#e898a8';ctx.fillRect(-12*s,88*s+totalBounce,10*s,4*s);ctx.fillRect(2*s,88*s+totalBounce,10*s,4*s);
+
+  // === 腿 ===
+  ctx.fillStyle='#fce4cc';
+  ctx.beginPath();ctx.moveTo(-10*s,70*s+totalBounce);ctx.lineTo(-8*s,90*s+totalBounce);ctx.lineTo(-3*s,90*s+totalBounce);ctx.lineTo(-6*s,70*s+totalBounce);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(6*s,70*s+totalBounce);ctx.lineTo(3*s,90*s+totalBounce);ctx.lineTo(8*s,90*s+totalBounce);ctx.lineTo(10*s,70*s+totalBounce);ctx.closePath();ctx.fill();
+  // 袜子
+  ctx.fillStyle='#fff';
+  ctx.fillRect(-9*s,82*s+totalBounce,8*s,5*s);ctx.fillRect(1*s,82*s+totalBounce,8*s,5*s);
+
+  // === 裙子（粉黄渐变） ===
+  const skirtGrad=ctx.createLinearGradient(0,50*s+totalBounce,0,80*s+totalBounce);
+  skirtGrad.addColorStop(0,'#fcc8d8');skirtGrad.addColorStop(0.5,'#f8a8c0');skirtGrad.addColorStop(1,'#f090b0');
+  ctx.fillStyle=skirtGrad;
+  ctx.beginPath();ctx.moveTo(-18*s,50*s+totalBounce);ctx.lineTo(-25*s,72*s+totalBounce);
+  ctx.lineTo(-10*s,78*s+totalBounce);ctx.lineTo(0,80*s+totalBounce);
+  ctx.lineTo(10*s,78*s+totalBounce);ctx.lineTo(25*s,72*s+totalBounce);
+  ctx.lineTo(18*s,50*s+totalBounce);ctx.closePath();ctx.fill();
+  // 裙褶
+  ctx.strokeStyle='#e898b0';ctx.lineWidth=.6*s;
+  ctx.beginPath();ctx.moveTo(-15*s,54*s+totalBounce);ctx.lineTo(-18*s,75*s+totalBounce);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,55*s+totalBounce);ctx.lineTo(0,80*s+totalBounce);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(15*s,54*s+totalBounce);ctx.lineTo(18*s,75*s+totalBounce);ctx.stroke();
+
+  // === 上身（粉色） ===
+  ctx.fillStyle='#f8b8c8';
+  ctx.beginPath();ctx.moveTo(-15*s,25*s+totalBounce);ctx.lineTo(-18*s,52*s+totalBounce);
+  ctx.lineTo(18*s,52*s+totalBounce);ctx.lineTo(15*s,25*s+totalBounce);ctx.closePath();ctx.fill();
+  // 领口
+  ctx.fillStyle='#f4e4c8';
+  ctx.beginPath();ctx.arc(0,24*s+totalBounce,9*s,0,Math.PI*2);ctx.fill();
+  // 领结（黄色）
+  ctx.fillStyle='#fcd878';
+  ctx.beginPath();ctx.moveTo(0,28*s+totalBounce);ctx.lineTo(-6*s,24*s+totalBounce);ctx.lineTo(0,22*s+totalBounce);ctx.lineTo(6*s,24*s+totalBounce);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(0,26*s+totalBounce,3*s,0,Math.PI*2);ctx.fill();
+  // 袖子
+  ctx.fillStyle='#fce4cc';
+  ctx.beginPath();ctx.ellipse(-18*s,38*s+totalBounce,4*s,10*s,-0.2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(18*s,38*s+totalBounce,4*s,10*s,0.2,0,Math.PI*2);ctx.fill();
+
+  // === 头 ===
+  ctx.fillStyle='#fce4cc';
+  ctx.beginPath();ctx.arc(0,5*s+totalBounce,22*s,0,Math.PI*2);ctx.fill();
+  // 耳朵
+  ctx.fillStyle='#f5d8b8';
+  ctx.beginPath();ctx.ellipse(-21*s,5*s+totalBounce,4*s,6*s,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(21*s,5*s+totalBounce,4*s,6*s,0,0,Math.PI*2);ctx.fill();
+
+  // === 兔耳发饰 ===
+  ctx.fillStyle='#fce4cc';ctx.strokeStyle='#e8c0b0';ctx.lineWidth=.6*s;
+  ctx.beginPath();ctx.moveTo(-10*s,-22*s+totalBounce);ctx.quadraticCurveTo(-15*s,-50*s,-7*s,-58*s);ctx.quadraticCurveTo(-3*s,-48*s,-6*s,-22*s+totalBounce);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#f8b8c8';ctx.beginPath();ctx.moveTo(-9*s,-24*s+totalBounce);ctx.quadraticCurveTo(-13*s,-44*s,-7*s,-50*s);ctx.quadraticCurveTo(-5*s,-42*s,-7*s,-24*s+totalBounce);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#fce4cc';
+  ctx.beginPath();ctx.moveTo(10*s,-22*s+totalBounce);ctx.quadraticCurveTo(15*s,-50*s,7*s,-58*s);ctx.quadraticCurveTo(3*s,-48*s,6*s,-22*s+totalBounce);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#f8b8c8';ctx.beginPath();ctx.moveTo(9*s,-24*s+totalBounce);ctx.quadraticCurveTo(13*s,-44*s,7*s,-50*s);ctx.quadraticCurveTo(5*s,-42*s,7*s,-24*s+totalBounce);ctx.closePath();ctx.fill();
+
+  // === 头发 ===
+  ctx.fillStyle='#2a1612';
+  ctx.beginPath();ctx.arc(0,-8*s+totalBounce,23*s,Math.PI,Math.PI*2);ctx.fill();
+  ctx.fillRect(-23*s,-8*s+totalBounce,46*s,15*s);
+  // 刘海锯齿
+  ctx.beginPath();ctx.moveTo(-22*s,-8*s+totalBounce);
+  ctx.lineTo(-21*s,4*s+totalBounce);ctx.lineTo(-17*s,-10*s+totalBounce);
+  ctx.lineTo(-14*s,6*s+totalBounce);ctx.lineTo(-10*s,-12*s+totalBounce);
+  ctx.lineTo(-7*s,5*s+totalBounce);ctx.lineTo(-3*s,-11*s+totalBounce);
+  ctx.lineTo(0,6*s+totalBounce);ctx.lineTo(3*s,-11*s+totalBounce);
+  ctx.lineTo(7*s,5*s+totalBounce);ctx.lineTo(10*s,-12*s+totalBounce);
+  ctx.lineTo(14*s,6*s+totalBounce);ctx.lineTo(17*s,-10*s+totalBounce);
+  ctx.lineTo(21*s,4*s+totalBounce);ctx.lineTo(22*s,-8*s+totalBounce);
+  ctx.closePath();ctx.fill();
+  // 侧发
+  ctx.beginPath();ctx.moveTo(-22*s,-7*s+totalBounce);ctx.lineTo(-28*s,10*s+totalBounce);ctx.lineTo(-26*s,28*s+totalBounce);ctx.lineTo(-22*s,18*s+totalBounce);ctx.lineTo(-20*s,5*s+totalBounce);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(22*s,-7*s+totalBounce);ctx.lineTo(28*s,10*s+totalBounce);ctx.lineTo(26*s,28*s+totalBounce);ctx.lineTo(22*s,18*s+totalBounce);ctx.lineTo(20*s,5*s+totalBounce);ctx.closePath();ctx.fill();
+  // 长辫子（左侧）
+  ctx.beginPath();ctx.moveTo(-24*s,0+totalBounce);ctx.lineTo(-30*s,30*s+totalBounce);ctx.lineTo(-32*s,55*s+totalBounce);ctx.lineTo(-28*s,52*s+totalBounce);ctx.lineTo(-26*s,30*s+totalBounce);ctx.lineTo(-22*s,0+totalBounce);ctx.closePath();ctx.fill();
+  // 辫尾蝴蝶结
+  ctx.fillStyle='#fcd878';
+  ctx.beginPath();ctx.moveTo(-30*s,52*s+totalBounce);ctx.lineTo(-35*s,48*s+totalBounce);ctx.lineTo(-32*s,55*s+totalBounce);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(-30*s,52*s+totalBounce);ctx.lineTo(-35*s,57*s+totalBounce);ctx.lineTo(-32*s,50*s+totalBounce);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#2a1612';
+  // 头顶光泽
+  ctx.fillStyle='rgba(80,50,40,.2)';
+  ctx.beginPath();ctx.ellipse(-6*s,-16*s+totalBounce,14*s,5*s,-0.1,0,Math.PI*2);ctx.fill();
+
+  // === 眉毛 ===
+  ctx.strokeStyle='#1a0a08';ctx.lineWidth=1.8*s;
+  ctx.beginPath();ctx.moveTo(-16*s,-4*s+totalBounce);ctx.lineTo(-8*s,-6*s+totalBounce);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(8*s,-6*s+totalBounce);ctx.lineTo(16*s,-4*s+totalBounce);ctx.stroke();
+
+  // === 眼睛 ===
+  const eyeY=2*s+totalBounce;
+  if(!isBlinking){
+    // 眼白
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.ellipse(-10*s,eyeY,8.5*s,9*s,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(10*s,eyeY,8.5*s,9*s,0,0,Math.PI*2);ctx.fill();
+    // 虹膜
+    const grad1=ctx.createRadialGradient(-10*s,eyeY+1*s,0,-10*s,eyeY+1*s,8*s);
+    grad1.addColorStop(0,'#3a2a1a');grad1.addColorStop(0.7,'#1a0a08');grad1.addColorStop(1,'#0a0a1a');
+    ctx.fillStyle=grad1;
+    ctx.beginPath();ctx.ellipse(-10*s,eyeY+1*s,6.5*s,7*s,0,0,Math.PI*2);ctx.fill();
+    const grad2=ctx.createRadialGradient(10*s,eyeY+1*s,0,10*s,eyeY+1*s,8*s);
+    grad2.addColorStop(0,'#3a2a1a');grad2.addColorStop(0.7,'#1a0a08');grad2.addColorStop(1,'#0a0a1a');
+    ctx.fillStyle=grad2;
+    ctx.beginPath();ctx.ellipse(10*s,eyeY+1*s,6.5*s,7*s,0,0,Math.PI*2);ctx.fill();
+    // 瞳孔高光
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(-7*s,eyeY-3*s,3*s,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(13*s,eyeY-3*s,3*s,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(-13*s,eyeY+5*s,1.5*s,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(7*s,eyeY+5*s,1.5*s,0,Math.PI*2);ctx.fill();
+    // 上睫毛
+    ctx.strokeStyle='#1a0a08';ctx.lineWidth=1.5*s;
+    ctx.beginPath();ctx.arc(-10*s,eyeY,9*s,Math.PI*1.15,Math.PI*1.85);ctx.stroke();
+    ctx.beginPath();ctx.arc(10*s,eyeY,9*s,Math.PI*1.15,Math.PI*1.85);ctx.stroke();
+  }else{
+    ctx.strokeStyle='#1a0a08';ctx.lineWidth=1.8*s;
+    ctx.beginPath();ctx.moveTo(-20*s,eyeY);ctx.lineTo(0,eyeY);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,eyeY);ctx.lineTo(20*s,eyeY);ctx.stroke();
+  }
+
+  // === 鼻子 ===
+  ctx.fillStyle='#e8c8a8';ctx.beginPath();ctx.arc(0,10*s+totalBounce,2*s,0,Math.PI*2);ctx.fill();
+
+  // === 嘴 ===
+  const mouthY=16*s+totalBounce;
+  if(expr==='happy'){
+    ctx.fillStyle='#d87070';ctx.beginPath();ctx.arc(0,mouthY+2*s,5*s,0,Math.PI);ctx.fill();
+    ctx.fillStyle='#f08080';ctx.beginPath();ctx.arc(0,mouthY+1*s,3*s,0,Math.PI);ctx.fill();
+  }else if(expr==='sad'){
+    ctx.strokeStyle='#c08080';ctx.lineWidth=1*s;
+    ctx.beginPath();ctx.arc(0,mouthY+7*s,4*s,Math.PI,Math.PI*2);ctx.stroke();
+  }else{
+    // 说话时嘴张开
+    if(isSpeaking&&Math.sin(animTime*0.03)>0){
+      ctx.fillStyle='#c06060';ctx.beginPath();ctx.ellipse(0,mouthY+2*s,4*s,Math.abs(Math.sin(animTime*0.03))*4*s,0,0,Math.PI*2);ctx.fill();
+    }else{
+      ctx.fillStyle='#d89090';ctx.beginPath();ctx.arc(0,mouthY,2.5*s,0,Math.PI);ctx.fill();
+    }
+  }
+
+  // === 腮红 ===
+  ctx.fillStyle='rgba(240,160,160,.35)';
+  ctx.beginPath();ctx.ellipse(-17*s,9*s+totalBounce,5*s,3*s,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(17*s,9*s+totalBounce,5*s,3*s,0,0,Math.PI*2);ctx.fill();
+
+  ctx.restore();
+}
+
+// 绘制NPC（带动画）
+function drawNPCAnimated(ctx,cx,cy,scale,type,animTime,isSpeaking){
+  ctx.save();ctx.translate(cx,cy);
+  const s=scale*0.75;
+  const breathe=Math.sin(animTime*0.0022)*1.2;
+  const speakBounce=isSpeaking?Math.sin(animTime*0.015)*2.5:0;
+  const totalBounce=breathe+speakBounce;
+  const isBlinking=Math.sin(animTime*0.0053)>0.92;
+
+  // 阴影
+  ctx.fillStyle='rgba(0,0,0,.2)';
+  ctx.beginPath();ctx.ellipse(0,82*s+totalBounce*0.5,22*s,6*s,0,0,Math.PI*2);ctx.fill();
+
+  // 鞋
+  ctx.fillStyle='#3a2820';ctx.fillRect(-9*s,76*s+totalBounce,8*s,4*s);ctx.fillRect(1*s,76*s+totalBounce,8*s,4*s);
+
+  // 腿
+  ctx.fillStyle='#fce4cc';
+  ctx.fillRect(-8*s,58*s+totalBounce,7*s,20*s);ctx.fillRect(2*s,58*s+totalBounce,7*s,20*s);
+
+  // 身体颜色
+  const bodyColors={passerby:'#8899aa',kind_woman:'#d4a0a8',staff:'#5577aa',little_girl:'#f0d870',volunteer:'#cc5544',driver:'#445566',xiaoyu:'#f2c14e',linwei:'#3a4a6b'};
+  const bodyClr=bodyColors[type]||'#8899aa';
+
+  // 衣服
+  ctx.fillStyle=bodyClr;
+  ctx.beginPath();ctx.moveTo(-16*s,30*s+totalBounce);ctx.lineTo(-18*s,58*s+totalBounce);
+  ctx.lineTo(18*s,58*s+totalBounce);ctx.lineTo(16*s,30*s+totalBounce);ctx.closePath();ctx.fill();
+  // 领口
+  ctx.fillStyle='#fce4cc';ctx.beginPath();ctx.arc(0,28*s+totalBounce,7*s,0,Math.PI*2);ctx.fill();
+
+  // 特殊服装
+  if(type==='staff'){ctx.fillStyle='#3a5a7a';ctx.fillRect(-14*s,22*s+totalBounce,28*s,5*s)}
+  if(type==='volunteer'){ctx.fillStyle='#ee6655';ctx.fillRect(-16*s,40*s+totalBounce,32*s,6*s)}
+  if(type==='driver'){ctx.fillStyle='#2a3a4a';ctx.fillRect(-13*s,22*s+totalBounce,26*s,5*s)}
+  if(type==='linwei'){ctx.fillStyle='#f2f2f7';ctx.beginPath();ctx.moveTo(0,30*s+totalBounce);ctx.lineTo(-6*s,42*s+totalBounce);ctx.lineTo(6*s,42*s+totalBounce);ctx.closePath();ctx.fill()}
+
+  // 手臂
+  ctx.fillStyle='#fce4cc';
+  ctx.beginPath();ctx.ellipse(-20*s,40*s+totalBounce,3.5*s,8*s,-.3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(20*s,40*s+totalBounce,3.5*s,8*s,.3,0,Math.PI*2);ctx.fill();
+
+  // 头
+  ctx.fillStyle='#fce4cc';ctx.beginPath();ctx.arc(0,8*s+totalBounce,18*s,0,Math.PI*2);ctx.fill();
+  // 耳朵
+  ctx.fillStyle='#f0d0b0';ctx.beginPath();ctx.ellipse(-17*s,8*s+totalBounce,3*s,5*s,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(17*s,8*s+totalBounce,3*s,5*s,0,0,Math.PI*2);ctx.fill();
+
+  // 头发颜色和风格
+  const hairColors={passerby:'#3a2a1a',kind_woman:'#4a2820',staff:'#1a1a2e',little_girl:'#5a3020',volunteer:'#3a2018',driver:'#2a1a10',xiaoyu:'#6b4028',linwei:'#1a1a24'};
+  const hairClr=hairColors[type]||'#3a2a1a';
+  ctx.fillStyle=hairClr;
+  ctx.beginPath();ctx.arc(0,0+totalBounce,19*s,Math.PI,Math.PI*2);ctx.fill();
+  ctx.fillRect(-19*s,0+totalBounce,38*s,12*s);
+
+  // 发型变化
+  if(type==='little_girl'){
+    ctx.fillStyle=hairClr;ctx.beginPath();ctx.arc(-18*s,10*s+totalBounce,8*s,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(18*s,10*s+totalBounce,8*s,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f0d870';ctx.beginPath();ctx.arc(-18*s,11*s+totalBounce,3*s,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(18*s,11*s+totalBounce,3*s,0,Math.PI*2);ctx.fill();
+  }else if(type==='xiaoyu'){
+    // 双马尾 + 蝴蝶结
+    ctx.fillStyle=hairClr;ctx.beginPath();ctx.arc(-18*s,6*s+totalBounce,8*s,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(18*s,6*s+totalBounce,8*s,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ee6688';ctx.beginPath();ctx.arc(-18*s,3*s+totalBounce,4*s,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(18*s,3*s+totalBounce,4*s,0,Math.PI*2);ctx.fill();
+  }else if(type==='linwei'){
+    // 及肩直发（偏长）
+    ctx.fillStyle=hairClr;ctx.fillRect(-20*s,-2*s+totalBounce,5*s,24*s);ctx.fillRect(15*s,-2*s+totalBounce,5*s,24*s);
+  }else if(type==='kind_woman'){
+    ctx.fillStyle=hairClr;ctx.fillRect(-20*s,-2*s+totalBounce,5*s,18*s);ctx.fillRect(15*s,-2*s+totalBounce,5*s,18*s);
+  }else{
+    ctx.fillStyle=hairClr;ctx.fillRect(-20*s,-1*s+totalBounce,5*s,15*s);ctx.fillRect(15*s,-1*s+totalBounce,5*s,15*s);
+  }
+
+  // 帽子（staff/driver）
+  if(type==='staff'||type==='driver'){
+    ctx.fillStyle='#3a4a5a';ctx.fillRect(-13*s,-4*s+totalBounce,26*s,7*s);
+    ctx.fillRect(-18*s,2*s+totalBounce,36*s,3*s);
+  }
+
+  // 眼睛
+  const ey=6*s+totalBounce;
+  if(!isBlinking){
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(-7*s,ey,6*s,6.5*s,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(7*s,ey,6*s,6.5*s,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1a1a2e';ctx.beginPath();ctx.ellipse(-5*s,ey+.5*s,4*s,4.5*s,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(5*s,ey+.5*s,4*s,4.5*s,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-4*s,ey-1.5*s,2*s,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(6*s,ey-1.5*s,2*s,0,Math.PI*2);ctx.fill();
+  }else{
+    ctx.strokeStyle='#1a0a08';ctx.lineWidth=1.5*s;
+    ctx.beginPath();ctx.moveTo(-14*s,ey);ctx.lineTo(0,ey);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,ey);ctx.lineTo(14*s,ey);ctx.stroke();
+  }
+
+  // 眉毛
+  ctx.strokeStyle='#1a0a08';ctx.lineWidth=1.5*s;
+  ctx.beginPath();ctx.moveTo(-14*s,0+totalBounce);ctx.lineTo(-6*s,-2*s+totalBounce);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(6*s,-2*s+totalBounce);ctx.lineTo(14*s,0+totalBounce);ctx.stroke();
+
+  // 眼镜（林薇）
+  if(type==='linwei'){
+    ctx.strokeStyle='#4a5a6a';ctx.lineWidth=1.2*s;
+    ctx.beginPath();ctx.arc(-7*s,6*s+totalBounce,6.5*s,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.arc(7*s,6*s+totalBounce,6.5*s,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,6*s+totalBounce);ctx.lineTo(1*s,6*s+totalBounce);ctx.stroke();
+  }
+
+  // 鼻子
+  ctx.fillStyle='#e8c8a8';ctx.beginPath();ctx.arc(0,11*s+totalBounce,1.5*s,0,Math.PI*2);ctx.fill();
+
+  // 嘴
+  const my=17*s+totalBounce;
+  if(isSpeaking&&Math.sin(animTime*0.03)>0){
+    ctx.fillStyle='#c06060';ctx.beginPath();ctx.ellipse(0,my+1*s,3*s,Math.abs(Math.sin(animTime*0.03))*3*s,0,0,Math.PI*2);ctx.fill();
+  }else{
+    ctx.fillStyle='#d89090';ctx.beginPath();ctx.arc(0,my,2*s,0,Math.PI);ctx.fill();
+  }
+
+  // 腮红
+  ctx.fillStyle='rgba(240,160,160,.28)';
+  ctx.beginPath();ctx.ellipse(-14*s,10*s+totalBounce,4*s,2.5*s,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(14*s,10*s+totalBounce,4*s,2.5*s,0,0,Math.PI*2);ctx.fill();
+
+  ctx.restore();
+}
+
+// ====== 场景背景 ======
+function drawSceneBG(ctx,w,h,locId){
+  const palettes={
+    home:{top:'#2a2838',btm:'#1a1820',ground:'rgba(35,30,28,.65)'},
+    busstop:{top:'#242c38',btm:'#181e24',ground:'rgba(30,34,38,.6)'},
+    station:{top:'#262834',btm:'#1a1c26',ground:'rgba(28,30,36,.6)'},
+    mall:{top:'#2e2430',btm:'#1c1820',ground:'rgba(32,26,28,.6)'},
+    shop:{top:'#242e26',btm:'#182018',ground:'rgba(28,30,26,.6)'},
+    hospital:{top:'#283034',btm:'#1a2026',ground:'rgba(30,32,36,.6)'},
+    park:{top:'#24302a',btm:'#18201c',ground:'rgba(28,34,28,.6)'},
+    library:{top:'#2a2834',btm:'#1c1a24',ground:'rgba(30,28,32,.6)'},
+    community:{top:'#302a22',btm:'#201c16',ground:'rgba(34,30,26,.6)'},
+    cafe:{top:'#302622',btm:'#1e1a18',ground:'rgba(32,26,22,.6)'},
+    bank:{top:'#2a2c34',btm:'#1c1e24',ground:'rgba(30,32,36,.6)'},
+    pharmacy:{top:'#243032',btm:'#182024',ground:'rgba(28,32,34,.6)'}
+  };
+  const pal=palettes[locId]||palettes.home;
+  const grad=ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,pal.top);grad.addColorStop(0.75,pal.btm);grad.addColorStop(1,'#12121e');
+  ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
+  // 地面
+  ctx.fillStyle=pal.ground;ctx.fillRect(0,h*0.75,w,h*0.25);
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.beginPath();ctx.moveTo(0,h*0.75);ctx.lineTo(w,h*0.75);ctx.stroke();
+
+  // 环境粒子
+  const seed=(locId||'a').charCodeAt(0)*137;
+  for(let i=0;i<40;i++){
+    const px=(i*seed*7+seed*3)%w,py=(i*251+seed)%Math.floor(h*.6);
+    const alpha=.02+.03*Math.sin(i*1.7+dlgTime*0.001);
+    ctx.fillStyle=`rgba(255,255,255,${alpha})`;
+    ctx.beginPath();ctx.arc(px,py+Math.sin(dlgTime*0.0008+i)*4,1.2,0,Math.PI*2);ctx.fill();
+  }
+
+  // 浮游光点
+  for(let i=0;i<6;i++){
+    const fx=((i*173+seed*29)%w),fy=((i*311+seed*17)%h);
+    const fa=.06+.04*Math.sin(dlgTime*0.002+i*2);
+    ctx.fillStyle=`rgba(244,196,96,${fa})`;
+    ctx.beginPath();ctx.arc(fx+Math.cos(dlgTime*0.001+i)*15,fy+Math.sin(dlgTime*0.0015+i)*20,2.5,0,Math.PI*2);ctx.fill();
+  }
+
+  // 天气氛围（雨丝 / 风线）
+  if(GS&&GS.weather==='rain'){
+    ctx.strokeStyle='rgba(160,180,210,.14)';ctx.lineWidth=1;
+    for(let i=0;i<28;i++){
+      const rx=((i*173+seed*7)%w),ry=((i*277+seed*11)%h);
+      const len=8+((i*37)%8);
+      ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-2,ry+len);ctx.stroke();
+    }
+  }else if(GS&&GS.weather==='wind'){
+    ctx.strokeStyle='rgba(200,210,180,.10)';ctx.lineWidth=1;
+    for(let i=0;i<12;i++){
+      const wy=((i*89+seed*3)%h),wx=((i*151+seed*5+dlgTime*1.2)%w);
+      ctx.beginPath();ctx.moveTo(wx,wy);ctx.quadraticCurveTo(wx+12,wy-3,wx+24,wy+2);ctx.stroke();
+    }
+  }
+
+  // 暗角聚焦
+  const vg=ctx.createRadialGradient(w/2,h*0.42,w*0.35,w/2,h*0.5,w*0.75);
+  vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.38)');
+  ctx.fillStyle=vg;ctx.fillRect(0,0,w,h);
+}
+
+// ====== 气泡 ======
+function drawSpeechBubble(ctx,x,y,w,h,text,speakerName,isNarrator){
+  ctx.save();
+  const bx=x-w/2,by=y-h;
+  // 气泡身体
+  const bubbleGrad=ctx.createLinearGradient(bx,by,bx,by+h);
+  bubbleGrad.addColorStop(0,isNarrator?'rgba(18,16,28,.94)':'rgba(28,24,42,.94)');
+  bubbleGrad.addColorStop(1,isNarrator?'rgba(14,12,22,.94)':'rgba(24,20,36,.94)');
+  ctx.fillStyle=bubbleGrad;
+  ctx.strokeStyle=isNarrator?'rgba(100,100,120,.35)':'rgba(200,170,130,.25)';
+  ctx.lineWidth=1.5;ctx.shadowColor='rgba(0,0,0,.3)';ctx.shadowBlur=8;
+  ctx.beginPath();ctx.moveTo(bx+14,by);ctx.lineTo(bx+w-14,by);
+  ctx.arcTo(bx+w,by,bx+w,by+14,14);ctx.lineTo(bx+w,by+h-14);
+  ctx.arcTo(bx+w,by+h,bx+w-14,by+h,14);ctx.lineTo(bx+14,by+h);
+  ctx.arcTo(bx,by+h,bx,by+h-14,14);ctx.lineTo(bx,by+14);
+  ctx.arcTo(bx,by,bx+14,by,14);ctx.closePath();ctx.fill();ctx.stroke();
+  // 气泡底部点击提示
+  if(!isNarrator||currentDialogueStep===1){
+    ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='10px "Microsoft YaHei",sans-serif';ctx.textAlign='right';
+    ctx.fillText('点击继续 ▸',bx+w-16,by+h-8);
+  }
+
+  if(speakerName&&!isNarrator){
+    ctx.fillStyle='#f0c060';ctx.font='bold 11px "Microsoft YaHei",sans-serif';ctx.textAlign='left';
+    ctx.fillText(speakerName,bx+16,by+18);
+    ctx.fillStyle='#d8d0c0';ctx.font='13px "Microsoft YaHei",sans-serif';
+    wrapText2(ctx,text,bx+16,by+40,w-32,21,9);
+  }else{
+    ctx.fillStyle='#c8c0b0';ctx.font='13px "Microsoft YaHei",sans-serif';
+    wrapText2(ctx,text,bx+16,by+20,w-32,21,9);
+  }
+  ctx.restore();
+}
+
+function wrapText2(ctx,text,x,y,maxW,lh,maxLines){
+  const chars=text.split('');let line='',ly=y,c=0;
+  for(let i=0;i<chars.length;i++){
+    const t=line+chars[i];
+    if(ctx.measureText(t).width>maxW&&line!==''){ctx.fillText(line,x,ly);line=chars[i];ly+=lh;c++;if(c>=maxLines){ctx.fillText(line.substring(0,line.length-2)+'…',x,ly);return}}
+    else line=t;
+  }
+  ctx.fillText(line,x,ly);
+}
+
+// ====== 场景渲染主函数 ======
+function renderDialogueScene(){
+  if(!sceneCtx||!currentDialogue)return;
+  const ctx=sceneCtx,w=sceneW,h=sceneH;
+  dlgTime++;
+
+  // 背景
+  drawSceneBG(ctx,w,h,GS.currentLocation);
+
+  const dlg=currentDialogue;
+  const line=currentDialogueStep<dlg.lines.length?dlg.lines[currentDialogueStep]:null;
+  const speaker=line?line.who:'小萤';
+  const isXiaoying=speaker==='小萤';
+  const isNarrator=speaker==='narrator';
+
+  // 角色位置
+  const xiaoX=w*0.68,xiaoY=h*0.42;
+  const npcX=w*0.32,npcY=h*0.42;
+
+  // NPC类型映射
+  const npcTypeMap={路人甲:'passerby',公交司机:'driver',商场保安:'staff',路人:'passerby',好心路人:'kind_woman',地铁工作人员:'staff',小女孩:'little_girl',志愿者:'volunteer',小雨:'xiaoyu',林薇:'linwei',同事阿凯:'staff',图书馆管理员:'kind_woman',视障朋友:'kind_woman',咖啡馆店员:'staff',社区志愿者:'volunteer',好心大姐:'kind_woman',求职伙伴:'passerby',商场保洁:'staff'};
+  const npcType=npcTypeMap[dlg.speaker]||'passerby';
+
+  // 入场动画（0-1）
+  let entrance=1;
+  if(dlgEntrance>0){
+    entrance=Math.min(1,dlgEntrance/30);
+    dlgEntrance++;
+  }
+
+  // 画NPC（带说话标记）
+  const npcSpeaking=!isXiaoying&&!isNarrator&&!!line;
+  const npcAlpha=entrance;
+  ctx.globalAlpha=npcAlpha;
+  drawNPCAnimated(ctx,npcX,npcY,1,npcType,dlgTime,npcSpeaking);
+  // 说话光晕
+  if(npcSpeaking){
+    const glowAlpha=.08+.04*Math.sin(dlgTime*0.01);
+    ctx.fillStyle=`rgba(255,220,160,${glowAlpha})`;
+    ctx.beginPath();ctx.arc(npcX,npcY-20,45,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // 画小萤
+  const xiaoSpeaking=isXiaoying&&!!line;
+  drawXiaoyingAnimated(ctx,xiaoX,xiaoY,1,line?(line.expr||'neutral'):'neutral',dlgTime,xiaoSpeaking);
+  if(xiaoSpeaking){
+    const glowAlpha=.08+.04*Math.sin(dlgTime*0.01);
+    ctx.fillStyle=`rgba(255,220,160,${glowAlpha})`;
+    ctx.beginPath();ctx.arc(xiaoX,xiaoY-25,45,0,Math.PI*2);ctx.fill();
+  }
+
+  // 名字标签
+  ctx.fillStyle='rgba(0,0,0,.45)';
+  const pad=8;
+  ctx.font='10px "Microsoft YaHei",sans-serif';ctx.textAlign='center';
+  const npcNameW=ctx.measureText(dlg.speaker).width+pad*2;
+  ctx.fillRect(npcX-npcNameW/2,npcY+82,npcNameW,18);
+  ctx.fillStyle='#c0b090';ctx.fillText(dlg.speaker,npcX,npcY+94);
+  const xiaoNameW=ctx.measureText('小萤').width+pad*2;
+  ctx.fillRect(xiaoX-xiaoNameW/2,xiaoY+82,xiaoNameW,18);
+  ctx.fillStyle='#f0c060';ctx.fillText('小萤',xiaoX,xiaoY+94);
+
+  // 气泡
+  if(line){
+    const bubbleW=Math.min(360,w*0.8);
+    const bubbleH=isNarrator?50:70;
+    let bubbleX;
+    if(isNarrator)bubbleX=w/2;
+    else if(isXiaoying)bubbleX=xiaoX-50;
+    else bubbleX=npcX+50;
+    const bubbleY=isNarrator?h*0.38:h*0.14;
+    drawSpeechBubble(ctx,bubbleX,bubbleY,bubbleW,bubbleH,line.text,isNarrator?null:speaker,isNarrator);
+  }
+
+  // 选择画面
+  if(currentDialogueStep>=dlg.lines.length){
+    const darkGrad=ctx.createLinearGradient(0,h*0.65,0,h);
+    darkGrad.addColorStop(0,'rgba(0,0,0,0)');darkGrad.addColorStop(0.4,'rgba(0,0,0,.5)');darkGrad.addColorStop(1,'rgba(0,0,0,.7)');
+    ctx.fillStyle=darkGrad;ctx.fillRect(0,h*0.65,w,h*0.35);
+    ctx.fillStyle='#f0c060';ctx.font='bold 13px "Microsoft YaHei",sans-serif';ctx.textAlign='center';
+    ctx.fillText('「你会怎么做？」',w/2,h*0.78);
+  }
+}
+
+// ====== 动画循环 ======
+function animateDialogueScene(){
+  if(!currentDialogue||document.getElementById('dialogue-overlay').classList.contains('hidden')){
+    dlgAnimFrame=null;return;
+  }
+  renderDialogueScene();
+  dlgAnimFrame=requestAnimationFrame(animateDialogueScene);
+}
+
+// ====== 对话流程 ======
+function startDialogue(dialogue,callback){
+  currentDialogue=dialogue;currentDialogueStep=0;currentDialogueCallback=callback;
+  dlgTime=0;dlgEntrance=1; // 入场动画
+  document.getElementById('dlg-responses').innerHTML='';
+  document.querySelector('.dlg-click-hint').style.display='block';
+  document.getElementById('dialogue-overlay').classList.remove('hidden');
+  initSceneCanvas();
+  renderDialogueScene();
+  if(!dlgAnimFrame)dlgAnimFrame=requestAnimationFrame(animateDialogueScene);
+}
+
+function initSceneCanvas(){
+  sceneCanvas=document.getElementById('dlg-scene-canvas');
+  if(!sceneCanvas)return;
+  sceneCtx=sceneCanvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  // 用实际可用空间
+  const maxW=Math.min(780,document.documentElement.clientWidth*.95);
+  const maxH=Math.min(480,document.documentElement.clientHeight*.58);
+  sceneW=maxW;sceneH=maxH;
+  sceneCanvas.width=Math.floor(sceneW*dpr);
+  sceneCanvas.height=Math.floor(sceneH*dpr);
+  sceneCanvas.style.width=sceneW+'px';
+  sceneCanvas.style.height=sceneH+'px';
+  if(sceneCtx)sceneCtx.setTransform(dpr,0,0,dpr,0,0);
+}
+
+function advanceDialogue(){
+  if(!currentDialogue)return;
+  const dlg=currentDialogue;
+  if(currentDialogueStep<dlg.lines.length){
+    const line=dlg.lines[currentDialogueStep];
+    document.getElementById('dlg-responses').innerHTML='';
+    document.querySelector('.dlg-click-hint').style.display='block';
+    currentDialogueStep++;
+    renderDialogueScene();
+    drawCurrentCharacter(line.expr||'neutral');
+  }else if(document.getElementById('dlg-responses').children.length===0){
+    // 只在第一次到达选项时渲染
+    document.querySelector('.dlg-click-hint').style.display='none';
+    document.getElementById('dlg-responses').innerHTML=dlg.responses.map((r,i)=>`
+      <button class="dlg-resp-btn" onclick="chooseResponse(${i})">
+        ${r.text}<span class="dr-hint">${r.hint}</span>
+      </button>
+    `).join('');
+    renderDialogueScene();
+  }
+}
+
+function chooseResponse(idx){
+  const dlg=currentDialogue,resp=dlg.responses[idx];
+  let fx={...resp.fx};
+  if(fx.stamina)fx.stamina=Math.round(fx.stamina*(1-(GS.toolUse-3)*.03));
+  if(fx.mood&&GS.communication>4)fx.mood=Math.round(fx.mood*1.1);
+  Object.entries(fx).forEach(([k,v])=>{
+    if(k==='stamina')GS.stamina=clamp(GS.stamina+v,0,100);
+    if(k==='mood')GS.mood=clamp(GS.mood+v,0,100);
+    if(k==='money')GS.money=Math.round(Math.max(-999,GS.money+v));
+    if(k==='confidence')GS.confidence=clamp(GS.confidence+v,0,100);
+    if(k==='skill')GS.skill=clamp(GS.skill+v,0,100);
+    if(k==='social')GS.social=clamp(GS.social+v,0,100);
+    if(k==='independence')GS.independence=clamp(GS.independence+v,0,100);
+  });
+  addLog(`对话: ${dlg.speaker} — ${resp.text}`);
+  if(dlg.id==='story_interview'){
+    GS.storyFlags=GS.storyFlags||{};
+    GS.storyFlags.interviewChoice=idx;
+    GS.storyFlags.position=OFFER_POSITIONS[idx]||OFFER_POSITIONS[0];
+  }
+  const sb=STORY_BONDS[dlg.id]||dlg.bond;
+  if(sb){GS.bonds=GS.bonds||{};GS.bonds[sb.npc]=clamp((GS.bonds[sb.npc]||0)+sb.amt,0,100);}
+  checkBondMilestones();
+  GS.triggeredDialogues.push(dlg.id);GS.totalEventsTriggered++;
+  closeDialogue();
+  if(currentDialogueCallback)currentDialogueCallback();
+  renderAll();saveGame();checkEndings();
+}
+
+function closeDialogue(){
+  document.getElementById('dialogue-overlay').classList.add('hidden');
+  document.getElementById('dlg-responses').innerHTML='';
+  currentDialogue=null;currentDialogueStep=0;dlgEntrance=0;
+  if(dlgAnimFrame){cancelAnimationFrame(dlgAnimFrame);dlgAnimFrame=null}
+  sceneCtx=null;sceneCanvas=null;
+  drawCurrentCharacter('neutral');
+}
+
+// 对话推进：点击canvas、overlay、或按键均可
+let _dlgClickBound=false;
+function ensureDlgClickHandler(){
+  if(_dlgClickBound)return;_dlgClickBound=true;
+  // Canvas点击
+  const cv=document.getElementById('dlg-scene-canvas');
+  if(cv)cv.addEventListener('click',handleDlgClick);
+  // Overlay点击（兜底）
+  const ov=document.getElementById('dialogue-overlay');
+  if(ov)ov.addEventListener('click',function(e){
+    if(e.target===ov||e.target===cv)handleDlgClick();
+  });
+  // 键盘
+  document.addEventListener('keydown',function(e){
+    if((e.key==='Enter'||e.key===' '||e.key==='ArrowRight')&&currentDialogue){
+      e.preventDefault();advanceDialogue();
+    }
+  });
+}
+function handleDlgClick(){
+  if(currentDialogue)advanceDialogue();
+}
+document.addEventListener('DOMContentLoaded',ensureDlgClickHandler);
+
+// ---- 场景卡 ----
+function showSceneCard(locId,callback){
+  const scene=SCENES[locId];
+  document.getElementById('sc-title').textContent='📍 到达：'+scene.name;
+  document.getElementById('sc-sub').textContent=scene.arriveMsg;
+  document.getElementById('sc-anime-art').textContent=scene.animeArt;
+  document.getElementById('sc-anime-desc').textContent=scene.animeDesc;
+  document.getElementById('sc-real-art').textContent=scene.realArt;
+  document.getElementById('sc-real-desc').textContent=scene.realDesc;
+  // 渲染该地点可做的事
+  const acts=LOCATION_ACTIVITIES[locId]||[];
+  document.getElementById('sc-activities').innerHTML = acts.length? (
+    '<div class="sc-act-hint">🧺 在这里，小萤可以——</div>' +
+    acts.map(a=>{
+      const done=(GS.doneActivities||{})[a.id]===GS.day;
+      return `<button class="sc-act-btn" onclick="doActivity('${locId}','${a.id}')" ${done?'disabled':''}>
+        <span class="act-icon">${a.icon}</span>
+        <span class="act-body">
+          <span class="act-name">${a.name}${done?'（今日已完成）':''}</span>
+          <span class="act-desc">${a.desc}</span>
+          <span class="act-meta">${a.cost?('💰'+a.cost):'免费'} · ⏱${a.time}分钟</span>
+        </span>
+      </button>`;
+    }).join('')
+  ) : '<p class="act-none">这里暂时没有特别想做的事。</p>';
+  document.getElementById('scene-card').classList.remove('hidden');
+  sceneCardCallback=callback;
+}
+
+function closeSceneCard(){
+  document.getElementById('scene-card').classList.add('hidden');
+  if(sceneCardCallback){const cb=sceneCardCallback;sceneCardCallback=null;cb();}
+}
+
+// ---- 地点活动 ----
+function fxSummary(fx){
+  const label={stamina:'体力',mood:'心情',money:'金钱',confidence:'自信',skill:'专业',social:'社交',independence:'独立'};
+  return Object.entries(fx||{}).map(([k,v])=>{
+    const sign=v>0?'+':'';
+    return (label[k]||k)+sign+v;
+  }).join(' ');
+}
+
+function applyActivityFx(fx){
+  Object.entries(fx||{}).forEach(([k,v])=>{
+    if(k==='stamina')GS.stamina=clamp(GS.stamina+v,0,100);
+    if(k==='mood')GS.mood=clamp(GS.mood+v,0,100);
+    if(k==='money')GS.money=Math.round(Math.max(-999,GS.money+v));
+    if(k==='confidence')GS.confidence=clamp(GS.confidence+v,0,100);
+    if(k==='skill')GS.skill=clamp(GS.skill+v,0,100);
+    if(k==='social')GS.social=clamp(GS.social+v,0,100);
+    if(k==='independence')GS.independence=clamp(GS.independence+v,0,100);
+  });
+}
+
+function doActivity(locId,actId){
+  if(GS.gameOver)return;
+  const acts=LOCATION_ACTIVITIES[locId]||[];
+  const act=acts.find(a=>a.id===actId);
+  if(!act)return;
+  if((GS.doneActivities||{})[actId]===GS.day){showToast('今天已经做过这件事啦');return}
+  if(GS.money<act.cost){showToast('💰 金钱不足！');return}
+  if(act.cost)GS.money=Math.round(GS.money-act.cost);
+  applyActivityFx(act.fx);
+  // 天气对活动的提示反馈
+  const wAct=WEATHERS[GS.weather]||WEATHERS.sunny;
+  if(GS.weather!=='sunny')GS.mood=clamp(GS.mood+wAct.moodDrift,0,100);
+  GS.doneActivities=GS.doneActivities||{};
+  GS.doneActivities[actId]=GS.day;
+  advanceTime(act.time);
+  addLog(`在${LOCATIONS[locId].name}·${act.name}`);
+  const parts=[fxSummary(act.fx)];
+  if(act.cost)parts.push('💰-'+act.cost);
+  if(GS.weather!=='sunny')parts.push(`${wAct.icon}${wAct.name}天 心情${wAct.moodDrift}`);
+  showToast(act.icon+' '+act.name+'：'+parts.join(' · '));
+  renderAll();saveGame();
+  closeSceneCard();
+  checkEndings();
+}
+
+// ---- 剧情主线 ----
+let storyCallback=null;
+function showStoryNarrate(stage,callback){
+  document.getElementById('story-badge').textContent=stage.badge||stage.label;
+  document.getElementById('story-text').textContent=stage.text;
+  document.getElementById('story-overlay').classList.remove('hidden');
+  storyCallback=callback;
+}
+function closeStory(){
+  document.getElementById('story-overlay').classList.add('hidden');
+  if(storyCallback){const cb=storyCallback;storyCallback=null;cb();}
+}
+const OFFER_POSITIONS=['音频内容专员','无障碍体验顾问','无障碍测试专员'];
+const STORY_BONDS={story_grad:{npc:'小雨',amt:10},story_wait:{npc:'小雨',amt:8},story_review:{npc:'小雨',amt:8},story_interview:{npc:'林薇',amt:10},story_offer:{npc:'林薇',amt:8},story_firstday:{npc:'阿凯',amt:10}};
+function resolveStoryDialogue(dialogueId){
+  if(dialogueId!=='story_offer')return STORY_DIALOGUES[dialogueId];
+  const choice=GS.storyFlags.interviewChoice;
+  const key=choice===1?'story_offer_consultant':choice===2?'story_offer_tester':'story_offer_audio';
+  return STORY_DIALOGUES[key];
+}
+const POSITION_SETUPS={
+  '音频内容专员':'工位上已备好音频剪辑软件、读屏脚本和降噪耳机',
+  '无障碍体验顾问':'工位上已备好视频会议工具、用户反馈看板和沟通辅助软件',
+  '无障碍测试专员':'工位上已备好测试用例库、读屏脚本和自动化测试工具',
+};
+function prepareStoryDialogue(dlg){
+  if(!dlg)return dlg;
+  const pos=(GS.storyFlags&&GS.storyFlags.position)||'音频内容专员';
+  const setup=POSITION_SETUPS[pos]||POSITION_SETUPS['音频内容专员'];
+  return {...dlg,lines:(dlg.lines||[]).map(l=>({...l,text:l.text.replace(/\{position\}/g,pos).replace(/\{setup\}/g,setup)}))};
+}
+function startStoryStage(){
+  if(GS.gameOver)return;
+  const stage=STORY_STAGES[GS.storyStage];
+  if(!stage)return;
+  if(stage.type==='ending'){triggerEnding('story');return;}
+  if(stage.type==='dialogue'){
+    const dlg=prepareStoryDialogue(resolveStoryDialogue(stage.dialogueId));
+    if(dlg){
+      dlg.id=stage.dialogueId;
+      startDialogue(dlg,function(){
+        GS.storyStage++;GS.storyTriggeredToday=true;
+        renderAll();saveGame();
+        setTimeout(()=>{
+          checkEndings();
+          if(!GS.gameOver&&STORY_STAGES[GS.storyStage]&&STORY_STAGES[GS.storyStage].type==='ending')startStoryStage();
+        },100);
+      });
+    }else{GS.storyStage++;startStoryStage();}
+  }else if(stage.type==='narrate'){
+    showStoryNarrate(stage,function(){
+      GS.storyStage++;GS.storyTriggeredToday=true;
+      renderAll();saveGame();
+      setTimeout(()=>checkEndings(),100);
+    });
+  }
+}
+function maybeStartStory(){
+  if(GS.gameOver)return;
+  if(GS.storyTriggeredToday)return;
+  const stage=STORY_STAGES[GS.storyStage];
+  if(!stage)return;
+  if(GS.day>=stage.day){
+    GS.storyTriggeredToday=true;
+    startStoryStage();
+  }
+}
+
+// ---- 游戏流程 ----
+function newGame(){
+  const attr=previewAttr||rollAttributes();previewAttr=null;
+  GS={...JSON.parse(JSON.stringify(DEFAULT_STATE)),...attr};
+  GS.selectedDest=null;
+  saveGame();startGameScreen();
+}
+function continueGame(){
+  const saved=loadGame();if(!saved){showToast('没有找到存档');return;}
+  GS=saved;GS.selectedDest=null;startGameScreen();
+}
+function startGameScreen(){
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-ending').classList.add('hidden');
+  document.getElementById('screen-game').classList.remove('hidden');
+  initMap();drawCurrentCharacter('neutral');renderAll();checkEndings();
+  showToast('👆 点击地图上的建筑选择目的地');
+  setTimeout(()=>maybeStartStory(),500);
+}
+function restartGame(){
+  localStorage.removeItem('vision_sim_v3');GS=null;
+  document.getElementById('screen-ending').classList.add('hidden');
+  document.getElementById('screen-game').classList.add('hidden');
+  document.getElementById('screen-start').classList.remove('hidden');
+  previewAttr=rollAttributes();updatePreview();
+  document.getElementById('btn-cont2').style.display=loadGame()?'inline-block':'none';
+  if(animFrame2){cancelAnimationFrame(animFrame2);animFrame2=null;}
+  document.getElementById('start-char-canvas')&&drawAnimeGirl(document.getElementById('start-char-canvas'),1.6,'happy');
+}
+
+function updatePreview(){
+  document.getElementById('sa-zg').textContent=previewAttr.perception;
+  document.getElementById('sa-gj').textContent=previewAttr.toolUse;
+  document.getElementById('sa-gt').textContent=previewAttr.communication;
+}
+
+// ============================================================
+// Canvas Map
+// ============================================================
+let canvas2,ctx2,mw,mh;
+
+function initMap(){
+  canvas2=document.getElementById('map-canvas2');
+  ctx2=canvas2.getContext('2d');
+  resizeMap2();
+  window.addEventListener('resize',resizeMap2);
+  canvas2.addEventListener('click',handleMapClick2);
+  canvas2.addEventListener('mousemove',handleMapHover2);
+  canvas2.style.cursor='default';
+  particles2=[];
+  if(!animFrame2)animateMap2();
+}
+
+function resizeMap2(){
+  const wrap=document.getElementById('map-wrap');
+  const rect=wrap.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  mw=rect.width;mh=rect.height;
+  canvas2.width=mw*dpr;canvas2.height=mh*dpr;
+  canvas2.style.width=mw+'px';canvas2.style.height=mh+'px';
+  ctx2.setTransform(dpr,0,0,dpr,0,0);
+  buildMapData2();
+}
+
+function buildMapData2(){
+  const locs={};
+  Object.values(LOCATIONS).forEach(loc=>{locs[loc.id]={x:loc.cx*mw,y:loc.cy*mh,...loc}});
+  const roads=[
+    {from:locs.home,to:locs.busstop},{from:locs.busstop,to:locs.station},
+    {from:locs.busstop,to:locs.mall},{from:locs.mall,to:locs.shop},
+    {from:locs.station,to:locs.hospital},{from:locs.mall,to:locs.hospital},
+    {from:locs.home,to:locs.community},{from:locs.community,to:locs.park},
+    {from:locs.busstop,to:locs.park},{from:locs.park,to:locs.library},
+    {from:locs.mall,to:locs.library},{from:locs.library,to:locs.cafe},
+    {from:locs.cafe,to:locs.shop},
+    {from:locs.bank,to:locs.home},{from:locs.bank,to:locs.library},
+    {from:locs.pharmacy,to:locs.hospital},{from:locs.pharmacy,to:locs.shop},
+  ];
+  mapData2={locs,roads};
+}
+
+function animateMap2(){
+  if(!GS||GS.gameOver){animFrame2=null;return}
+  drawMap2();updateParticles2();drawParticles2();
+  animFrame2=requestAnimationFrame(animateMap2);
+}
+
+function drawMap2(){
+  const d=mapData2;if(!d)return;
+  ctx2.clearRect(0,0,mw,mh);
+  ctx2.fillStyle='#1a2a1e';ctx2.fillRect(0,0,mw,mh);
+
+  // 草地纹理
+  ctx2.fillStyle='#1f3022';
+  for(let i=0;i<150;i++){ctx2.beginPath();ctx2.arc((i*137+42)%mw,(i*251+17)%mh,1,0,Math.PI*2);ctx2.fill()}
+
+  // 公园
+  ctx2.fillStyle='#1e3422';
+  ctx2.beginPath();ctx2.ellipse(mw*.5,mh*.72,mw*.12,mh*.1,0,0,Math.PI*2);ctx2.fill();
+
+  // 树木
+  [[.12,.72],[.10,.68],[.16,.74],[.48,.65],[.52,.68],[.50,.72],[.72,.82],[.75,.85],[.68,.84],[.30,.30],[.33,.26],[.60,.20],[.63,.23],[.85,.33],[.82,.30]].forEach(([tx,ty])=>{
+    const x=tx*mw,y=ty*mh,sway=Math.sin(Date.now()*.001+x*.01)*1.5;
+    ctx2.fillStyle='#3a6640';ctx2.beginPath();ctx2.arc(x+sway,y-5,7,0,Math.PI*2);ctx2.fill();
+    ctx2.fillStyle='#4a7a52';ctx2.beginPath();ctx2.arc(x+sway+2,y-7,5,0,Math.PI*2);ctx2.fill();
+    ctx2.fillStyle='#5a4a3a';ctx2.fillRect(x-1,y-1,2,7);
+  });
+
+  // 道路
+  d.roads.forEach(r=>{
+    ctx2.strokeStyle='#3d3d56';ctx2.lineWidth=20;ctx2.lineCap='round';
+    ctx2.beginPath();ctx2.moveTo(r.from.x,r.from.y);ctx2.lineTo(r.to.x,r.to.y);ctx2.stroke();
+    ctx2.strokeStyle='#4a4a60';ctx2.lineWidth=2;ctx2.setLineDash([6,10]);
+    ctx2.beginPath();ctx2.moveTo(r.from.x,r.from.y);ctx2.lineTo(r.to.x,r.to.y);ctx2.stroke();
+    ctx2.setLineDash([]);
+  });
+
+  // 路灯
+  d.roads.forEach(r=>{
+    const dx=r.to.x-r.from.x,dy=r.to.y-r.from.y,dist=Math.sqrt(dx*dx+dy*dy);
+    for(let i=1;i<Math.floor(dist/35);i++){
+      const t=i/Math.floor(dist/35),lx=r.from.x+dx*t,ly=r.from.y+dy*t;
+      ctx2.fillStyle=`rgba(244,196,96,${.12+Math.sin(Date.now()*.003+i)*.04})`;
+      ctx2.beginPath();ctx2.arc(lx+8,ly-8,5,0,Math.PI*2);ctx2.fill();
+      ctx2.fillStyle='#f4c460';ctx2.beginPath();ctx2.arc(lx+8,ly-8,1.5,0,Math.PI*2);ctx2.fill();
+    }
+  });
+
+  // 建筑
+  Object.values(d.locs).forEach(loc=>{
+    const{x,y,id}=loc,isCur=GS.currentLocation===id,isSel=GS.selectedDest===id;
+    ctx2.fillStyle='rgba(0,0,0,.3)';ctx2.fillRect(x-14,y-14,30,30);
+    const grad=ctx2.createLinearGradient(x-12,y-12,x+12,y+12);
+    grad.addColorStop(0,'#3a3a58');grad.addColorStop(1,'#252540');
+    ctx2.fillStyle=grad;roundRect2(x-12,y-12,24,24,5);ctx2.fill();
+    ctx2.strokeStyle=isSel?'#f0c060':(isCur?'#7ac870':'#4a4a68');
+    ctx2.lineWidth=isSel?2.5:(isCur?2:1);
+    roundRect2(x-12,y-12,24,24,5);ctx2.stroke();
+    ctx2.fillStyle=isCur?'#f4d080':'#f4c060';
+    ctx2.globalAlpha=.5+Math.sin(Date.now()*.002+x)*.2;
+    ctx2.fillRect(x-7,y-7,4,4);ctx2.fillRect(x+2,y-7,4,4);ctx2.fillRect(x-7,y+2,4,4);
+    ctx2.globalAlpha=1;
+    if(isCur){ctx2.fillStyle='rgba(122,200,112,.12)';ctx2.beginPath();ctx2.arc(x,y,20,0,Math.PI*2);ctx2.fill()}
+    if(isSel){const p=.4+Math.sin(Date.now()*.006)*.2;ctx2.strokeStyle=`rgba(240,192,96,${p})`;ctx2.lineWidth=3;roundRect2(x-14,y-14,28,28,7);ctx2.stroke()}
+    ctx2.fillStyle='#e0d8c8';ctx2.font=`${isCur?14:12}px sans-serif`;ctx2.textAlign='center';ctx2.textBaseline='middle';
+    ctx2.fillText(loc.icon,x,y);
+    ctx2.fillStyle='rgba(200,180,150,.8)';ctx2.font='9px "Microsoft YaHei",sans-serif';ctx2.fillText(loc.name,x,y+21);
+  });
+
+  // 角色光点
+  const cl=mapData2.locs[GS.currentLocation];if(cl){
+    let cx=cl.x,cy=cl.y;
+    if(window._moveAnim){
+      const p=Math.min(1,(Date.now()-window._moveAnim.start)/window._moveAnim.dur);
+      if(p<1){cx=window._moveAnim.fx+(window._moveAnim.tx-window._moveAnim.fx)*easeInOutCubic2(p);cy=window._moveAnim.fy+(window._moveAnim.ty-window._moveAnim.fy)*easeInOutCubic2(p)}
+      else window._moveAnim=null;
+    }
+    ctx2.fillStyle='rgba(244,164,64,.22)';ctx2.beginPath();ctx2.arc(cx,cy,9,0,Math.PI*2);ctx2.fill();
+    const cg=ctx2.createRadialGradient(cx-1,cy-1,1,cx,cy,4);
+    cg.addColorStop(0,'#fff');cg.addColorStop(.4,'#f4c060');cg.addColorStop(1,'#c08030');
+    ctx2.fillStyle=cg;ctx2.beginPath();ctx2.arc(cx,cy,4,0,Math.PI*2);ctx2.fill();
+    ctx2.strokeStyle='rgba(255,255,255,.35)';ctx2.lineWidth=1;ctx2.beginPath();ctx2.arc(cx,cy,4,0,Math.PI*2);ctx2.stroke();
+  }
+
+  // 天气氛围
+  if(GS.weather==='rain'){
+    ctx2.fillStyle='rgba(60,80,110,.12)';ctx2.fillRect(0,0,mw,mh);
+    ctx2.strokeStyle='rgba(170,190,220,.16)';ctx2.lineWidth=1;
+    for(let i=0;i<30;i++){
+      const rx=(i*137+33)%mw,ry=(Date.now()*.06+i*97)%mh;
+      ctx2.beginPath();ctx2.moveTo(rx,ry);ctx2.lineTo(rx-1.5,ry+9);ctx2.stroke();
+    }
+  }else if(GS.weather==='wind'){
+    ctx2.fillStyle='rgba(200,210,180,.04)';ctx2.fillRect(0,0,mw,mh);
+  }
+
+  if(Math.random()<.25)particles2.push({x:Math.random()*mw,y:Math.random()*mh*.5,life:1,size:Math.random()*2+1,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3-.2});
+}
+
+function updateParticles2(){for(let i=particles2.length-1;i>=0;i--){const p=particles2[i];p.x+=p.vx;p.y+=p.vy;p.life-=.008;if(p.life<=0)particles2.splice(i,1)}}
+function drawParticles2(){particles2.forEach(p=>{ctx2.fillStyle=`rgba(244,196,96,${p.life*.35})`;ctx2.beginPath();ctx2.arc(p.x,p.y,p.size,0,Math.PI*2);ctx2.fill()})}
+function easeInOutCubic2(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+function roundRect2(x,y,w,h,r){ctx2.beginPath();ctx2.moveTo(x+r,y);ctx2.lineTo(x+w-r,y);ctx2.arcTo(x+w,y,x+w,y+r,r);ctx2.lineTo(x+w,y+h-r);ctx2.arcTo(x+w,y+h,x+w-r,y+h,r);ctx2.lineTo(x+r,y+h);ctx2.arcTo(x,y+h,x,y+h-r,r);ctx2.lineTo(x,y+r);ctx2.arcTo(x,y,x+r,y,r);ctx2.closePath()}
+
+function handleMapClick2(e){
+  if(!mapData2||!GS||GS.gameOver)return;
+  const rect=canvas2.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  let clicked=null,md=22;
+  Object.values(mapData2.locs).forEach(l=>{const d=Math.hypot(mx-l.x,my-l.y);if(d<md){md=d;clicked=l}});
+  if(clicked&&clicked.id!==GS.currentLocation){GS.selectedDest=clicked.id;showToast('📍 目的地：'+clicked.name)}
+}
+function handleMapHover2(e){
+  if(!mapData2)return;
+  const rect=canvas2.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  let h=false;Object.values(mapData2.locs).forEach(l=>{if(Math.hypot(mx-l.x,my-l.y)<20)h=true});
+  canvas2.style.cursor=h?'pointer':'default';
+}
+
+// ============================================================
+// 出行
+// ============================================================
+function startTravel(){
+  if(!GS.selectedDest){showToast('👆 请先在地图上点击目的地');return}
+  if(GS.selectedDest===GS.currentLocation){showToast('你已经在这里了');return}
+  if(GS.gameOver)return;
+
+  const tId=document.getElementById('sel-transport').value;
+  const t=TRANSPORT[tId],load=calcLoad(),lf=1+load/20;
+  const weather=WEATHERS[GS.weather]||WEATHERS.sunny;
+  const indoor=!!t.indoor;
+  const staminaCost=Math.round(t.stamina*lf*(indoor?1:weather.staminaMul));
+  const timeMin=Math.round((t.timeMin+t.timeMax)/2*lf);
+  // 天气对出行的提示反馈
+  if(GS.weather!=='sunny'){
+    if(indoor){
+      addLog(`🚕 打车避雨，免受${weather.name}天体力与心情影响`);
+      showToast('🚕 打车出行：坐车避雨，体力与心情不受天气影响');
+    }else{
+      const pct=Math.round((weather.staminaMul-1)*100);
+      const moodTxt=weather.moodDrift<0?`心情${weather.moodDrift}`:`心情+${weather.moodDrift}`;
+      addLog(`${weather.icon} ${weather.name}天出行：体力消耗 +${pct}%，${moodTxt}`);
+      if(GS.weather==='rain'){
+        showToast('🌧️ 雨天导盲难度上升：雨声干扰听觉、地面湿滑，请多加小心');
+      }else if(GS.weather==='wind'){
+        showToast('💨 风天出行：气流与杂物会干扰听觉判断，注意安全');
+      }
+    }
+  }
+  if(GS.money+t.money<0){showToast('💰 金钱不足！');return}
+
+  const originId=GS.currentLocation,originName=LOCATIONS[originId].name;
+  const destId=GS.selectedDest,destName=LOCATIONS[destId].name;
+  const fromLoc=mapData2.locs[originId],toLoc=mapData2.locs[destId];
+
+  GS.money+=t.money;GS.stamina+=staminaCost;GS.stamina=clamp(GS.stamina,0,100);GS.money=Math.round(GS.money);GS.mood=clamp(GS.mood+((indoor?0:weather.moodDrift)||0),0,100);
+  advanceTime(timeMin);
+  GS.currentLocation=destId;GS.travelsCompleted++;GS.selectedDest=null;
+  GS.visitedLocations=GS.visitedLocations||[];
+  if(!GS.visitedLocations.includes(destId))GS.visitedLocations.push(destId);
+
+  if(fromLoc&&toLoc){window._moveAnim={fx:fromLoc.x,fy:fromLoc.y,tx:toLoc.x,ty:toLoc.y,start:Date.now(),dur:Math.min(1500,timeMin*35)}}
+
+  addLog(`从${originName}乘坐${t.name}到达${destName}`);
+
+  // 检查是否需要立刻结局（跳过场景卡）
+  if(GS.stamina<=0||GS.mood<=0||GS.money<0){
+    renderAll();saveGame();checkEndings();return;
+  }
+
+  // 先显示场景卡
+  showSceneCard(destId,()=>{
+    renderAll();saveGame();
+    const eventDelay=600;
+    if(!GS.gameOver){
+      maybeStartStory();
+      setTimeout(()=>{
+        if(GS.gameOver)return;
+        const storyOpen = !document.getElementById('story-overlay').classList.contains('hidden') ||
+                          !document.getElementById('dialogue-overlay').classList.contains('hidden');
+        if(!storyOpen)maybeTriggerDialogue(tId);
+      },eventDelay);
+    }
+    setTimeout(()=>checkEndings(),eventDelay+200);
+  });
+
+  renderAll();saveGame();
+}
+
+function advanceTime(minutes){
+  GS.time+=minutes;
+  while(GS.time>=1320){
+    GS.time=480+(GS.time-1320);GS.day++;GS.stamina=Math.min(100,GS.stamina+25);GS.mood=clamp(GS.mood+2,0,100);GS.storyTriggeredToday=false;
+    rollWeather();
+    const w=WEATHERS[GS.weather]||WEATHERS.sunny;
+    addLog('🌅 新的一天！今天'+w.name);
+  }
+}
+
+// ---- 对话触发 ----
+function maybeTriggerDialogue(transport){
+  const t=TRANSPORT[transport],baseRate=t.eventRate;
+  const pBonus=(GS.perception-3)*.05,lPenalty=calcLoad()>10?.1:0;
+  const rate=clamp(baseRate+pBonus-lPenalty,.1,.9);
+  if(Math.random()<rate){
+    const dlg=selectDialogue();if(dlg)startDialogue(dlg,()=>{renderAll();saveGame();checkEndings()});
+  }
+}
+
+function selectDialogue(){
+  const eligible=DIALOGUES.filter(d=>{
+    if(d.minDay&&GS.day<d.minDay)return false;
+    if(d.cond){try{if(!d.cond())return false}catch(e){return false}}
+    return true;
+  });
+  const fresh=eligible.filter(d=>!GS.triggeredDialogues.includes(d.id));
+  const pool=fresh.length>0?fresh:eligible;
+  let candidates=pool;
+  // 地点联动：当前地点专属的事件优先触发
+  const locMatch=pool.filter(d=>d.location===GS.currentLocation);
+  if(locMatch.length>0&&Math.random()<.5){
+    candidates=locMatch;
+  }else{
+    // 天气联动：当前天气匹配的事件优先触发
+    const weatherMatch=pool.filter(d=>d.weather===GS.weather);
+    if(weatherMatch.length>0&&Math.random()<.5){
+      candidates=weatherMatch;
+    }else if(GS.mood<40){
+      const pos=pool.filter(d=>d.type==='positive');if(pos.length>0&&Math.random()<.4)candidates=pos;
+    }
+  }
+  return candidates[Math.floor(Math.random()*candidates.length)];
+}
+
+// ---- 渲染 ----
+function renderAll(){
+  document.getElementById('clock2').textContent=fmtTime(GS.time);
+  document.getElementById('day2').textContent='第 '+GS.day+' 天';
+  const w=WEATHERS[GS.weather]||WEATHERS.sunny;
+  document.getElementById('weather2').textContent=w.icon+w.name;
+  document.getElementById('loc2').textContent='📍 '+LOCATIONS[GS.currentLocation].name;
+  const s=document.getElementById('bb-stamina');s.textContent=GS.stamina;s.className='bbv '+(GS.stamina>60?'gd':GS.stamina>30?'wn':'bd');
+  const m=document.getElementById('bb-money');m.textContent=GS.money;m.className='bbv '+(GS.money>20?'gd':GS.money>5?'wn':'bd');
+  const mo=document.getElementById('bb-mood');mo.textContent=GS.mood;mo.className='bbv '+(GS.mood>60?'gd':GS.mood>30?'wn':'bd');
+  document.getElementById('bb-load').textContent=calcLoad().toFixed(1)+'kg';
+  document.getElementById('g-confidence').textContent=GS.confidence;
+  document.getElementById('g-skill').textContent=GS.skill;
+  document.getElementById('g-social').textContent=GS.social;
+  document.getElementById('g-independence').textContent=GS.independence;
+  if(document.getElementById('g-stage'))document.getElementById('g-stage').textContent=STORY_STAGES[GS.storyStage]?STORY_STAGES[GS.storyStage].label:'';
+  document.getElementById('dp-text').textContent=GS.selectedDest?'前往 '+LOCATIONS[GS.selectedDest].name+'…':'点击地图选择目的地';
+}
+
+function toggleBackpack(){
+  document.getElementById('panel-backpack').classList.toggle('open');
+  if(document.getElementById('panel-backpack').classList.contains('open'))renderBackpack();
+}
+function renderBackpack(){
+  document.getElementById('bp-total2').textContent=calcLoad().toFixed(1);
+  document.getElementById('bp-items2').innerHTML=GS.inventory.map(it=>{
+    const def=USABLE_ITEMS[it.id];
+    const used=GS.usedItems&&GS.usedItems[it.id]===GS.day;
+    const btn=def?(used?'<span class="iuse disabled">今日已用</span>':`<button class="iuse" onclick="useItem('${it.id}')">${def.icon} ${def.name}</button>`):'';
+    return `<div class="bp-item-card2"><div class="iname">${it.name}</div><div class="idesc">${it.desc}</div><div class="iwt">重量: ${it.weight.toFixed(1)}kg</div>${btn}</div>`;
+  }).join('');
+}
+function useItem(itemId){
+  const def=USABLE_ITEMS[itemId];
+  if(!def||GS.gameOver)return;
+  GS.usedItems=GS.usedItems||{};
+  if(GS.usedItems[itemId]===GS.day){showToast('今天已经用过啦');return}
+  applyActivityFx(def.fx);
+  GS.usedItems[itemId]=GS.day;
+  showToast(def.icon+' '+def.name+'：'+fxSummary(def.fx));
+  renderAll();saveGame();renderBackpack();checkEndings();
+}
+
+function toggleLog(){
+  document.getElementById('panel-log').classList.toggle('open');
+  if(document.getElementById('panel-log').classList.contains('open')){
+    document.getElementById('log-items2').innerHTML=GS.eventLog.slice(0,25).map(e=>`
+      <div class="log-line2"><span class="lts">D${e.day} ${fmtTime(e.time)}</span>${e.text}</div>
+    `).join('')||'<p style="color:#666">暂无记录</p>';
+  }
+}
+
+function doSave(){saveGame();showToast('💾 已存档')}
+
+// ---- 结局 ----
+function getStoryEnding(){
+  const c=GS.confidence,s=GS.skill,so=GS.social,ind=GS.independence;
+  // —— 低谷结局（基础能力不足，无论去向）——
+  if(c<55&&s<55)return {icon:'🌱',title:'磕绊前行 — 小萤还在适应',cls:'bad',desc:'入职只是开始，小萤在新环境里依然磕磕绊绊。方案被退回、会议上不敢发言、回家的路上迷了路。<br><br>但每一次跌倒，她都重新站了起来。成长从来不是一蹴而就，她还有很长的路要走。'};
+  // —— 友情满点结局 ——
+  {const b=GS.bonds||{};if((b['小雨']||0)>=60&&(b['林薇']||0)>=60&&(b['阿凯']||0)>=60)return {icon:'💞',title:'友情满点 — 这座城市的第二双眼睛',cls:'good',desc:'七天里，小萤最大的收获不是一份工作，而是三个真心相待的朋友。小雨的鼓励、林薇的引路、阿凯的陪伴，让她在陌生的城市里有了坚实的依靠。<br><br>视障从不是孤独的理由。她终于明白：有人同行，路再难也走得下去。'};}
+  // —— 职业去向① 独立创业 ——
+  if(ind>=70&&c>=60)return {icon:'🚀',title:'独立创业 — 小萤办起了自己的无障碍工作室',cls:'good',desc:'在听澜历练了一段时间后，小萤做了一个大胆的决定：离开舒适区，自己创办一间专注无障碍音频的小工作室。<br><br>她用这七天学会的独立与自信，谈客户、找场地、招募同样视障的伙伴。曾经那个不敢独自出门的女孩，如今成了别人眼中的「创业前辈」。'};
+  if(ind>=70)return {icon:'🕊️',title:'独立之路 — 小萤靠自己走出了天地',cls:'good',desc:'七天的磨砺让小萤彻底学会了一个人生活。她不再依赖任何人，独自看房、独自面试、独自上下班，也开始盘算起未来属于自己的事业。<br><br>视障从未定义她的边界。那条她走过无数遍的路线，如今闭着眼也能抵达。'};
+  // —— 职业去向② 转岗 ——
+  if(so>=70&&so>s)return {icon:'🔄',title:'沟通桥梁 — 小萤成了用户与团队之间的纽带',cls:'good',desc:'小萤出色的沟通能力被林薇看在眼里。无论最初是什么岗位，她都用真诚赢得了视障用户与产品团队的双重信任，成了那条最被依赖的沟通桥梁。<br><br>社交的温暖，让这座陌生的城市不再冰冷。她的朋友圈，就是她的第二双眼睛。'};
+  // —— 职业去向③ 转正 ——
+  if(s>=70&&c>=60)return {icon:'🌟',title:'职场新星 — 顺利转正，成为团队核心',cls:'good',desc:'凭借自信与专业能力，小萤在听澜科技顺利转正，成了团队里不可或缺的一员。<br><br>曾经那个害怕独自出门的女孩，如今已经能独自规划通勤路线，在陌生的写字楼里从容地工作。毕业，原来只是这段旅程的起点。'};
+  if(c>=70)return {icon:'🌈',title:'自信绽放 — 小萤敢于为自己发声',cls:'good',desc:'七天里最大的成长，不是某一份技能，而是小萤终于敢在需要的时候开口。<br><br>会议上她主动发言，遇到不合理的对待她敢于说"不"，她不再把"我看不见"当成需要道歉的理由。<br><br>自信，是她在这座城市里送给自己的、最珍贵的毕业礼物。'};
+  if(s>=55)return {icon:'💼',title:'顺利转正 — 小萤站稳了脚跟',cls:'good',desc:'试用期结束，小萤顺利转正。没有惊天动地的成就，却也没有停下脚步。<br><br>她在音频内容专员的岗位上越做越顺手，同事阿凯也成了她的第一个职场朋友。在陌生的城市里站稳脚跟，本身就是一种了不起的胜利。'};
+  // —— 兜底 ——
+  return {icon:'🌱',title:'稳步前进 — 小萤顺利入职',cls:'good',desc:'小萤顺利地走完了毕业到入职的每一步。她还在摸索最适合自己的方向，却从未停下脚步。<br><br>对每一个走出校园的人来说，能在陌生的城市里站稳脚跟，本身就是一种了不起的胜利。'};
+}
+
+function checkEndings(){
+  checkAchievements();
+  if(GS.gameOver)return;
+  if(GS.stamina<=0)triggerEnding('stamina');
+  else if(GS.mood<=0)triggerEnding('mood');
+  else if(GS.money<0)triggerEnding('money');
+}
+
+function checkAchievements(){
+  GS.achievements=GS.achievements||[];
+  ACHIEVEMENTS.forEach(a=>{
+    if(GS.achievements.includes(a.id))return;
+    try{
+      if(a.cond()){
+        GS.achievements.push(a.id);
+        if(a.reward)applyActivityFx(a.reward);
+        showToast('🏅 解锁成就：'+a.icon+' '+a.name+(a.reward?' · 奖励 '+fxSummary(a.reward):''));
+      }
+    }catch(e){}
+  });
+}
+
+function toggleAchievements(){
+  const ov=document.getElementById('ach-overlay');
+  if(ov.classList.contains('hidden'))renderAchievements();
+  ov.classList.toggle('hidden');
+}
+
+function renderAchievements(){
+  const unlocked=GS.achievements||[];
+  document.getElementById('ach-count').textContent='已解锁 '+unlocked.length+' / '+ACHIEVEMENTS.length;
+  document.getElementById('ach-grid').innerHTML=ACHIEVEMENTS.map(a=>{
+    const has=unlocked.includes(a.id);
+    return `<div class="ach-card ${has?'':'locked'}">
+      <div class="ach-icon">${has?a.icon:'🔒'}</div>
+      <div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div>
+    </div>`;
+  }).join('');
+}
+
+const BOND_META={小雨:{avatar:'👩‍🎓',desc:'大学最好的朋友',color:'#7ac870'},林薇:{avatar:'👩‍💼',desc:'听澜科技产品总监',color:'#6aa0e0'},阿凯:{avatar:'👨‍💻',desc:'工位旁的同事',color:'#e0a060'}};
+const BOND_EVENTS = {
+  小雨:{
+    60:{id:'bond_xiaoyu_60',speaker:'小雨',avatar:'👩‍🎓',type:'positive',
+      lines:[
+        {text:'（这天，小雨突然发来一段长长的语音，语气认真得不像平时的她。）',who:'narrator',expr:'neutral'},
+        {text:'「小萤，我想跟你说，不管以后我们各自去了哪里，你永远是我最好的朋友。」',who:'小雨',expr:'happy'},
+        {text:'（你的眼眶突然有点热。在这个陌生的城市里，有这样一个朋友，真好。）',who:'narrator',expr:'happy'},
+      ],
+      responses:[
+        {text:'「我也是。谢谢你一直在。」',fx:{mood:+6,social:+3},hint:'心情+6 社交+3'},
+        {text:'「突然这么煽情，我都要哭了」',fx:{mood:+5},hint:'心情+5'},
+      ]
+    },
+    80:{id:'bond_xiaoyu_80',speaker:'小雨',avatar:'👩‍🎓',type:'positive',
+      lines:[
+        {text:'「小萤，我最近在考虑要不要换工作……有点迷茫，就想听听你的看法。」小雨难得地向你倾诉。',who:'小雨',expr:'neutral'},
+        {text:'（曾经总是她安慰你，如今她也会把心事讲给你听。你们早就是彼此的后盾了。）',who:'narrator',expr:'happy'},
+      ],
+      responses:[
+        {text:'认真听她说完，给她建议',fx:{social:+5,confidence:+3},hint:'社交+5 自信+3'},
+        {text:'「别急，我们慢慢捋」',fx:{social:+4,mood:+3},hint:'社交+4 心情+3'},
+      ]
+    },
+  },
+  林薇:{
+    60:{id:'bond_linwei_60',speaker:'林薇',avatar:'👩‍💼',type:'positive',
+      lines:[
+        {text:'「小萤，这个项目我打算交给你独立负责一部分。」林薇的语气里满是信任。',who:'林薇',expr:'neutral'},
+        {text:'「我知道这对你来说不容易，但你的认真和细腻，我们都看在眼里。」',who:'林薇',expr:'happy'},
+        {text:'（被这样信任着，你既紧张，又觉得浑身充满力量。）',who:'narrator',expr:'happy'},
+      ],
+      responses:[
+        {text:'「我一定不辜负您的信任」',fx:{confidence:+6,skill:+3},hint:'自信+6 专业+3'},
+        {text:'「我会先做好规划再开始」',fx:{skill:+5,independence:+3},hint:'专业+5 独立+3'},
+      ]
+    },
+    80:{id:'bond_linwei_80',speaker:'林薇',avatar:'👩‍💼',type:'positive',
+      lines:[
+        {text:'「小萤，其实我一直想谢谢你。」林薇难得地卸下了总监的身份。',who:'林薇',expr:'neutral'},
+        {text:'「你让我重新理解了无障碍的意义——不是施舍，而是让每个人都能平等地生活。」',who:'林薇',expr:'happy'},
+        {text:'（原来，你也在不知不觉中，成了照亮别人的光。）',who:'narrator',expr:'happy'},
+      ],
+      responses:[
+        {text:'「是您给了我机会，该我谢谢您」',fx:{social:+5,confidence:+3},hint:'社交+5 自信+3'},
+        {text:'「我们一起把这件事做得更好」',fx:{confidence:+5,skill:+3},hint:'自信+5 专业+3'},
+      ]
+    },
+  },
+  阿凯:{
+    60:{id:'bond_akai_60',speaker:'同事阿凯',avatar:'👨‍💻',type:'positive',
+      lines:[
+        {text:'「小萤，我发现你现在越来越熟练了！」阿凯笑着递给你一杯奶茶。',who:'同事阿凯',expr:'happy'},
+        {text:'「刚来的时候你还总说怕跟不上，现在都能带新人了。」',who:'同事阿凯',expr:'happy'},
+        {text:'（从陌生同事到可以一起喝奶茶的朋友，原来也没那么难。）',who:'narrator',expr:'happy'},
+      ],
+      responses:[
+        {text:'「多亏有你一直帮我」',fx:{social:+5,mood:+3},hint:'社交+5 心情+3'},
+        {text:'「我还差得远呢」',fx:{confidence:+3,skill:+2},hint:'自信+3 专业+2'},
+      ]
+    },
+    80:{id:'bond_akai_80',speaker:'同事阿凯',avatar:'👨‍💻',type:'positive',
+      lines:[
+        {text:'「小萤，跟你说个秘密——我其实想自己创业，做个真正好用的无障碍App。」阿凯的眼神很亮。',who:'同事阿凯',expr:'happy'},
+        {text:'「我想拉你一起。你的体验和想法，是最宝贵的东西。」',who:'同事阿凯',expr:'happy'},
+        {text:'（你愣住了。原来你一直担心的「能力不足」，在别人眼里是「无可替代」。）',who:'narrator',expr:'happy'},
+      ],
+      responses:[
+        {text:'「好，我们一起试试看」',fx:{confidence:+8,independence:+4},hint:'自信+8 独立+4'},
+        {text:'「让我再想想，这太突然了」',fx:{independence:+3},hint:'独立+3'},
+      ]
+    },
+  },
+};
+function checkBondMilestones(){
+  const bonds=GS.bonds||{};
+  GS.bondMilestones=GS.bondMilestones||{};
+  const pending=[];
+  Object.keys(BOND_EVENTS).forEach(npc=>{
+    const v=bonds[npc]||0;
+    [60,80].forEach(th=>{
+      const key=npc+'_'+th;
+      if(v>=th&&!GS.bondMilestones[key]){
+        GS.bondMilestones[key]=true;
+        const ev=BOND_EVENTS[npc][th];
+        if(ev)pending.push(ev);
+      }
+    });
+  });
+  pending.forEach((ev,i)=>{
+    setTimeout(()=>{
+      if(GS.gameOver)return;
+      showToast(`💞 羁绊升华 · ${ev.speaker==='同事阿凯'?'阿凯':ev.speaker}`);
+      startDialogue(ev,()=>{renderAll();saveGame();checkEndings()});
+    },600+i*600);
+  });
+}
+function toggleBonds(){
+  const ov=document.getElementById('bond-overlay');
+  if(ov.classList.contains('hidden'))renderBonds();
+  ov.classList.toggle('hidden');
+}
+function renderBonds(){
+  const bonds=GS.bonds||{};
+  document.getElementById('bond-grid').innerHTML=Object.keys(BOND_META).map(n=>{
+    const v=clamp(bonds[n]||0,0,100);
+    const m=BOND_META[n];
+    const heart=v>=80?'❤️':v>=60?'💛':v>=30?'💚':'🤍';
+    return `<div class="bond-card">
+      <div class="bond-avatar">${m.avatar}</div>
+      <div class="bond-body">
+        <div class="bond-name">${heart} ${n}</div>
+        <div class="bond-desc">${m.desc}</div>
+        <div class="bond-bar"><div class="bond-fill" style="width:${v}%;background:${m.color}"></div></div>
+        <div class="bond-val">羁绊 ${v}/100</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleGuide(){
+  const ov=document.getElementById('guide-overlay');
+  if(ov.classList.contains('hidden'))renderGuide();
+  ov.classList.toggle('hidden');
+}
+function renderGuide(){
+  const visited=GS.visitedLocations||[];
+  const ids=Object.keys(SCENES);
+  const unlocked=ids.filter(id=>visited.includes(id));
+  document.getElementById('guide-count').textContent=`已解锁 ${unlocked.length}/${ids.length} · 每到一个新地点，就点亮一张知识卡`;
+
+  // 探索成就联动进度
+  const achList=[
+    {icon:'🧠',name:'科普爱好者',target:6},
+    {icon:'🗺️',name:'城市探索家',target:12},
+  ];
+  document.getElementById('guide-ach').innerHTML=achList.map(a=>{
+    const cur=Math.min(unlocked.length,a.target);
+    const done=unlocked.length>=a.target;
+    const pct=Math.round(cur/a.target*100);
+    return `<div class="guide-ach-card ${done?'done':''}">
+      <div class="guide-ach-top"><span class="ga-ic">${a.icon}</span>${a.name}<span class="ga-st">${done?'已达成 🏅':cur+' / '+a.target}</span></div>
+      <div class="guide-ach-bar"><div class="guide-ach-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('guide-grid').innerHTML=ids.map(id=>{
+    const scene=SCENES[id];
+    if(visited.includes(id)){
+      const idx=visited.indexOf(id);
+      let badge='';
+      if(idx===5)badge=`<div class="guide-badge">🧠 科普爱好者</div>`;
+      else if(idx===11)badge=`<div class="guide-badge">🗺️ 城市探索家</div>`;
+      return `<div class="guide-card">
+        <div class="guide-icon">${scene.realArt}</div>
+        <div class="guide-body">
+          <div class="guide-name">${scene.name}</div>
+          <div class="guide-desc">${scene.realDesc}</div>
+        </div>
+        ${badge}
+      </div>`;
+    }
+    return `<div class="guide-card locked">
+      <div class="guide-icon">🔒</div>
+      <div class="guide-body">
+        <div class="guide-name">？？？</div>
+        <div class="guide-lock">尚未探索——去这座城市里走走吧</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function triggerEnding(type){
+  GS.endingType=type;GS.gameOver=true;if(animFrame2){cancelAnimationFrame(animFrame2);animFrame2=null}
+  document.getElementById('screen-game').classList.add('hidden');
+  document.getElementById('dialogue-overlay').classList.add('hidden');
+  document.getElementById('scene-card').classList.add('hidden');
+  document.getElementById('story-overlay').classList.add('hidden');
+  document.getElementById('screen-ending').classList.remove('hidden');
+
+  let e;
+  if(type==='story'){
+    e=getStoryEnding();
+  }else{
+    const endings={
+      stamina:{icon:'💔',title:'体力耗尽 — 小萤累倒了',cls:'bad',desc:'连续的奔波让小萤的体力彻底耗尽。她瘫坐在路边，导盲杖从手中滑落。<br><br>视障人士的每一次出行，都是一场对身体极限的考验。也许她需要学会更好地休息。'},
+      mood:{icon:'🌧️',title:'情绪崩溃 — 小萤哭了',cls:'bad',desc:'一次次的拒绝和障碍终于击垮了小萤的心理防线。她蹲在街角，眼泪不受控制地流下来。<br><br>视障人士的出行，不仅是身体的跋涉，更是心灵的考验。在这个看不见的世界里，冷漠比想象中更痛。'},
+      money:{icon:'💸',title:'身无分文 — 小萤被困住了',cls:'bad',desc:'出行的高昂成本让小萤措手不及。口袋里一分钱都不剩了。<br><br>在这个城市里，没有钱寸步难行，对视障人士更是如此。她需要更精细地规划预算。'}
+    };
+    e=endings[type]||endings.stamina;
+  }
+  document.getElementById('end-icon2').textContent=e.icon;
+  const t=document.getElementById('end-title2');t.textContent=e.title;t.className='et '+e.cls;
+  document.getElementById('end-desc2').innerHTML=e.desc;
+  const load=calcLoad();
+  document.getElementById('end-stats2').innerHTML=`
+    <div class="er"><span>🚶 出行次数</span><span>${GS.travelsCompleted} 次</span></div>
+    <div class="er"><span>💬 触发对话</span><span>${GS.totalEventsTriggered} 次</span></div>
+    <div class="er"><span>❤️ 剩余体力</span><span>${GS.stamina}/100</span></div>
+    <div class="er"><span>💰 剩余金钱</span><span>¥${GS.money}</span></div>
+    <div class="er"><span>😊 最终心情</span><span>${GS.mood}/100</span></div>
+    <div class="er"><span>🎒 背包负重</span><span>${load.toFixed(1)}kg</span></div>
+    <div class="er"><span>📅 完成天数</span><span>${Math.min(GS.day,7)}/7 天</span></div>
+    <div class="er"><span>💼 职业去向</span><span>${(GS.storyFlags&&GS.storyFlags.position)?GS.storyFlags.position:'—'}</span></div>
+    <hr style="border-color:#2a2a48;margin:6px 0">
+    <div class="er"><span>🔍 感知</span><span>${GS.perception}</span></div>
+    <div class="er"><span>🛠️ 工具使用</span><span>${GS.toolUse}</span></div>
+    <div class="er"><span>💬 沟通</span><span>${GS.communication}</span></div>
+    <hr style="border-color:#2a2a48;margin:6px 0">
+    <div class="er"><span>💪 自信</span><span>${GS.confidence}</span></div>
+    <div class="er"><span>🎓 专业</span><span>${GS.skill}</span></div>
+    <div class="er"><span>🤝 社交</span><span>${GS.social}</span></div>
+    <div class="er"><span>🕊️ 独立</span><span>${GS.independence}</span></div>
+  `;
+  saveGame();
+}
+
+// ---- init ----
+function init(){
+  const hasSave=!!loadGame();document.getElementById('btn-cont2').style.display=hasSave?'inline-block':'none';
+  previewAttr=rollAttributes();updatePreview();
+  drawAnimeGirl(document.getElementById('start-char-canvas'),1.6,'happy');
+  const saved=loadGame();
+  if(saved&&saved.gameOver){GS=saved;document.getElementById('screen-start').classList.add('hidden');document.getElementById('screen-game').classList.add('hidden');document.getElementById('screen-ending').classList.remove('hidden');triggerEnding(saved.endingType||'story');GS.gameOver=true;saveGame()}
+}
+init();
+</script>
+</body>
+</html>
