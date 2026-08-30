@@ -1056,6 +1056,18 @@ const SCENES = {
     animeDesc:'明亮的药店里，药剂师正耐心地为小萤介绍每种药的用法，货架上的标签清晰可读。',
     realDesc:'药品说明书全是密密麻麻的小字，对视障人士来说等于"天书"。没有语音说明书或盲文标签时，他们只能靠药剂师口头告知，很容易漏记或搞混。',
     arriveMsg:'药店的药味扑面而来，小萤握紧了口袋里的处方。'
+  },
+  happyvalley:{
+    name:'欢乐谷',animeArt:'🎢✨',realArt:'🎢',
+    animeDesc:'色彩鲜艳的游乐园，巨大的摩天轮在阳光下缓缓转动，过山车的轨道高高架起。',
+    realDesc:'游乐园是视障人士难得的休闲去处，但开阔的空间、震耳的音效和复杂的地形，让定位变得异常困难。很多项目入口的指示都依赖视觉。',
+    arriveMsg:'欢乐谷的游乐设施轰鸣声和尖叫声扑面而来。'
+  },
+  longtravel:{
+    name:'出行枢纽',animeArt:'🚄✨',realArt:'🚄',
+    animeDesc:'明亮的交通枢纽，高铁列车静静停靠，站台上黄色的盲道一路延伸。',
+    realDesc:'长途出行对视障人士是一场复杂的挑战——买票、安检、找站台、上车，每一步都需要他人帮助或反复确认。不同交通工具的无障碍服务差别很大。',
+    arriveMsg:'出行枢纽的广播声在开阔的大厅里回荡。'
   }
 };
 
@@ -1115,6 +1127,370 @@ const LOCATION_ACTIVITIES = {
   pharmacy:[
     {id:'buy_medicine',name:'买药',icon:'💊',desc:'凭处方买常用药，请药剂师口述用法',time:30,cost:25,fx:{stamina:+10}},
     {id:'ask_med_usage',name:'询问用药说明',icon:'📋',desc:'请药剂师把用法用量录成语音',time:20,cost:0,fx:{confidence:+2,mood:+2}},
+  ],
+};
+
+// ============================================================
+// 场景探索（源自 docx 场景库：逛商场 / 欢乐谷 / 长途出行）
+// 每个场景是「选项 → 成功/失败」的剧情体验，成功率由对应能力决定：
+//   toolUse=工具使用  communication=沟通  perception=感知
+// ============================================================
+const SCEN_T = n => n * 20; // 消耗时间单位 → 分钟
+const SCEN_GROWTH = { toolUse:{confidence:2}, communication:{social:2}, perception:{independence:2} };
+
+const SCENARIOS = {
+  // —— 逛商场：汇聚购物中心（15 场景）——
+  mall:[
+    {id:'m01',name:'确定店铺位置',icon:'🧭',cost:0,
+      atmo:['汇聚购物中心大门宽敞，入口有旋转门，阳光透过玻璃幕墙洒下。空调凉意扑面，广播和背景音乐在挑高空间里回荡。','扶梯运转声从四面传来，人群脚步声在光滑地砖上沙沙作响。'],
+      prompt:'手机导航进入室内基本失灵。你想逛餐厅、日用品店和超市，得先确定各店铺在几楼。',
+      choices:[
+        {text:'使用电子导览屏',ability:'toolUse',desc:'打开手机「拍照识屏」，对准导览屏拍照读屏，听取店铺名称和楼层。',
+          ok:{text:'导览屏信息被成功识别，你知道了各家店的具体楼层，节省了寻找时间。',time:1,mood:0},
+          no:{text:'导览屏触摸后没反应，读屏软件无法识别滚动文字。只能放弃，改为问路。',time:3,mood:-1}},
+        {text:'向服务台问路',ability:'communication',desc:'听服务台工作人员的声音，走过去说明想去的店铺，请对方告知楼层和方向。',
+          ok:{text:'工作人员耐心告知每类店铺的楼层，还提醒餐饮集中在顶层，超市在地下一层。',time:2,mood:0},
+          no:{text:'对方只说「餐厅在上面，超市在下面」，没有具体楼层，你需要再想办法确认。',time:3,mood:-1}},
+      ]},
+    {id:'m02',name:'潇湘阁·排队点菜',icon:'🍲',cost:25,
+      atmo:['潇湘阁门口排着不少人。叫号器震动报号，后厨炒菜声、辣椒下锅的爆裂声、抽油烟机轰鸣从厨房传来。'],
+      prompt:'正是饭点，人很多要排队取号。菜单是传统纸质菜单，没有盲文，需要请服务员帮忙介绍。',
+      choices:[
+        {text:'请服务员帮忙取号并介绍菜单',ability:'communication',desc:'请旁边顾客或服务员帮忙取号，进店后说「我看不见，能帮我读一下菜单、推荐几个菜吗」。',
+          ok:{text:'取号顺利，等了约二十分钟进店。服务员很耐心，详细介绍招牌菜的口味和分量，你们点好了菜。',time:3,mood:0},
+          no:{text:'取号机不灵敏折腾一会儿才出票。进店后服务员很忙，匆匆念几个菜名就离开，只能再叫一次，多花了不少时间。',time:4,mood:-2}},
+        {text:'扫码看电子菜单',ability:'toolUse',desc:'打开手机扫桌上的二维码，用读屏软件读取电子菜单自己选菜。',
+          ok:{text:'电子菜单读屏顺利，你自己点好了菜。',time:2,mood:0},
+          no:{text:'扫码后电子菜单图片太多，读屏识别混乱，很多菜名读不出来。还是请了服务员，但对方正忙，等了好一会儿。',time:4,mood:-2}},
+      ]},
+    {id:'m03',name:'沙胆彪·牛杂煲',icon:'🥘',cost:25,
+      atmo:['招牌深绿底黄字，门口明档厨房，炉子上的牛杂锅热气腾腾。牛杂煲在炭炉上咕嘟冒泡，锅盖轻响，人声鼎沸。'],
+      prompt:'这家没有扫码点餐，菜单是传统纸质菜单，字不大也没有盲文，需要请服务员介绍菜品和价格。',
+      choices:[
+        {text:'请服务员介绍招牌菜和价格',ability:'communication',desc:'服务员递菜单时直接说「我看不见，麻烦帮我介绍一下，有什么推荐的牛杂煲」。',
+          ok:{text:'服务员很热情，把几种牛杂煲的区别、配菜和价格说得清清楚楚，你很快点好了锅底和配菜。',time:2,mood:0},
+          no:{text:'服务员说得太快，口音有点重，你没听清配菜有哪些，又不好意思再问，结果点漏了想吃的菜。',time:3,mood:-1}},
+        {text:'手机拍菜单读屏',ability:'toolUse',desc:'用手机拍下菜单，读屏软件识别菜品和价格。',
+          ok:{text:'菜单照片被成功识别，你自己选好了菜。',time:2,mood:0},
+          no:{text:'菜单字体不规则，读屏识别出大量乱码，只能放弃，最后还是请服务员介绍。',time:4,mood:-1}},
+      ]},
+    {id:'m04',name:'肯德基·扫码点餐',icon:'🍗',cost:20,
+      atmo:['店面明亮红白配色，自助点餐机屏幕亮着。炸鸡出锅的滋滋声、吸管插入饮料的啵声、点餐叫号声交织。'],
+      prompt:'人不少，但点餐方式灵活。你提前在手机软件上买好了一张团购券，需要核销。',
+      choices:[
+        {text:'手机App核销点餐',ability:'toolUse',desc:'打开App找到团购券，选「到店核销」，再选套餐下单。取餐号出来后听叫号。',
+          ok:{text:'团购券顺利核销，点餐成功。取餐号叫到时，你顺利取到了餐。',time:2,mood:0},
+          no:{text:'核销时网络卡顿，店员说「没扫上」，重新操作一次才成功。取餐时叫号声被嘈杂声盖过，去柜台问才拿到餐。',time:4,mood:-2}},
+        {text:'柜台人工点餐',ability:'communication',desc:'把手机团购券给店员看，说「我要用这个券」，并口头点餐。',
+          ok:{text:'店员耐心帮你核销并下单，还问「需要帮您送到座位吗」，你顺利取餐入座。',time:3,mood:0},
+          no:{text:'柜台前排队人多，店员忙不过来，让你去自助机核销，你折返回去操作，多花了不少时间。',time:4,mood:-2}},
+      ]},
+    {id:'m05',name:'麦当劳·自助点餐机',icon:'🍔',cost:20,
+      atmo:['黄色M型灯箱醒目，自助点餐机发出「请选择」提示音，顾客点击屏幕的「滴」声此起彼伏，取餐区叫号清晰。'],
+      prompt:'店里人多，自助点餐机前排着几个人。你可以试试自助机，也可以去人工柜台。',
+      choices:[
+        {text:'自助机读屏/语音辅助',ability:'toolUse',desc:'插上耳机，按语音提示操作，选择汉堡和饮料，加入购物车并支付。',
+          ok:{text:'自助机操作顺利，你独立完成了点餐和支付，取到餐后找到座位。',time:3,mood:0},
+          no:{text:'自助机语音卡顿，屏幕触控不灵敏，操作一半卡住了。后面顾客不耐烦，你只好放弃，改去人工柜台。',time:4,mood:-2}},
+        {text:'人工柜台点餐',ability:'communication',desc:'走到柜台，把App优惠券给店员看，告诉他你想吃什么。',
+          ok:{text:'店员快速帮你下单并核销优惠券，取餐过程顺利。',time:3,mood:0},
+          no:{text:'人工柜台只开了一个，排队很长。店员有点急，你没说清楚，最后点的餐少了份小食。',time:4,mood:-2}},
+      ]},
+    {id:'m06',name:'名创优品·找商品',icon:'🧴',cost:15,
+      atmo:['灯光明亮，货架密集，通道较窄。店铺里播放节奏明快的背景音乐，顾客翻找商品时包装袋摩擦声，店员理货声。'],
+      prompt:'你想买手机数据线、袜子和旅行装洗漱用品。货架排列紧凑，需要找到目标商品。',
+      choices:[
+        {text:'盲杖探索+触摸判断',ability:'perception',desc:'用盲杖轻触货架边缘缓慢行走，用手触摸商品包装判断类别。',
+          ok:{text:'你找到了数据线和袜子，还顺手买了几包湿巾。',time:3,mood:0},
+          no:{text:'通道太窄，盲杖不小心碰到货架，几件商品掉下来。店员闻声赶来，你有点尴尬，最后店员帮你找到了需要的商品。',time:4,mood:-2}},
+        {text:'请店员帮忙找',ability:'communication',desc:'向店员说明要买数据线和袜子，请对方带路。',
+          ok:{text:'店员很热情，把你带到对应货架，还提醒哪些商品在做活动。',time:2,mood:0},
+          no:{text:'店员正在理货，让你稍等。你自己先找，绕了一圈没找到，还是回来问店员。',time:4,mood:-1}},
+      ]},
+    {id:'m07',name:'无印良品·找收纳',icon:'📦',cost:20,
+      atmo:['灯光柔和，木质货架和浅色商品显得很干净，能闻到淡淡的木香和棉麻织物气味。店里播放轻柔的日式背景音乐。'],
+      prompt:'你想买一个桌面收纳盒和一支笔。分区较清晰，但标签字小、没有盲文，需要找到文具区和收纳区。',
+      choices:[
+        {text:'触摸材质寻找',ability:'perception',desc:'用手触摸货架上的商品材质，摸到塑料收纳盒或纸质本子的区域，判断位置。',
+          ok:{text:'你顺利找到收纳盒和笔，结账时店员还问是否需要小票，服务很周到。',time:3,mood:0},
+          no:{text:'收纳区没有明显标识，你误入了服装区，摸到一堆柔软的衣服，后来问了店员才找到正确位置。',time:4,mood:-1}},
+        {text:'请店员引导',ability:'communication',desc:'说明要买收纳盒和文具，请对方带路。',
+          ok:{text:'店员带你找到商品，还推荐了几款热销的收纳盒。',time:2,mood:0},
+          no:{text:'店员对商品位置不熟，带你转了一圈才找到，多花了不少时间。',time:3,mood:-1}},
+      ]},
+    {id:'m08',name:'屈臣氏·选护肤品',icon:'🧴',cost:20,
+      atmo:['蓝白配色，灯光明亮，瓶瓶罐罐在灯光下反光。空气里有淡淡的护肤品香味和洗发水味道，播放流行音乐。'],
+      prompt:'你想买面霜和洗面奶。商品多、店员也多，可以自己逛，也可以请店员推荐和试用。',
+      choices:[
+        {text:'请店员推荐并试用',ability:'communication',desc:'说明肤质和需求，请对方推荐几款面霜，并想在手背试用一下。',
+          ok:{text:'店员很专业，拿了几款分别介绍，还在你手背试用了不同质地，你选了最合适的一款。',time:2,mood:0},
+          no:{text:'店员推荐的产品不太适合你的肤质，试用时又挤了太多，弄得手上黏糊糊的。你不好意思拒绝，最后买了一款不太合适的。',time:3,mood:-2}},
+        {text:'按气味触感自己选',ability:'perception',desc:'用手摸瓶身、打开盖子闻气味判断类型，选熟悉的品牌或闻起来舒服的。',
+          ok:{text:'你选了一款以前用过的品牌，顺利结账。',time:3,mood:0},
+          no:{text:'你不小心拿了一瓶身体乳当成了面霜，回家后才发现，不过用起来也还行。',time:4,mood:-1}},
+      ]},
+    {id:'m09',name:'丝芙兰·选口红',icon:'💄',cost:30,
+      atmo:['装修精致，黑白条纹装饰，灯光聚焦在商品上，瓶身闪闪发亮。能闻到各种香水混合的气味，浓郁而复杂，播放轻音乐。'],
+      prompt:'你想买一支口红。这里的店员服务很周到，会主动询问是否需要帮助并带你去试色。',
+      choices:[
+        {text:'请店员试妆选色',ability:'communication',desc:'说明你完全看不见，需要她详细描述颜色和质地，并帮你涂在手上感受。',
+          ok:{text:'店员很耐心，一个个色号给你描述并试涂，最终你选到了满意的颜色。',time:2,mood:0},
+          no:{text:'店员推荐的色号与你预期不符，但你已经涂了好几个颜色，不好意思再麻烦，就选了一个相对接受的。',time:3,mood:-2}},
+        {text:'手机拍照识别色号',ability:'toolUse',desc:'用手机拍照识别包装上的色号文字，读屏听取信息。',
+          ok:{text:'你根据以前的经验选了一个熟悉的色号，买回去发现挺合适。',time:3,mood:0},
+          no:{text:'色号识别错误，买回一支颜色完全不适合自己的口红，之后送给了朋友。',time:3,mood:-1}},
+      ]},
+    {id:'m10',name:'物美超市·找货架',icon:'🛒',cost:20,
+      atmo:['超市在地下一层，购物车碰撞声不断，收银台扫码声滴滴响。货架高大整齐，空气里混杂着水果香甜、面包麦香和冷冻区的凉意。'],
+      prompt:'你要买牛奶、面包和几包抽纸。超市很大，货架多，导航已经没用了，需要找到对应的区域。',
+      choices:[
+        {text:'向工作人员问路',ability:'communication',desc:'听附近工作人员的脚步声，上前问乳品区、烘焙区和纸品区分别在哪。',
+          ok:{text:'工作人员很清楚地说出各区位置，你顺利找到货架，买齐了东西。',time:3,mood:0},
+          no:{text:'你问的顾客不太熟悉布局，指了个大概方向，结果走到了调料区。又问了另一个顾客，才找到乳品区。',time:4,mood:-2}},
+        {text:'听声闻味自己找',ability:'perception',desc:'听冷藏柜的嗡嗡声找乳品区，闻面包香气找烘焙区，摸抽纸包装判断纸品区。',
+          ok:{text:'你循着冷藏柜声音和面包香气找到两个区域，纸品区通过摸到柔软包装判断，最终买齐。',time:4,mood:0},
+          no:{text:'超市太大，声音和气味的来源不明确，你在里面绕了很多圈，最后不得不求助工作人员。',time:5,mood:-2}},
+      ]},
+    {id:'m11',name:'稻香村·买糕点',icon:'🥮',cost:15,
+      atmo:['招牌古色古香，红金装饰。玻璃柜台里摆满牛舌饼、枣花酥、萨其马等点心。顾客和售货员交谈声，糕点装盒时纸袋沙沙声。'],
+      prompt:'你想买几样糕点带回去。柜台式售卖需要排队，轮到时报名字，对方帮你称重装盒。',
+      choices:[
+        {text:'提前想好报名字',ability:'perception',desc:'排队时听前面顾客都买什么，心里有数，轮到时说「我要和前面那位顾客一样的，再加一斤萨其马」。',
+          ok:{text:'售货员很快帮你装好，结账后你把糕点盒放进背包。',time:2,mood:0},
+          no:{text:'轮到你时忘了要买的品种名字，或售货员说「这个卖完了」，你临时想不好换什么，后面的顾客催，你有点慌。',time:3,mood:-2}},
+        {text:'请售货员推荐',ability:'communication',desc:'说明你看不见，请对方推荐适合自己吃或送人的糕点，并按口味描述帮你选择。',
+          ok:{text:'售货员很会搭配，你买到了满意的组合。',time:2,mood:0},
+          no:{text:'售货员推荐的都是价格较高的，或口味偏甜，你不太喜欢，但已经装盒，只能买下。',time:3,mood:-2}},
+      ]},
+    {id:'m12',name:'味多美·买面包',icon:'🥐',cost:15,
+      atmo:['暖黄色灯光，橱窗里摆满面包和蛋糕。能闻到浓郁的奶香和烘烤味，烤箱定时器的叮声、包装纸沙沙声。'],
+      prompt:'你想买几个面包当早餐。店里是自助拿取，但你之前在网上团购了一张优惠券可以满减。',
+      choices:[
+        {text:'自己夹取+核销券',ability:'perception',desc:'用夹子小心夹取面包，结账时请收银员帮忙核销团购券。',
+          ok:{text:'你选好了面包，团购券顺利核销。',time:3,mood:0},
+          no:{text:'夹取时一个面包掉在地上，你捡起来放回托盘，有点尴尬。团购券核销又遇到网络问题，折腾了一会儿。',time:4,mood:-2}},
+        {text:'请店员帮忙拿',ability:'communication',desc:'说「我看不见，麻烦帮拿两个全麦面包、一个牛角包」，并请对方核销团购券。',
+          ok:{text:'店员很热情，帮忙选好面包，团购券也顺利核销。',time:2,mood:0},
+          no:{text:'店员正在忙，让你自己夹取。核销时店员操作失误多扣了钱，沟通一番才解决。',time:4,mood:-1}},
+      ]},
+    {id:'m13',name:'宜家·香氛区',icon:'🕯️',cost:25,
+      atmo:['宜家入口是缓缓上升的扶梯，进去后灯光明亮。香氛区货架整齐，空气里是浓郁混合的香气，有花香、果香、木质调，层次丰富但不刺鼻。'],
+      prompt:'你路过香氛区，不知不觉停了下来。香薰蜡烛和香氛瓶太多，每一种味道都不一样，你一个个拿起来闻。',
+      choices:[
+        {text:'逐个闻香挑选',ability:'perception',desc:'一个个拿起瓶子，打开盖子轻轻扇动瓶口，靠嗅觉分辨。',
+          ok:{text:'你选出了两三种最喜欢的香薰，其中一款蜡烛的味道让人很放松，决定买下。',time:2,mood:0},
+          no:{text:'闻了太多，嗅觉开始疲劳，后面闻什么都差不多，分不清之前喜欢的是哪一瓶，只好从头再闻一遍。',time:4,mood:-1}},
+        {text:'请工作人员推荐',ability:'communication',desc:'描述喜欢的味道方向，如「不要太甜，清新一点」，请对方帮忙挑选。',
+          ok:{text:'工作人员很专业，快速推荐了三款，你挨个闻过，很快选定。',time:2,mood:0},
+          no:{text:'工作人员推荐的味道你都不太喜欢，但不好意思拒绝，闻了半天也没选出来，对方最后礼貌地离开了。',time:3,mood:-1}},
+      ]},
+    {id:'m14',name:'宜家·沙发区休息',icon:'🛋️',cost:0,
+      atmo:['沙发区摆满样品沙发，地板从硬质过渡到铺了地毯的区域，织物味道变浓。有人试坐发出「好舒服」的感叹。'],
+      prompt:'你走了很多路，腿已经很酸。看到满屋子的样品沙发，你找了一张宽敞的布艺沙发坐下，靠背很软。',
+      choices:[
+        {text:'短暂休息后继续逛',ability:'perception',desc:'感受沙发的支撑感，提醒自己别坐太久，还有床品区和出口要找。',
+          ok:{text:'休息了十五分钟，腿缓过来了。你起身继续逛，效率没受太大影响。',time:1,mood:1},
+          no:{text:'沙发太舒服，你多坐了很久，直到一个小朋友跑过来说「我要坐这里」，你才笑着让位。',time:3,mood:0}},
+        {text:'问床品区顺便再躺会儿',ability:'communication',desc:'问工作人员床品区怎么走，确认后说「我们再坐两分钟就走」。',
+          ok:{text:'工作人员耐心指路，你又坐了一小会儿，精神更好了，很快找到了床品区。',time:2,mood:0},
+          no:{text:'对方说「走到头左拐」，但你不知道「头」在哪里，决定到了床品区再想办法。',time:3,mood:-1}},
+      ]},
+    {id:'m15',name:'宜家·床品区迷路',icon:'🧭',cost:0,
+      atmo:['床品区在卖场最深处，一张接一张样品床延伸，声音在床品之间回荡，方向感越来越差。广播被布艺和木质结构吸收，听不清内容。'],
+      prompt:'你逛完床品区，发现找不到出口了。宜家的路线是单向设计，走错一点就要绕很远，你已经转了几圈。',
+      choices:[
+        {text:'沿单向路线慢慢找',ability:'perception',desc:'用盲杖贴着通道边缘走，感受地面是否有导向箭头或不同材质的边界。',
+          ok:{text:'你找到了地面或货架上的箭头标识，沿着单向路线绕了几圈，终于看到了出口。',time:4,mood:0},
+          no:{text:'箭头标识不清晰，你在交叉处误入了展示间，绕了一大圈又回到原地，心里更急了。',time:6,mood:-3}},
+        {text:'躺床上等工作人员',ability:'perception',desc:'有同伴提议躺在样品床上别动，等工作人员过来制止时顺便带你们出去。',
+          ok:{text:'不到两分钟，一位工作人员走过来说「试躺时间请不要太久」。你趁机说迷路了，对方很负责地把你带到了出口。',time:2,mood:1},
+          no:{text:'躺了好几分钟也没人理你，有顾客小声议论。你自觉尴尬，默默坐起来继续找路。',time:5,mood:-3}},
+        {text:'大声向路人求助',ability:'communication',desc:'听到附近有脚步声，朝对方说「您好，我找不到出口了，能帮帮我吗」。',
+          ok:{text:'对方很热心，带你穿过复杂的通道，一直送到出口附近。',time:2,mood:0},
+          no:{text:'对方说「出口在那边，往前走右拐」，但你无法确定「右拐」后能不能走对，走了一段又迷路了，只好再次求助。',time:4,mood:-2}},
+      ]},
+  ],
+  // —— 欢乐谷（10 场景）——
+  happyvalley:[
+    {id:'h01',name:'入园门口',icon:'🎫',cost:0,
+      atmo:['大门色彩鲜艳，入口排着长队，十几个闸机并列，上方绿灯闪烁。游乐设施运转的轰鸣声从远处传来，夹杂着尖叫声。'],
+      prompt:'所有闸机都可以凭残疾证直接入园，不需要购票。你准备怎么进去？',
+      choices:[
+        {text:'选排队最短的闸机',ability:'perception',desc:'听闸机刷卡声的密集程度，判断哪个方向排队人少，用盲杖探路走过去。',
+          ok:{text:'工作人员看了一眼你的残疾证，点头示意通过，还补了一句「慢点，玩得开心」。',time:1,mood:0},
+          no:{text:'工作人员见你没有陪同人员，犹豫了一下说「请稍等」，拿起对讲机。等了几分钟，值班经理亲自带你入园。',time:3,mood:-2}},
+        {text:'主动说明情况',ability:'communication',desc:'面向工作人员的声音方向，清晰说明「我们是视障者，凭残疾证入园」，同时把残疾证递过去。',
+          ok:{text:'工作人员立刻明白，引导你从最近的闸机通过，还说「有需要随时找我们穿制服的人」。',time:1,mood:0},
+          no:{text:'工作人员态度礼貌但有些拿不准，反复问「确定不需要陪同吗」，你多解释了几句，心情受了点影响。',time:2,mood:-1}},
+      ]},
+    {id:'h02',name:'寻找极速飞车',icon:'🎢',cost:0,
+      atmo:['入园后是开阔的广场，轨道高高架起投下巨大阴影。弹射起步时发出引擎轰鸣，尖叫声每隔几十秒就爆发一次。'],
+      prompt:'极速飞车就在进门不远，声音很明显。但广场开阔，轨道下方的入口具体在哪个方向，需要找一找。',
+      choices:[
+        {text:'循声和阴影找入口',ability:'perception',desc:'辨别尖叫声和引擎声最响亮的方向，用盲杖探索地面材质变化，判断广场和排队区的分界。',
+          ok:{text:'你找到了轨道下方被栏杆围出的入口，排进了队伍。',time:1,mood:0},
+          no:{text:'声音在广场上反射，方向感混乱。你绕到了轨道另一侧，那边没有入口，最后向一位游客问路才找到。',time:3,mood:-2}},
+        {text:'向游客或工作人员问路',ability:'communication',desc:'听附近有穿制服的脚步声或对讲机声，向对方询问入口方向。',
+          ok:{text:'对方指了明确的方向，你很快找到入口。',time:1,mood:0},
+          no:{text:'路人说「就在那边」，同时用手指了一下。你完全无法判断「那边」是哪里，只能继续摸索。',time:2,mood:-1}},
+      ]},
+    {id:'h03',name:'激流勇进',icon:'🚣',cost:0,
+      atmo:['水道在室外，巨大的水花不时溅起。船只俯冲时发出巨大的水流冲击声和游客惊呼。室内排队区有风扇嗡嗡声，脚下湿滑。'],
+      prompt:'激流勇进的水声很大，但排队入口在旁边的室内建筑里，水声把入口的方向感打乱了。',
+      choices:[
+        {text:'循水声和人流找入口',ability:'perception',desc:'听游客的脚步声往哪个门洞集中，同时感受空气湿度的变化。',
+          ok:{text:'你找到了室内排队区的入口，顺利进入。',time:2,mood:0},
+          no:{text:'水声太响，把其他方向感全部盖住。你沿着水道走到了观景区，折返回来才找到入口。',time:4,mood:-2}},
+        {text:'向工作人员求助',ability:'communication',desc:'听对讲机声靠近，说明自己找不到激流勇进排队入口。',
+          ok:{text:'工作人员带你走到了入口处。',time:1,mood:0},
+          no:{text:'工作人员正在忙，匆匆说了一句「那边那个门」，你无法判断是哪个，只能自己继续找。',time:3,mood:-1}},
+      ]},
+    {id:'h04',name:'太阳神车',icon:'🎡',cost:0,
+      atmo:['巨大的摆锤矗立在广场上，排队区从地面向上延伸很长一段台阶。摆锤摆动发出低沉机械声，台阶上脚步声零散，风带来爆米花甜香。'],
+      prompt:'太阳神车的排队区需要上一段很长的台阶，没有电梯。你需要上去。',
+      choices:[
+        {text:'扶扶手逐级上台阶',ability:'perception',desc:'用盲杖轻触台阶边缘确认高度和宽度，手扶扶手，按节奏稳步上行。',
+          ok:{text:'你顺利到达排队区平台，进入队伍。',time:2,mood:0},
+          no:{text:'台阶中段被人群挤了一下，步伐乱了。好在及时抓住扶手站稳，没有摔倒，但出了一身汗，多花了不少时间。',time:4,mood:-2}},
+        {text:'请工作人员引导',ability:'communication',desc:'说明需要引导走这段长台阶，扶住对方的手肘跟随节奏上行。',
+          ok:{text:'你顺利到达排队区。',time:2,mood:0},
+          no:{text:'工作人员临时被叫走处理事情，让你稍等。等了几分钟，最后你还是自己扶着扶手上去的。',time:3,mood:-1}},
+      ]},
+    {id:'h05',name:'香格里拉过山车',icon:'🎢',cost:0,
+      atmo:['入口在一个山洞洞口，进入后光线骤然变暗，隧道内壁有微弱彩灯，轨道在洞内穿梭，回声明显。车轮与轨道摩擦的尖利声被隧道放大。'],
+      prompt:'过山车入口在山洞里，排队也在山洞里。洞里的声音会反射，方向感会失效。',
+      choices:[
+        {text:'沿洞壁声音引导',ability:'perception',desc:'用盲杖探洞口台阶，进洞后一只手扶洞壁，感受弧度和温度变化，跟随人流缓慢向前。',
+          ok:{text:'你顺利进入洞内排队区。',time:2,mood:0},
+          no:{text:'洞内回声太大，呼啸声从四面八方传来，你一度分不清队伍移动的方向，停了几次重新听才跟上。',time:4,mood:-2}},
+        {text:'跟随人流进入',ability:'perception',desc:'听前方游客的脚步声，保持距离跟随。',
+          ok:{text:'你跟着人流顺利进入排队区。',time:1,mood:0},
+          no:{text:'前面的人突然停下拍照，你差点撞上。之后你决定还是自己用盲杖探索更稳妥。',time:2,mood:-1}},
+      ]},
+    {id:'h06',name:'飞跃地平线',icon:'🌍',cost:0,
+      atmo:['这是一个完全在室内的观影项目。室内很安静，能听到空调出风口的轻微风声，空气里有地毯和座椅皮革的味道。'],
+      prompt:'入口和排队区都在建筑内部，进去后光线很暗，空间封闭，你需要找到座位。',
+      choices:[
+        {text:'请工作人员引导入座',ability:'communication',desc:'向工作人员说明需要引导，扶住对方走到座位旁，用手确认座位后坐下。',
+          ok:{text:'你顺利入座，等待影片开始。',time:1,mood:0},
+          no:{text:'厅内太暗，工作人员引导时走得太快，你没有跟上。重新叫住对方，请他走慢一点才入座。',time:2,mood:-1}},
+        {text:'盲杖自己探索',ability:'perception',desc:'用盲杖轻探地面和座椅边缘，沿着过道慢慢走，找到空位入座。',
+          ok:{text:'你顺利找到座位。',time:2,mood:0},
+          no:{text:'在黑暗中方向感变差，盲杖碰到座椅腿发出声响，引来其他观众的目光，花了比预期更久的时间才坐定。',time:4,mood:-2}},
+      ]},
+    {id:'h07',name:'环游世界',icon:'⛵',cost:0,
+      atmo:['入口是木质码头，停靠着几艘小船，缓缓驶入幽暗的人工水道。小船启动时马达声和水波拍打船体，水道里有轻柔的背景音乐。'],
+      prompt:'排队到码头时，这班船只剩两个空位，你们三个必须分开坐。出口和入口不在同一个地方，需要想办法在出口重聚。',
+      choices:[
+        {text:'约定出口盲杖敲击',ability:'perception',desc:'先到的人站在出口显眼位置，用盲杖有节奏地敲击地面发出信号。',
+          ok:{text:'敲击声在嘈杂的环境中穿透力很强，同伴很快就听声找到了你，你们在出口顺利重聚。',time:2,mood:0},
+          no:{text:'出口附近人流密集，声音被冲散。有同伴被别的游客带偏了方向，最后是工作人员帮忙才找到彼此。',time:4,mood:-2}},
+        {text:'手机共享位置',ability:'toolUse',desc:'打开手机共享实时位置，通过读屏听取彼此的距离和方向。',
+          ok:{text:'依靠位置共享和语音沟通，你们在出口顺利碰头。',time:2,mood:0},
+          no:{text:'景区内信号不稳定，位置图标跳动乱窜。你只能放弃这个方法，靠最原始的喊声和敲击声找人。',time:4,mood:-1}},
+      ]},
+    {id:'h08',name:'误入玛雅人表演',icon:'🔥',cost:0,
+      atmo:['你误入一个半开放的表演场地。舞台上有巨大的玛雅风格石柱和彩色图腾，鼓点密集，舞者赤脚跺地。喷热器喷射火焰，一股滚烫热浪迎面扑来。'],
+      prompt:'你走着走着发现不对劲，过山车的轨道声越来越远，取而代之的是鼓点和火焰声。喷热器猛地喷出一股热浪扑在脸上。',
+      choices:[
+        {text:'停下来感受表演',ability:'perception',desc:'感受热浪扑面的温度和鼓点震动的节奏，在脑海中构建一幅热烈的画面。',
+          ok:{text:'你完整地感受了这场表演。热浪袭来时像太阳神在发怒，和之前太阳神车的体验有种奇妙的呼应。',time:1,mood:1},
+          no:{text:'火焰的热浪太猛，你站得太近被呛了一下。退到更远的地方后，表演已经接近尾声。',time:2,mood:-1}},
+        {text:'问清时间先找过山车',ability:'communication',desc:'向工作人员确认下一场表演的时间，先离开去找森林过山车。',
+          ok:{text:'工作人员告知了下一场时间，你先去了森林过山车，之后又回来完整看了一场。',time:2,mood:0},
+          no:{text:'你去错方向，绕了半天也没找到森林过山车，还错过了半场表演。',time:3,mood:-2}},
+      ]},
+    {id:'h09',name:'碰碰车',icon:'🚗',cost:10,
+      atmo:['半开放的大棚里彩灯旋转，车顶金属杆和上方的电网接触发出细小火花。撞击声砰砰，孩子们笑声和喊叫声混杂。'],
+      prompt:'工作人员看到你，反复强调「近视的话不能坐」。你解释是视障，对方更犹豫了。一番沟通后终于坐进去，踏板和方向盘的位置都需要摸索。',
+      choices:[
+        {text:'先沟通再慢慢摸索',ability:'perception',desc:'先说明你能自己判断油门和方向盘，只需要一点时间熟悉。用手摸到座椅、方向盘和脚下踏板，确认布局后再慢慢踩油门。',
+          ok:{text:'你耐心摸索，终于掌握油门和方向盘，在场地里慢速绕圈，后来还学会了倒车和互相碰撞，玩得很开心。',time:3,mood:0},
+          no:{text:'刚坐进去时，你不小心碰到了油门，车子突然冲出去，幸好撞在护栏上。工作人员立刻暂停设备，调整好之后你继续慢慢练习。',time:5,mood:-2}},
+        {text:'请工作人员车外指导',ability:'communication',desc:'请工作人员在护栏外用声音引导你踩油门和打方向。',
+          ok:{text:'在工作人员的耐心指导下，你顺利开动了碰碰车，享受到碰撞的乐趣。',time:3,mood:0},
+          no:{text:'场地噪音太大，工作人员的喊话被淹没。你好几次打错方向，车子原地打转，最后只能自己摸索。',time:5,mood:-1}},
+      ]},
+    {id:'h10',name:'离开欢乐谷',icon:'🏬',cost:0,
+      atmo:['出口必须穿过一个大型纪念品商店。货架又高又密，人声嘈杂，收银台扫描条形码的滴滴声，门口的空调风帘呼呼作响。'],
+      prompt:'出口在商店另一边，货架摆得太密，通道曲折。店员说「往那边走就出去了」，但你知道没那么简单。',
+      choices:[
+        {text:'靠经验找出口',ability:'perception',desc:'听收银台声音的位置，判断出口在收银台另一侧，用盲杖贴着货架沿主通道慢慢走。',
+          ok:{text:'你凭借记忆中的通道逻辑，走出了货架迷宫。',time:3,mood:0},
+          no:{text:'货架排列太乱，你在中间绕了好几圈，最后靠一位店员主动带路才出来。',time:5,mood:-2}},
+        {text:'请店员带路',ability:'communication',desc:'喊住附近的店员，说明自己需要引导出店。',
+          ok:{text:'店员放下手中的事，带你穿过货架，一路送到出口。',time:2,mood:0},
+          no:{text:'店员正在补货，让你稍等。等了几分钟没人过来，你决定还是自己尝试找路。',time:4,mood:-1}},
+      ]},
+  ],
+  // —— 长途出行（6 场景）——
+  longtravel:[
+    {id:'t01',name:'长途大巴',icon:'🚌',cost:25,
+      atmo:['客运站大厅不大，售票窗口上方滚动着红色电子屏。空气混浊，有汽油味和旁边小卖部的煮玉米味。大巴发动机怠速发出低沉震颤。'],
+      prompt:'你要坐长途大巴去另一个城市。客运站没有专门为视障旅客设置的服务人员，一切靠自己或热心人。先买票，再找停车位上车。',
+      choices:[
+        {text:'请售票员和司机帮忙',ability:'communication',desc:'请售票员帮忙买票并告知几号检票口，拿到票后用盲杖走向停车场，听大巴发动机声找车门。',
+          ok:{text:'售票员把车票信息念给你听。司机看到你走近，主动带你去车门口，给你指了靠前的座位。',time:2,mood:0},
+          no:{text:'售票员语速很快，你没听清几号检票口。走到停车场后好几辆车停在一起，你无法确定哪辆是对的，最后求助一位路过乘客。',time:4,mood:-2}},
+        {text:'手机App购票',ability:'toolUse',desc:'用读屏软件操作App买票，到停车场后听行李箱声向路人求助。',
+          ok:{text:'App购票顺利，电子票在手机里随时可查。好心乘客帮你确认了车牌号，带你到车门口。',time:2,mood:0},
+          no:{text:'App显示的班次和实际发车时间有出入，到了检票口被告知车还没来。等了很久才上车，期间没有人主动帮忙。',time:4,mood:-2}},
+      ]},
+    {id:'t02',name:'高铁',icon:'🚄',cost:50,
+      atmo:['高铁站大厅开阔，蓝色指示牌上的白字很大。安检口排着长队，履带转动。广播清晰洪亮地播报着车次，站台上白列车停靠，黄色盲道延伸。'],
+      prompt:'你要坐高铁，通过12306预约了重点旅客服务。从安检到上车有工作人员接力引导，你需要配合这套流程。',
+      choices:[
+        {text:'按预约接受接力引导',ability:'communication',desc:'在约定地点等待，工作人员上前询问后，你扶着他的手肘过安检、候车、被送上站台交给列车员。',
+          ok:{text:'整个流程衔接顺畅，从安检到候车到上车，每个环节都有工作人员对接，你很快找到了座位。',time:2,mood:0},
+          no:{text:'在候车区等待时，原定接应的工作人员被临时调走，没有人来。你等了很久，最后自己找到其他工作人员才被带上站台，已经快到发车时间。',time:4,mood:-2}},
+        {text:'自己走普通通道',ability:'perception',desc:'沿盲道走，用盲杖探测安检门位置，请安检员引导一下，过闸机时刷身份证听声音判断开闸。',
+          ok:{text:'你基本靠自己完成了进站、安检、检票和上车，只在安检处请工作人员搭了把手。',time:3,mood:0},
+          no:{text:'高铁站太大，盲道在安检口附近被隔离带截断，你绕了几圈找不到继续走的盲道，最后一位保洁员看到，带你穿过安检区。',time:5,mood:-2}},
+      ]},
+    {id:'t03',name:'火车硬座',icon:'🚃',cost:35,
+      atmo:['普速火车站设施旧一些，候车大厅有老式吊灯，绿色座椅排成一排。广播从老式喇叭传出带电流沙沙声。车厢里人多拥挤，混合着泡面味和汗味。'],
+      prompt:'你坐的是硬座，12306同样可以预约重点旅客服务，但硬座车厢环境嘈杂、过道拥挤。上车后列车员把你送到座位，之后要自己应对。',
+      choices:[
+        {text:'请列车员确认座位并提醒到站',ability:'communication',desc:'跟着列车员到座位，用手确认编号，说「我XX站下，麻烦提前提醒」。',
+          ok:{text:'列车员记下你的到站，途中经过还问你要不要热水，到站前十五分钟专门来提醒你准备下车。',time:1,mood:0},
+          no:{text:'列车员很忙，答应提醒但后来一直没出现。你自己用手机导航实时盯着位置，到站前提前站在车门口等待。',time:2,mood:-1}},
+        {text:'自己找座位靠导航',ability:'perception',desc:'请同车厢乘客帮忙看车票座位号带你到座位，之后用手机导航语音播报位置判断到站。',
+          ok:{text:'你顺利找到座位，导航信号稳定，准确判断了到站时间，提前收拾好行李。',time:2,mood:0},
+          no:{text:'车厢号找错了，进去发现座位被人占了，费了一番口舌。手机信号在运行中不稳定，你有些紧张，最后请邻座乘客到站时提醒你。',time:4,mood:-2}},
+      ]},
+    {id:'t04',name:'火车硬卧',icon:'🛏️',cost:50,
+      atmo:['硬卧车厢过道一侧是上中下三层铺位，白床单和叠好的被子。车轮与铁轨有节奏的「哐当」声，过道里偶尔有列车员查票的脚步声。'],
+      prompt:'你坐的是硬卧过夜车。重点旅客服务把你送上列车，列车员带你到铺位。你需要确认铺位、铺好床单、安排睡觉。',
+      choices:[
+        {text:'请列车员确认铺位和布局',ability:'communication',desc:'请列车员带你用手摸铺位、梯子和过道，再说一遍卫生间在哪个隔间旁。',
+          ok:{text:'列车员很细致，把铺位、厕所、热水间的位置都告诉你，你很快熟悉了车厢环境。',time:2,mood:0},
+          no:{text:'列车员说得太快，你只记住了铺位，没记住卫生间方向。半夜起来上厕所时，自己摸索了好一会儿。',time:3,mood:-1}},
+        {text:'盲杖自己探索',ability:'perception',desc:'用盲杖轻敲过道地面，一步步量出铺位到卫生间的大概步数，摸到门把手确认位置。',
+          ok:{text:'你把车厢布局摸得很清楚，夜里起来上厕所也走得顺畅。',time:3,mood:0},
+          no:{text:'车厢在行驶中摇晃，你站不稳，盲杖碰到了别人的行李，一位乘客被吵醒不太高兴，你道歉后急忙回到铺位。',time:4,mood:-2}},
+      ]},
+    {id:'t05',name:'飞机',icon:'✈️',cost:100,
+      atmo:['机场航站楼非常开阔，穹顶很高，光线明亮。广播每几分钟响起播报登机，行李箱轮子声此起彼伏，安检口有工作人员喊「请把电子设备拿出来」。'],
+      prompt:'你要坐飞机。机场和航空公司都有无障碍服务，但流程和火车站不一样，不同公司的服务标准和预约方式差别很大。',
+      choices:[
+        {text:'提前预约全程引导',ability:'communication',desc:'登机前几天打客服预约引导，到机场后在指定柜台找到地勤，说明姓名和航班号。',
+          ok:{text:'地勤准时到达，带你办理值机、过安检、到登机口，最后交给乘务员，全程流程顺畅。',time:3,mood:0},
+          no:{text:'你预约的是A航空公司，实际执飞的是B公司的共享代码航班，两边都以为对方会派人。你在机场等了很久，打了几个电话才对接上。',time:5,mood:-3}},
+        {text:'到机场临时申请帮助',ability:'communication',desc:'到问讯处说明自己是视障旅客、第一次坐飞机，需要引导。',
+          ok:{text:'问讯处很负责，帮你联系了航空公司，很快有人来带你完成所有流程。',time:3,mood:0},
+          no:{text:'问讯处让你自己去值机柜台申请，值机柜台又让你找安检口的地勤。多方辗转，最后总算有人帮你，但花了很长时间。',time:5,mood:-3}},
+      ]},
+    {id:'t06',name:'轮渡（琼州海峡）',icon:'⛴️',cost:40,
+      atmo:['港口码头很大但旅客不多，海面灰蒙一片，渡轮像一栋移动的楼。候船厅有些旧，海风又湿又咸，地面有水渍。海鸥鸣叫，海浪拍打岸壁。'],
+      prompt:'你要坐轮渡穿越琼州海峡。轮渡的无障碍服务几乎空白，需要早一点到码头，集中注意力听广播，靠自己和好心人完成整个过程。',
+      choices:[
+        {text:'提前到码头说明情况',ability:'communication',desc:'售票时说明你是视障者、需要上船帮助，买票后用盲杖走向候船区，注意听广播里的登船通知。',
+          ok:{text:'售票员很热心，专门带你去候船区，并请一位码头工人在登船时扶你上斜坡。整个过程虽然不专业，但很温暖。',time:3,mood:0},
+          no:{text:'广播声音太模糊，你没听清登船时间，等发现有人开始上船时已经有点晚了。好在一位同船旅客看到后，主动带你跑上斜坡，赶在关舱门前上了船。',time:4,mood:-2}},
+        {text:'跟着同船旅客',ability:'communication',desc:'听到旁边乘客在讨论上船时间，主动搭话「您好，我也坐这班船，看不见，能跟着您上船吗」。',
+          ok:{text:'对方很爽快，让你跟着他们，上船时还回头确认，帮你找了座位。',time:3,mood:0},
+          no:{text:'登船时人多，你跟丢了。斜坡又湿又滑，盲杖探不到栏杆，你只能放慢速度慢慢走，一位码头工人看到后快步把你拉上了船。',time:4,mood:-2}},
+      ]},
   ],
 };
 
@@ -2582,6 +2958,8 @@ const LOCATIONS = {
   cafe:{id:'cafe',name:'咖啡馆',icon:'☕',cx:.72,cy:.74,color:'#d8a888'},
   bank:{id:'bank',name:'银行',icon:'🏦',cx:.36,cy:.80,color:'#d8b878'},
   pharmacy:{id:'pharmacy',name:'药店',icon:'💊',cx:.86,cy:.32,color:'#80d0b0'},
+  happyvalley:{id:'happyvalley',name:'欢乐谷',icon:'🎢',cx:.20,cy:.10,color:'#f0a860'},
+  longtravel:{id:'longtravel',name:'出行枢纽',icon:'🚄',cx:.90,cy:.10,color:'#8890d8'},
 };
 
 const TRANSPORT = {
@@ -2618,7 +2996,7 @@ const DEFAULT_STATE = {
 const ACHIEVEMENTS = [
   {id:'first_travel',name:'初次启程',icon:'🎒',desc:'完成第一次出行',cond:()=>GS.travelsCompleted>=1,reward:{stamina:+5}},
   {id:'city_walker',name:'城市漫步者',icon:'🚶',desc:'累计出行10次',cond:()=>GS.travelsCompleted>=10,reward:{money:+30}},
-  {id:'explorer',name:'城市探索家',icon:'🗺️',desc:'到访全部12个地点',cond:()=>(GS.visitedLocations||[]).length>=12,reward:{confidence:+5}},
+  {id:'explorer',name:'城市探索家',icon:'🗺️',desc:'到访全部14个地点',cond:()=>(GS.visitedLocations||[]).length>=14,reward:{confidence:+5}},
   {id:'event_veteran',name:'事件老手',icon:'🎲',desc:'触发10次随机事件',cond:()=>GS.totalEventsTriggered>=10,reward:{skill:+3}},
   {id:'confident',name:'自信满满',icon:'💪',desc:'自信达到70',cond:()=>GS.confidence>=70,reward:{mood:+12}},
   {id:'pro',name:'专业高手',icon:'📚',desc:'专业达到70',cond:()=>GS.skill>=70,reward:{money:+35}},
@@ -3267,6 +3645,7 @@ function advanceDialogue(){
 
 function chooseResponse(idx){
   const dlg=currentDialogue,resp=dlg.responses[idx];
+  if(resp._scn){ finishScenario(resp._scn.scene, resp._scn.c); return; }
   let fx={...resp.fx};
   if(fx.stamina)fx.stamina=Math.round(fx.stamina*(1-(GS.toolUse-3)*.03));
   if(fx.mood&&GS.communication>4)fx.mood=Math.round(fx.mood*1.1);
@@ -3279,7 +3658,7 @@ function chooseResponse(idx){
     if(k==='social')GS.social=clamp(GS.social+v,0,100);
     if(k==='independence')GS.independence=clamp(GS.independence+v,0,100);
   });
-  addLog(`对话: ${dlg.speaker} — ${resp.text}`);
+  if(!dlg._noTrack)addLog(`对话: ${dlg.speaker} — ${resp.text}`);
   if(dlg.id==='story_interview'){
     GS.storyFlags=GS.storyFlags||{};
     GS.storyFlags.interviewChoice=idx;
@@ -3288,7 +3667,7 @@ function chooseResponse(idx){
   const sb=STORY_BONDS[dlg.id]||dlg.bond;
   if(sb){GS.bonds=GS.bonds||{};GS.bonds[sb.npc]=clamp((GS.bonds[sb.npc]||0)+sb.amt,0,100);}
   checkBondMilestones();
-  GS.triggeredDialogues.push(dlg.id);GS.totalEventsTriggered++;
+  if(!dlg._noTrack){GS.triggeredDialogues.push(dlg.id);GS.totalEventsTriggered++;}
   closeDialogue();
   if(currentDialogueCallback)currentDialogueCallback();
   renderAll();saveGame();checkEndings();
@@ -3338,7 +3717,8 @@ function showSceneCard(locId,callback){
   document.getElementById('sc-real-desc').textContent=scene.realDesc;
   // 渲染该地点可做的事
   const acts=LOCATION_ACTIVITIES[locId]||[];
-  document.getElementById('sc-activities').innerHTML = acts.length? (
+  const scns=SCENARIOS[locId]||[];
+  const actsHtml = acts.length? (
     '<div class="sc-act-hint">🧺 在这里，小萤可以——</div>' +
     acts.map(a=>{
       const done=(GS.doneActivities||{})[a.id]===GS.day;
@@ -3351,7 +3731,22 @@ function showSceneCard(locId,callback){
         </span>
       </button>`;
     }).join('')
-  ) : '<p class="act-none">这里暂时没有特别想做的事。</p>';
+  ) : '';
+  const scnHtml = scns.length? (
+    '<div class="sc-act-hint">📖 场景探索 · 小萤的一段经历——</div>' +
+    scns.map(s=>{
+      const done=(GS.doneActivities||{})[s.id]===GS.day;
+      return `<button class="sc-act-btn scn-btn" onclick="startScenario('${locId}','${s.id}')" ${done?'disabled':''}>
+        <span class="act-icon">${s.icon}</span>
+        <span class="act-body">
+          <span class="act-name">${s.name}${done?'（今日已完成）':''}</span>
+          <span class="act-desc">${s.prompt}</span>
+          <span class="act-meta">${s.cost?('💰'+s.cost):'免费'} · 🎲 结果看能力</span>
+        </span>
+      </button>`;
+    }).join('')
+  ) : '';
+  document.getElementById('sc-activities').innerHTML = (actsHtml + scnHtml) || '<p class="act-none">这里暂时没有特别想做的事。</p>';
   document.getElementById('scene-card').classList.remove('hidden');
   sceneCardCallback=callback;
 }
@@ -3405,6 +3800,42 @@ function doActivity(locId,actId){
   renderAll();saveGame();
   closeSceneCard();
   checkEndings();
+}
+
+// ---- 场景探索（docx 场景库：选项 → 成功/失败）----
+function scenarioRate(abil){ return clamp(.25+(abil||3)*.14, .25, .95); }
+
+function startScenario(locId, sceneId){
+  if(GS.gameOver)return;
+  const scene=(SCENARIOS[locId]||[]).find(s=>s.id===sceneId);
+  if(!scene)return;
+  if((GS.doneActivities||{})[scene.id]===GS.day){ showToast('今天已经体验过这个场景啦'); return; }
+  if(GS.money<scene.cost){ showToast('💰 金钱不足！'); return; }
+  if(scene.cost)GS.money=Math.round(GS.money-scene.cost);
+  const lines=[];
+  (scene.atmo||[]).forEach(t=>lines.push({text:t,who:'narrator',expr:'neutral'}));
+  lines.push({text:scene.prompt,who:'narrator',expr:'neutral'});
+  const dlg={id:scene.id,type:'scenario',speaker:scene.name,avatar:scene.icon||'📖',
+    lines,
+    responses:(scene.choices||[]).map(c=>({text:c.text,hint:c.desc,_scn:{scene,c}}))};
+  startDialogue(dlg,function(){renderAll();saveGame();checkEndings();});
+}
+
+function finishScenario(scene,c){
+  const abil=GS[c.ability]||3;
+  const ok=Math.random()<scenarioRate(abil);
+  const o=ok?c.ok:c.no;
+  if(o.time)advanceTime(SCEN_T(o.time));
+  if(o.mood)GS.mood=clamp(GS.mood+o.mood,0,100);
+  if(ok&&SCEN_GROWTH[c.ability]){Object.entries(SCEN_GROWTH[c.ability]).forEach(([k,v])=>GS[k]=clamp(GS[k]+v,0,100));}
+  GS.doneActivities=GS.doneActivities||{};
+  GS.doneActivities[scene.id]=GS.day;
+  GS.scenariosDone=(GS.scenariosDone||0)+1;
+  addLog(`场景·${scene.name} — ${c.text}（${ok?'成功':'失败'}）`);
+  const outDlg={id:scene.id+'_r',type:'scenario',_noTrack:true,speaker:scene.name,avatar:scene.icon||'📖',
+    lines:[{text:o.text,who:'narrator',expr:ok?'happy':'sad'}],
+    responses:[{text:'继续',fx:{},hint:ok?'成功':'失败'}]};
+  startDialogue(outDlg,function(){renderAll();saveGame();checkEndings();});
 }
 
 // ---- 剧情主线 ----
@@ -3552,6 +3983,8 @@ function buildMapData2(){
     {from:locs.cafe,to:locs.shop},
     {from:locs.bank,to:locs.home},{from:locs.bank,to:locs.library},
     {from:locs.pharmacy,to:locs.hospital},{from:locs.pharmacy,to:locs.shop},
+    {from:locs.park,to:locs.happyvalley},{from:locs.station,to:locs.happyvalley},
+    {from:locs.station,to:locs.longtravel},{from:locs.hospital,to:locs.longtravel},
   ];
   mapData2={locs,roads};
 }
