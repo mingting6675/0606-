@@ -4171,7 +4171,7 @@ function doActivity(locId,actId){
   renderAll();saveGame();
   closeSceneCard();
   checkEndings();
-  if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver&&!maybeTriggerFriendEvent())maybeTriggerDialogue();},450);
+  if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver&&!maybeNightReflection()&&!maybeTriggerFriendEvent())maybeTriggerDialogue();},450);
 }
 
 // ---- 场景探索（docx 场景库：选项 → 成功/失败）----
@@ -4226,7 +4226,7 @@ function finishScenario(scene,c){
     lines:[{text:o.text,who:'narrator',expr:ok?'happy':'sad'}],
     responses:[{text:'继续',fx:{},hint:ok?'成功':'失败'}]};
   startDialogue(outDlg,function(){renderAll();saveGame();checkEndings();
-    if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver&&!maybeTriggerFriendEvent())maybeTriggerDialogue();},450);});
+    if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver&&!maybeNightReflection()&&!maybeTriggerFriendEvent())maybeTriggerDialogue();},450);});
 }
 
 // ---- 剧情主线 ----
@@ -4553,7 +4553,9 @@ function startTravel(){
     renderAll();saveGame();
     const eventDelay=600;
     if(!GS.gameOver){
-      maybeStartStory();
+      if(!maybeNightReflection(()=>{setTimeout(maybeStartStory,50);})){
+        maybeStartStory();
+      }
       setTimeout(()=>{
         if(GS.gameOver)return;
         const storyOpen = !document.getElementById('story-overlay').classList.contains('hidden') ||
@@ -4571,10 +4573,67 @@ function advanceTime(minutes){
   GS.time+=minutes;
   while(GS.time>=1320){
     GS.time=480+(GS.time-1320);GS.day++;GS.stamina=Math.min(100,GS.stamina+25);GS.mood=clamp(GS.mood+2,0,100);GS.storyTriggeredToday=false;
+    GS.pendingReflection=true;
     rollWeather();
     const w=WEATHERS[GS.weather]||WEATHERS.sunny;
     addLog('🌅 新的一天！今天'+w.name);
   }
+}
+
+// ---- 睡前反思（跨天时的小萤内心独白，填补「一天结束」的情感空白）----
+const NIGHT_OPENERS=[
+  {min:1,max:1,t:'第一晚，躺在陌生的床上，小萤久久没能入睡。'},
+  {min:2,max:3,t:'夜渐渐深了，小萤躺在床上，回想着这一天的路。'},
+  {min:4,max:5,t:'城市的夜灯再亮，小萤也看不见，但她的心里有一盏自己的灯。'},
+  {min:6,max:6,t:'夜已深，小萤翻来覆去，把这段日子的点滴在脑子里过了一遍。'},
+  {min:7,max:7,t:'最后一晚了。小萤躺在床上，听着窗外看不见的夜色。'},
+];
+function nightLineMood(){
+  if(GS.mood>=70)return {t:'今天过得还算顺心，连呼吸都轻快了些。',e:'happy'};
+  if(GS.mood<40)return {t:'有点累，也有点委屈，但小萤没让眼泪掉下来。',e:'sad'};
+  return {t:'说不上好，也说不上坏，只是寻常的一天。',e:'neutral'};
+}
+function nightLineGrowth(){
+  if((GS.independence||0)>=60)return '她忽然发现，原来自己一个人，也能走这么远的路。';
+  if((GS.confidence||0)>=60)return '曾经害怕的事，现在好像也没那么可怕了。';
+  return '还有好多路要学，但至少，今天又迈出了一小步。';
+}
+function nightLineBond(){
+  const b=GS.bonds||{};
+  const hit=['小雨','林薇','阿凯'].filter(n=>(b[n]||0)>=30);
+  if(!hit.length)return null;
+  const map={
+    '小雨':'想到小雨今天对她说的话，小萤的嘴角不自觉地翘了起来。',
+    '林薇':'林薇的鼓励还在耳边，像一盏灯，照着她往前走。',
+    '阿凯':'阿凯那份不声不响的照顾，让小萤觉得，自己没有被落下。',
+  };
+  return {t:map[hit[0]],e:'happy'};
+}
+function nightLineGoal(){
+  if(GS.day<=3)return '工作的事还没有着落，但小萤告诉自己：急不得。';
+  if(GS.day<=5)return '面试、等待、再面试……她第一次知道，找工作也是一场仗。';
+  return '这段旅程就快走到头了，她不想留下遗憾。';
+}
+function buildNightReflection(){
+  const opener=(NIGHT_OPENERS.find(o=>GS.day>=o.min&&GS.day<=o.max)||NIGHT_OPENERS[0]).t;
+  const lines=[{text:opener,who:'narrator',expr:'neutral'}];
+  const m=nightLineMood();lines.push({text:m.t,who:'narrator',expr:m.e});
+  lines.push({text:nightLineGrowth(),who:'narrator',expr:'neutral'});
+  const b=nightLineBond();if(b)lines.push({text:b.t,who:'narrator',expr:b.e});
+  lines.push({text:nightLineGoal(),who:'narrator',expr:'neutral'});
+  lines.push({text:'晚安，这座城市。晚安，还在努力的小萤。',who:'narrator',expr:'neutral'});
+  return {id:'night_'+GS.day,type:'night',_noTrack:true,speaker:'🌙 睡前独白',avatar:'🌙',lines,responses:[{text:'合上眼，睡去',fx:{},hint:'新的一天'}]};
+}
+function maybeNightReflection(after){
+  if(!GS.pendingReflection)return false;
+  if(GS.gameOver){GS.pendingReflection=false;return false;}
+  const busy=!document.getElementById('story-overlay').classList.contains('hidden')||
+             !document.getElementById('dialogue-overlay').classList.contains('hidden');
+  if(busy)return false;
+  GS.pendingReflection=false;
+  const dlg=buildNightReflection();
+  startDialogue(dlg,()=>{renderAll();saveGame();checkEndings();if(after)after();});
+  return true;
 }
 
 // ---- 对话触发 ----
