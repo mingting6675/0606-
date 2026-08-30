@@ -3808,6 +3808,12 @@ function doActivity(locId,actId){
 // ---- 场景探索（docx 场景库：选项 → 成功/失败）----
 function scenarioRate(abil){ return clamp(.25+(abil||3)*.14, .25, .95); }
 
+const CAT_BONUS={
+  mall:{rewards:{confidence:2,independence:2},msg:'小萤第一次独自逛完大型商场，对陌生场所的恐惧又淡了一层。'},
+  happyvalley:{rewards:{mood:5,independence:2},msg:'在欢乐谷的欢声里，小萤第一次发现：看不见，也能玩得尽兴。'},
+  longtravel:{rewards:{confidence:2,skill:2},msg:'跨城的长途出行顺利完成，小萤的胆量又大了一圈。'},
+};
+
 function startScenario(locId, sceneId){
   if(GS.gameOver)return;
   const scene=(SCENARIOS[locId]||[]).find(s=>s.id===sceneId);
@@ -3833,9 +3839,17 @@ function finishScenario(scene,c){
   if(o.time)advanceTime(SCEN_T(o.time));
   if(o.mood)GS.mood=clamp(GS.mood+o.mood,0,100);
   if(ok&&SCEN_GROWTH[c.ability]){Object.entries(SCEN_GROWTH[c.ability]).forEach(([k,v])=>GS[k]=clamp(GS[k]+v,0,100));}
+  // —— 类别首通里程碑（每类场景第一次完成时的一次性奖励）——
+  const doneBefore=GS.doneActivities||{};
+  const cat=['mall','happyvalley','longtravel'].find(k=>(SCENARIOS[k]||[]).some(s=>s.id===scene.id));
+  const firstInCat=cat&&!(SCENARIOS[cat]||[]).some(s=>s.id!==scene.id&&doneBefore[s.id]);
   GS.doneActivities=GS.doneActivities||{};
   GS.doneActivities[scene.id]=GS.day;
   GS.scenariosDone=(GS.scenariosDone||0)+1;
+  if(firstInCat&&CAT_BONUS[cat]){
+    Object.entries(CAT_BONUS[cat].rewards).forEach(([k,v])=>GS[k]=clamp(GS[k]+v,0,100));
+    addLog(`里程碑·${CAT_BONUS[cat].msg}`);
+  }
   addLog(`场景·${scene.name} — ${c.text}（${ok?'成功':'失败'}）`);
   const outDlg={id:scene.id+'_r',type:'scenario',_noTrack:true,speaker:scene.name,avatar:scene.icon||'📖',
     lines:[{text:o.text,who:'narrator',expr:ok?'happy':'sad'}],
