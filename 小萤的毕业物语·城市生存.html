@@ -2804,6 +2804,110 @@ const DIALOGUES = [
 ];
 
 // ============================================================
+// 朋友互动事件（每天保证触发一个有温度的故事，与主线呼应）
+// ============================================================
+const FRIEND_EVENTS = [
+  { id:'fe01',type:'positive',speaker:'小雨',avatar:'👩‍🎓',day:1,bond:{npc:'小雨',amt:3},
+    lines:[
+      {text:'（刚到这座陌生的城市，手机就震动了一下。是小雨发来的消息。）',who:'narrator',expr:'neutral'},
+      {text:'"小萤，你到住的地方了吗？东西都放好了吗？"',who:'小雨',expr:'happy'},
+      {text:'"刚到，正在收拾。这个城市的声音，和学校那边完全不一样。"',who:'小萤',expr:'neutral'},
+      {text:'"我知道你肯定能行。就是……你一个人，一定要照顾好自己。"',who:'小雨',expr:'sad'},
+      {text:'（语音那头沉默了一会儿，小雨的声音有点哽咽。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'"放心，我会每天给你报平安"',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+      {text:'"说真的，我有点害怕一个人"',fx:{mood:-1,social:+3},hint:'心情-1 社交+3'},
+      {text:'"等稳定了，请你来我这儿玩"',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
+    ]
+  },
+  { id:'fe02',type:'positive',speaker:'林薇',avatar:'👩‍💼',day:2,bond:{npc:'林薇',amt:3},
+    lines:[
+      {text:'（投简历时，你通过学长的介绍，加上了「听澜科技」产品总监林薇的微信。）',who:'narrator',expr:'neutral'},
+      {text:'"小萤你好，我是听澜科技的林薇。学长把你的情况跟我说了。"',who:'林薇',expr:'happy'},
+      {text:'"我们做无障碍音频产品，很需要你这样的视角。这几个岗位，我整理给你看看。"',who:'林薇',expr:'happy'},
+      {text:'"谢谢林薇姐，我……有点担心自己经验不够。"',who:'小萤',expr:'worried'},
+      {text:'"别急着否定自己。你对「看不见的用户真正需要什么」的理解，正是我们团队最缺的。"',who:'林薇',expr:'determined'},
+    ],
+    responses:[
+      {text:'"我会认真研究这些岗位"',fx:{skill:+3,confidence:+2},hint:'专业+3 自信+2'},
+      {text:'"谢谢您愿意给我机会"',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+      {text:'"能讲讲您当初怎么入行的吗"',fx:{skill:+2,social:+2},hint:'专业+2 社交+2'},
+    ]
+  },
+  { id:'fe03',type:'positive',speaker:'小雨',avatar:'👩‍🎓',day:3,bond:{npc:'小雨',amt:2},
+    lines:[
+      {text:'（面试前夜，小雨发来一条很长的语音。）',who:'narrator',expr:'neutral'},
+      {text:'"小萤，明天面试别紧张！我跟你讲个秘密——我第一次面试，紧张得把自我介绍背成相声了。"',who:'小雨',expr:'happy'},
+      {text:'"结果面试官笑完，还是录了我。所以说，真诚比完美重要。"',who:'小雨',expr:'happy'},
+      {text:'"你这是在安慰我，还是吓我啊？"',who:'小萤',expr:'happy'},
+      {text:'"都有！总之明天你就是最棒的小萤，别怕。"',who:'小雨',expr:'determined'},
+    ],
+    responses:[
+      {text:'"有你我就不紧张了"',fx:{mood:+4,social:+2},hint:'心情+4 社交+2'},
+      {text:'"把她的面试经验记下来"',fx:{confidence:+2,skill:+2},hint:'自信+2 专业+2'},
+      {text:'"早点休息，明天全力以赴"',fx:{stamina:+5,confidence:+2},hint:'体力+5 自信+2'},
+    ]
+  },
+  { id:'fe04',type:'positive',speaker:'阿凯',avatar:'👨‍💻',day:4,bond:{npc:'阿凯',amt:3},
+    lines:[
+      {text:'（等待结果的日子最难熬。手机突然响了一声，是个陌生号码——听澜科技的阿凯。）',who:'narrator',expr:'neutral'},
+      {text:'"嗨，我是听澜科技的阿凯，也是视障者。林薇姐让我加你，说你也在等结果？"',who:'阿凯',expr:'happy'},
+      {text:'"是的，每天看八百遍手机……"',who:'小萤',expr:'worried'},
+      {text:'"哈哈我也是这么过来的。别干等着，我跟你讲讲我们公司的趣事吧。"',who:'阿凯',expr:'happy'},
+      {text:'"比如茶水间的咖啡机，那几个按钮我到现在都认不全。"',who:'阿凯',expr:'happy'},
+    ],
+    responses:[
+      {text:'"听你讲这些，安心多了"',fx:{mood:+4,social:+2},hint:'心情+4 社交+2'},
+      {text:'"能讲讲公司的无障碍设施吗"',fx:{skill:+3,confidence:+2},hint:'专业+3 自信+2'},
+      {text:'"谢谢你特意来陪我说话"',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+    ]
+  },
+  { id:'fe05',type:'positive',speaker:'林薇',avatar:'👩‍💼',day:5,bond:{npc:'林薇',amt:3},
+    lines:[
+      {text:'（收到 offer 的那一刻，手机几乎同时弹出了林薇的消息。）',who:'narrator',expr:'neutral'},
+      {text:'"恭喜小萤！欢迎加入听澜科技。"',who:'林薇',expr:'happy'},
+      {text:'"从你投简历的那天起，我就相信你能走到这一步。"',who:'林薇',expr:'happy'},
+      {text:'"林薇姐，谢谢您……我真的做到了。"',who:'小萤',expr:'happy'},
+      {text:'"入职第一天别紧张，阿凯会带你。有任何问题，随时找我。"',who:'林薇',expr:'determined'},
+    ],
+    responses:[
+      {text:'"我会好好准备入职"',fx:{confidence:+3,skill:+2},hint:'自信+3 专业+2'},
+      {text:'"这个好消息，我想先告诉小雨"',fx:{mood:+3,social:+2},hint:'心情+3 社交+2'},
+      {text:'"谢谢您一路的鼓励"',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+    ]
+  },
+  { id:'fe06',type:'positive',speaker:'阿凯',avatar:'👨‍💻',day:6,bond:{npc:'阿凯',amt:3},
+    lines:[
+      {text:'（入职第一天，你正对着陌生的工位有些不知所措。）',who:'narrator',expr:'worried'},
+      {text:'"小萤！这边。我是阿凯，坐你旁边。"',who:'阿凯',expr:'happy'},
+      {text:'"读屏软件的快捷键我帮你调好了，升降桌的按钮在右手边，茶水间出门右转。"',who:'阿凯',expr:'happy'},
+      {text:'"还有公司群里的「无障碍互助」频道，记得加入，很多同事都在。"',who:'阿凯',expr:'happy'},
+      {text:'"谢谢你阿凯，我心里踏实多了。"',who:'小萤',expr:'happy'},
+    ],
+    responses:[
+      {text:'"认真记下每一个位置"',fx:{skill:+2,independence:+3},hint:'专业+2 独立+3'},
+      {text:'"有你这个邻居太好了"',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+      {text:'"请你喝杯咖啡吧"',fx:{social:+3,money:-5},hint:'社交+3 金钱-5'},
+    ]
+  },
+  { id:'fe07',type:'positive',speaker:'小雨',avatar:'👩‍🎓',day:7,bond:{npc:'小雨',amt:2},
+    lines:[
+      {text:'（一周的最后一天，你收到一条群消息——是小雨、林薇、阿凯建的小群。）',who:'narrator',expr:'neutral'},
+      {text:'"小萤！听说你这一周超厉害，快来分享！"',who:'小雨',expr:'happy'},
+      {text:'"她独立、勇敢，比她自己想象的要强得多。"',who:'林薇',expr:'happy'},
+      {text:'"就是有点太拼了，以后记得多休息。"',who:'阿凯',expr:'happy'},
+      {text:'（看着屏幕，你的眼眶有点热。这座陌生的城市，原来早就有了家的温度。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'"谢谢你们，这一周有你们真好"',fx:{mood:+5,social:+3},hint:'心情+5 社交+3'},
+      {text:'"回望这一周，我真的长大了"',fx:{confidence:+4,independence:+2},hint:'自信+4 独立+2'},
+      {text:'"以后也请多多关照"',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+    ]
+  },
+];
+
+// ============================================================
 // 剧情主线系统（小萤成长记融入）
 // ============================================================
 const STORY_STAGES = {
@@ -3803,7 +3907,7 @@ function doActivity(locId,actId){
   renderAll();saveGame();
   closeSceneCard();
   checkEndings();
-  if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver)maybeTriggerDialogue();},450);
+  if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver&&!maybeTriggerFriendEvent())maybeTriggerDialogue();},450);
 }
 
 // ---- 场景探索（docx 场景库：选项 → 成功/失败）----
@@ -3858,7 +3962,7 @@ function finishScenario(scene,c){
     lines:[{text:o.text,who:'narrator',expr:ok?'happy':'sad'}],
     responses:[{text:'继续',fx:{},hint:ok?'成功':'失败'}]};
   startDialogue(outDlg,function(){renderAll();saveGame();checkEndings();
-    if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver)maybeTriggerDialogue();},450);});
+    if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver&&!maybeTriggerFriendEvent())maybeTriggerDialogue();},450);});
 }
 
 // ---- 剧情主线 ----
@@ -4210,6 +4314,14 @@ function advanceTime(minutes){
 }
 
 // ---- 对话触发 ----
+function maybeTriggerFriendEvent(){
+  if(GS.gameOver)return false;
+  const fe=(FRIEND_EVENTS||[]).find(e=>e.day===GS.day && !(GS.triggeredDialogues||[]).includes(e.id));
+  if(!fe)return false;
+  startDialogue(fe,()=>{renderAll();saveGame();checkEndings();});
+  return true;
+}
+
 function maybeTriggerDialogue(transport){
   const t=TRANSPORT[transport]||TRANSPORT.walk,baseRate=t.eventRate;
   const pBonus=(GS.perception-3)*.05,lPenalty=calcLoad()>10?.1:0;
