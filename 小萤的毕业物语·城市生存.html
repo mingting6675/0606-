@@ -3803,6 +3803,7 @@ function doActivity(locId,actId){
   renderAll();saveGame();
   closeSceneCard();
   checkEndings();
+  if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver)maybeTriggerDialogue();},450);
 }
 
 // ---- 场景探索（docx 场景库：选项 → 成功/失败）----
@@ -3856,7 +3857,8 @@ function finishScenario(scene,c){
   const outDlg={id:scene.id+'_r',type:'scenario',_noTrack:true,speaker:scene.name,avatar:scene.icon||'📖',
     lines:[{text:o.text,who:'narrator',expr:ok?'happy':'sad'}],
     responses:[{text:'继续',fx:{},hint:ok?'成功':'失败'}]};
-  startDialogue(outDlg,function(){renderAll();saveGame();checkEndings();});
+  startDialogue(outDlg,function(){renderAll();saveGame();checkEndings();
+    if(!GS.gameOver)setTimeout(()=>{if(!GS.gameOver)maybeTriggerDialogue();},450);});
 }
 
 // ---- 剧情主线 ----
@@ -4209,7 +4211,7 @@ function advanceTime(minutes){
 
 // ---- 对话触发 ----
 function maybeTriggerDialogue(transport){
-  const t=TRANSPORT[transport],baseRate=t.eventRate;
+  const t=TRANSPORT[transport]||TRANSPORT.walk,baseRate=t.eventRate;
   const pBonus=(GS.perception-3)*.05,lPenalty=calcLoad()>10?.1:0;
   const rate=clamp(baseRate+pBonus-lPenalty,.1,.9);
   if(Math.random()<rate){
