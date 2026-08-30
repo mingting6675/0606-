@@ -3809,9 +3809,9 @@ function doActivity(locId,actId){
 function scenarioRate(abil){ return clamp(.25+(abil||3)*.14, .25, .95); }
 
 const CAT_BONUS={
-  mall:{rewards:{confidence:2,independence:2},msg:'小萤第一次独自逛完大型商场，对陌生场所的恐惧又淡了一层。'},
-  happyvalley:{rewards:{mood:5,independence:2},msg:'在欢乐谷的欢声里，小萤第一次发现：看不见，也能玩得尽兴。'},
-  longtravel:{rewards:{confidence:2,skill:2},msg:'跨城的长途出行顺利完成，小萤的胆量又大了一圈。'},
+  mall:{rewards:{confidence:2,independence:2},bond:{npc:'小雨',amt:2},msg:'小萤第一次独自逛完大型商场，对陌生场所的恐惧又淡了一层。她把今天的见闻发给小雨，换来一句「真替你高兴」。'},
+  happyvalley:{rewards:{mood:5,independence:2},bond:{npc:'小雨',amt:2},msg:'在欢乐谷的欢声里，小萤第一次发现：看不见，也能玩得尽兴。这份快乐她第一时间分享给了小雨。'},
+  longtravel:{rewards:{confidence:2,skill:2},bond:{npc:'林薇',amt:2},msg:'跨城的长途出行顺利完成，小萤的胆量又大了一圈。林薇听闻后，欣慰地夸她「越来越独立了」。'},
 };
 
 function startScenario(locId, sceneId){
@@ -3848,6 +3848,8 @@ function finishScenario(scene,c){
   GS.scenariosDone=(GS.scenariosDone||0)+1;
   if(firstInCat&&CAT_BONUS[cat]){
     Object.entries(CAT_BONUS[cat].rewards).forEach(([k,v])=>GS[k]=clamp(GS[k]+v,0,100));
+    const b=CAT_BONUS[cat].bond;
+    if(b){GS.bonds=GS.bonds||{};GS.bonds[b.npc]=clamp((GS.bonds[b.npc]||0)+b.amt,0,100);}
     addLog(`里程碑·${CAT_BONUS[cat].msg}`);
   }
   addLog(`场景·${scene.name} — ${c.text}（${ok?'成功':'失败'}）`);
