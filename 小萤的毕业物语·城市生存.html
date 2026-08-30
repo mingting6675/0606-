@@ -866,10 +866,11 @@ function drawAnimeGirl(canvas, scale, expression) {
 
   // === EXPRESSION ===
   // 遮住标准眼睛（供需要重画眼睛的表情使用）
-  function maskEyes(y, h) {
+  function maskEyes() {
+    // 完整覆盖标准眼睛（眼白 22.5~45.5s、睫毛外缘 ±24.5s），保留眉毛（<22s）
     c.fillStyle = '#fce4cc';
-    c.fillRect(cx-22*s, y*s, 20*s, h*s);
-    c.fillRect(cx+2*s, y*s, 20*s, h*s);
+    c.fillRect(cx-25*s, 22.5*s, 25*s, 23.5*s);
+    c.fillRect(cx+0*s, 22.5*s, 25*s, 23.5*s);
   }
   // 画一只简化眼睛：眼白 + 虹膜 + 瞳孔 + 高光；pdx/pdy 为瞳孔偏移
   function miniEye(ex, ey, r, pdx, pdy) {
@@ -884,22 +885,22 @@ function drawAnimeGirl(canvas, scale, expression) {
   }
 
   if (expression === 'happy') {
-    maskEyes(27, 12);
+    maskEyes();
     c.strokeStyle = '#1a1a2e'; c.lineWidth = 1.2*s;
     c.beginPath(); c.arc(cx-12*s, 42*s, 5.5*s, 0, Math.PI); c.stroke();
     c.beginPath(); c.arc(cx+12*s, 42*s, 5.5*s, 0, Math.PI); c.stroke();
     c.fillStyle = '#e08080';
     c.beginPath(); c.arc(cx, 54*s, 3.5*s, 0, Math.PI); c.fill();
   } else if (expression === 'sad') {
-    maskEyes(30, 10);
+    maskEyes();
     c.strokeStyle = '#1a1a2e'; c.lineWidth = 1*s;
     c.beginPath(); c.arc(cx-12*s, 46*s, 4.5*s, 0.2 * Math.PI, 0.8 * Math.PI); c.stroke();
     c.beginPath(); c.arc(cx+12*s, 46*s, 4.5*s, 0.2 * Math.PI, 0.8 * Math.PI); c.stroke();
     c.strokeStyle = '#c08080'; c.lineWidth = 0.9*s;
-    c.beginPath(); c.arc(cx, 60*s, 3*s, Math.PI, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(cx, 60*s, 3*s, 0, Math.PI); c.stroke();
   } else if (expression === 'worried') {
     // 担忧：半睁眼 + 小波浪嘴
-    maskEyes(27, 12);
+    maskEyes();
     miniEye(cx-12*s, 35*s, 7, 0, 1);
     miniEye(cx+12*s, 35*s, 7, 0, 1);
     c.strokeStyle = '#c08080'; c.lineWidth = 1*s;
@@ -910,7 +911,7 @@ function drawAnimeGirl(canvas, scale, expression) {
     c.stroke();
   } else if (expression === 'surprised') {
     // 惊讶：睁大眼 + O 形嘴
-    maskEyes(26, 14);
+    maskEyes();
     miniEye(cx-12*s, 34*s, 10, 0, 0);
     miniEye(cx+12*s, 34*s, 10, 0, 0);
     c.fillStyle = '#e08080';
@@ -919,7 +920,7 @@ function drawAnimeGirl(canvas, scale, expression) {
     c.beginPath(); c.ellipse(cx, 55*s, 1.5*s, 2.5*s, 0, 0, Math.PI*2); c.fill();
   } else if (expression === 'tired') {
     // 疲惫：半闭眼（弧线）+ 小横线嘴
-    maskEyes(28, 11);
+    maskEyes();
     c.strokeStyle = '#1a1a2e'; c.lineWidth = 1.1*s;
     c.beginPath(); c.arc(cx-12*s, 36*s, 6*s, 0.15 * Math.PI, 0.85 * Math.PI); c.stroke();
     c.beginPath(); c.arc(cx+12*s, 36*s, 6*s, 0.15 * Math.PI, 0.85 * Math.PI); c.stroke();
@@ -927,17 +928,17 @@ function drawAnimeGirl(canvas, scale, expression) {
     c.beginPath(); c.moveTo(cx-4*s, 53*s); c.lineTo(cx+4*s, 53*s); c.stroke();
   } else if (expression === 'teary') {
     // 泪目：含泪眼 + 泪滴 + 下弯嘴
-    maskEyes(28, 12);
+    maskEyes();
     miniEye(cx-12*s, 34*s, 8, 0, 0);
     miniEye(cx+12*s, 34*s, 8, 0, 0);
     c.fillStyle = 'rgba(140, 190, 255, 0.9)';
     c.beginPath(); c.ellipse(cx-18*s, 45*s, 2.5*s, 3.5*s, 0, 0, Math.PI*2); c.fill();
     c.beginPath(); c.ellipse(cx+18*s, 45*s, 2.5*s, 3.5*s, 0, 0, Math.PI*2); c.fill();
     c.strokeStyle = '#c08080'; c.lineWidth = 0.9*s;
-    c.beginPath(); c.arc(cx, 59*s, 3*s, Math.PI, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(cx, 59*s, 3*s, 0, Math.PI); c.stroke();
   } else if (expression === 'shy') {
     // 害羞：瞳孔偏移 + 小弧嘴 + 加重腮红
-    maskEyes(27, 12);
+    maskEyes();
     miniEye(cx-12*s, 34*s, 8, 2, 1);
     miniEye(cx+12*s, 34*s, 8, -2, 1);
     c.strokeStyle = '#c08080'; c.lineWidth = 0.9*s;
@@ -947,7 +948,7 @@ function drawAnimeGirl(canvas, scale, expression) {
     ellip(cx+22*s, 47*s, 6*s, 3.5*s);
   } else if (expression === 'determined') {
     // 坚定：锐利眼 + 下压眉 + 抿线嘴
-    maskEyes(27, 12);
+    maskEyes();
     miniEye(cx-12*s, 35*s, 8, 0, 0);
     miniEye(cx+12*s, 35*s, 8, 0, 0);
     c.strokeStyle = '#1a0806'; c.lineWidth = 1.2*s;
