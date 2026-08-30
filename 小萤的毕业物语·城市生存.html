@@ -3818,7 +3818,9 @@ function startScenario(locId, sceneId){
   lines.push({text:scene.prompt,who:'narrator',expr:'neutral'});
   const dlg={id:scene.id,type:'scenario',speaker:scene.name,avatar:scene.icon||'📖',
     lines,
-    responses:(scene.choices||[]).map(c=>({text:c.text,hint:c.desc,_scn:{scene,c}}))};
+    responses:(scene.choices||[]).map(c=>({text:c.text,
+      hint:`${c.desc}<br>⏱${SCEN_T(c.ok.time)}~${SCEN_T(c.no.time)}分钟${c.no.mood?(' · 失败心情'+c.no.mood):''}`,
+      _scn:{scene,c}}))};
   startDialogue(dlg,function(){renderAll();saveGame();checkEndings();});
 }
 
@@ -4532,6 +4534,7 @@ function triggerEnding(type){
   document.getElementById('end-stats2').innerHTML=`
     <div class="er"><span>🚶 出行次数</span><span>${GS.travelsCompleted} 次</span></div>
     <div class="er"><span>💬 触发对话</span><span>${GS.totalEventsTriggered} 次</span></div>
+    <div class="er"><span>🧭 场景探索</span><span>${GS.scenariosDone||0} 次</span></div>
     <div class="er"><span>❤️ 剩余体力</span><span>${GS.stamina}/100</span></div>
     <div class="er"><span>💰 剩余金钱</span><span>¥${GS.money}</span></div>
     <div class="er"><span>😊 最终心情</span><span>${GS.mood}/100</span></div>
