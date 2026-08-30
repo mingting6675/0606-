@@ -1165,7 +1165,7 @@ const DIALOGUES = [
     lines:[
       {text:'（前方盲道被共享单车完全挡死。小萤的导盲杖敲在了金属车架上。）',who:'narrator',expr:'neutral'},
       {text:'"又是这样……"',who:'小萤',expr:'sad'},
-      {text:'（她需要做一个决定。）',who:'narrator',expr:'neutral'},
+      {text:'（她需要做一个决定。）',who:'narrator',expr:'determined'},
     ],
     responses:[
       {text:'小心绕过',fx:{stamina:-5,mood:-3},hint:'体力-5, 心情-3'},
@@ -1176,7 +1176,7 @@ const DIALOGUES = [
   // 善意遭遇
   { id:'d05',type:'positive',speaker:'好心路人',avatar:'👩',
     lines:[
-      {text:'（小萤在路口犹豫不决时，一个温柔的声音在身旁响起。）',who:'narrator',expr:'neutral'},
+      {text:'（小萤在路口犹豫不决时，一个温柔的声音在身旁响起。）',who:'narrator',expr:'worried'},
       {text:'"你好，你看起来好像不太确定方向？需要帮助吗？"',who:'好心路人',expr:'happy'},
       {text:'"啊……是的，谢谢你。我在找去地铁站的路。"',who:'小萤',expr:'happy'},
       {text:'"我正好顺路，一起走过去吧。前面有个台阶，注意脚下。"',who:'好心路人',expr:'happy'},
@@ -1513,7 +1513,7 @@ const DIALOGUES = [
   { id:'d31',type:'positive',speaker:'小雨',avatar:'👩‍🎓',bond:{npc:'小雨',amt:5},
     lines:[
       {text:'「小萤！这周末有空吗？我发现了一家很好吃的火锅店，想去试试！」小雨在语音里兴奋地说。',who:'小雨',expr:'happy'},
-      {text:'（你犹豫了一下。火锅店人多嘈杂，对你来说并不轻松。）',who:'narrator',expr:'neutral'},
+      {text:'（你犹豫了一下。火锅店人多嘈杂，对你来说并不轻松。）',who:'narrator',expr:'worried'},
       {text:'「我知道你担心什么啦，那家店很安静，还有服务员引导，我提前踩过点了！」',who:'小雨',expr:'happy'},
     ],
     responses:[
@@ -1575,7 +1575,7 @@ const DIALOGUES = [
   { id:'d36',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:6,bond:{npc:'阿凯',amt:5},
     lines:[
       {text:'「小萤，你那个读屏软件是不是语速有点快？我帮你调慢点？」阿凯探过头来。',who:'同事阿凯',expr:'happy'},
-      {text:'「啊……是的，有些地方我跟不上。」你有点不好意思。',who:'小萤',expr:'neutral'},
+      {text:'「啊……是的，有些地方我跟不上。」你有点不好意思。',who:'小萤',expr:'shy'},
       {text:'「别客气！我还研究了下键盘快捷键，这样你操作能更快。要不要一起看看？」',who:'同事阿凯',expr:'happy'},
     ],
     responses:[
@@ -1587,7 +1587,7 @@ const DIALOGUES = [
   { id:'d37',type:'positive',speaker:'同事阿凯',avatar:'👨‍💻',minDay:6,bond:{npc:'阿凯',amt:5},
     lines:[
       {text:'「小萤，中午一起吃饭吗？公司附近有家很安静的小面馆。」阿凯在下班前问。',who:'同事阿凯',expr:'happy'},
-      {text:'（你犹豫了一下。和不熟悉的同事一起吃饭，总让你有些紧张。）',who:'narrator',expr:'neutral'},
+      {text:'（你犹豫了一下。和不熟悉的同事一起吃饭，总让你有些紧张。）',who:'narrator',expr:'worried'},
       {text:'「那家店没什么人，我可以帮你描述菜单。一起去吧，就当熟悉下环境。」',who:'同事阿凯',expr:'neutral'},
     ],
     responses:[
@@ -1636,7 +1636,7 @@ const DIALOGUES = [
   { id:'d41',type:'negative',speaker:'——',avatar:'💳',
     lines:[
       {text:'（小萤想取点现金。可眼前的ATM是纯触屏，屏幕冷冰冰的，没有任何语音和盲文。）',who:'narrator',expr:'neutral'},
-      {text:'（她犹豫着，手指悬在屏幕上方，不知道按下去会发生什么。）',who:'narrator',expr:'sad'},
+      {text:'（她犹豫着，手指悬在屏幕上方，不知道按下去会发生什么。）',who:'narrator',expr:'worried'},
       {text:'（现金、银行卡，这些对健全人再简单不过的事，对她却是一道道无形的墙。）',who:'narrator',expr:'sad'},
     ],
     responses:[
@@ -1697,7 +1697,7 @@ const DIALOGUES = [
   },
   { id:'d46',type:'neutral',speaker:'——',avatar:'🕐',minDay:5,
     lines:[
-      {text:'（入职前一天，你决定提前把"家 → 公司"的通勤路线走一遍。）',who:'narrator',expr:'neutral'},
+      {text:'（入职前一天，你决定提前把"家 → 公司"的通勤路线走一遍。）',who:'narrator',expr:'determined'},
       {text:'（盲道、换乘点、无障碍电梯、公司大门的朝向……你在心里默默记下每一个细节。）',who:'narrator',expr:'neutral'},
       {text:'（明天是第一天，绝对不能迟到。这是你给自己立下的第一条规矩。）',who:'narrator',expr:'neutral'},
     ],
@@ -1724,7 +1724,7 @@ const DIALOGUES = [
     lines:[
       {text:'（入职第一天，你到了公司，却在一排一模一样的工位之间迷了路。）',who:'narrator',expr:'neutral'},
       {text:'（没有盲文标识，工位号全在屏幕和门牌上。你抱着包，站在走廊里不知所措。）',who:'narrator',expr:'sad'},
-      {text:'（那种"第一天就给人添麻烦"的羞耻感，一点点涌了上来。）',who:'narrator',expr:'sad'},
+      {text:'（那种"第一天就给人添麻烦"的羞耻感，一点点涌了上来。）',who:'narrator',expr:'shy'},
     ],
     responses:[
       {text:'鼓起勇气问路过的同事',fx:{social:+3,mood:-2},hint:'社交+3 心情-2'},
@@ -1760,7 +1760,7 @@ const DIALOGUES = [
   { id:'d51',type:'positive',speaker:'小雨',avatar:'👩‍🎓',minDay:7,bond:{npc:'小雨',amt:7},
     lines:[
       {text:'「小萤！恭喜你，第一周顺利度过！」小雨的声音从电话那头传来，雀跃得像要跳起来。',who:'小雨',expr:'happy'},
-      {text:'「嗯……真的像做梦一样。七天前我还在为毕业发愁，现在居然已经在上班了。」你感慨道。',who:'小萤',expr:'happy'},
+      {text:'「嗯……真的像做梦一样。七天前我还在为毕业发愁，现在居然已经在上班了。」你感慨道。',who:'小萤',expr:'surprised'},
       {text:'「我就知道你可以的！这周一定要好好庆祝一下！」',who:'小雨',expr:'happy'},
     ],
     responses:[
@@ -1773,7 +1773,7 @@ const DIALOGUES = [
     lines:[
       {text:'「小萤，这一周的表现，出乎我的意料。」林薇在周会结束后单独留下你。',who:'林薇',expr:'neutral'},
       {text:'「你不仅适应得很快，还主动提出了几处无障碍体验的改进建议。团队都很认可。」',who:'林薇',expr:'neutral'},
-      {text:'（被当着面这样肯定，你的眼眶有些发热。原来被看见、被需要，是这样的感觉。）',who:'narrator',expr:'happy'},
+      {text:'（被当着面这样肯定，你的眼眶有些发热。原来被看见、被需要，是这样的感觉。）',who:'narrator',expr:'teary'},
     ],
     responses:[
       {text:'「谢谢林总监，我会继续努力」',fx:{confidence:+6,mood:+3},hint:'自信+6 心情+3'},
@@ -1798,7 +1798,7 @@ const DIALOGUES = [
     lines:[
       {text:'（入职第一天，下班时分突然下起了暴雨。）',who:'narrator',expr:'neutral'},
       {text:'（雨声铺天盖地，淹没了一切路标和车流声。你站在写字楼门口，攥紧了导盲杖。）',who:'narrator',expr:'sad'},
-      {text:'（刚入职，你不好意思开口让同事送，只能自己想办法回家。）',who:'narrator',expr:'sad'},
+      {text:'（刚入职，你不好意思开口让同事送，只能自己想办法回家。）',who:'narrator',expr:'shy'},
     ],
     responses:[
       {text:'打车回家',fx:{money:-20,stamina:-1},hint:'金钱-20 体力-1'},
@@ -1937,7 +1937,7 @@ const DIALOGUES = [
     lines:[
       {text:'（门被轻轻敲响。是房东阿姨，端着一碗热腾腾的汤。）',who:'narrator',expr:'neutral'},
       {text:'「小萤啊，我看你一个人住，给你端碗汤。天冷了，喝点暖的。」',who:'房东阿姨',expr:'happy'},
-      {text:'（你接过碗，温热的触感从掌心传来，眼眶忽然有点酸。）',who:'narrator',expr:'happy'},
+      {text:'（你接过碗，温热的触感从掌心传来，眼眶忽然有点酸。）',who:'narrator',expr:'teary'},
       {text:'（原来这座陌生的城市里，也有人悄悄惦记着你。）',who:'narrator',expr:'happy'},
     ],
     responses:[
@@ -2144,7 +2144,7 @@ const DIALOGUES = [
   // ===== 隐藏事件：成长与羁绊的特殊情境 =====
   { id:'d82',type:'positive',speaker:'——',avatar:'🧃',cond:()=>GS.stamina<=15&&GS.day>=2,
     lines:[
-      {text:'（连续奔波让小萤筋疲力尽，导盲杖在地面上点得越来越慢。）',who:'narrator',expr:'sad'},
+      {text:'（连续奔波让小萤筋疲力尽，导盲杖在地面上点得越来越慢。）',who:'narrator',expr:'tired'},
       {text:'（她靠在路边的长椅上，闭着眼，想缓一缓再走。）',who:'narrator',expr:'sad'},
       {text:'（这时，一个稚嫩的声音在耳边响起：「姐姐，你是不是累了？给你我的果汁！」）',who:'narrator',expr:'happy'},
       {text:'（一个小男孩递来一瓶还没拆封的果汁，眼睛亮晶晶的。疲惫，好像也被冲淡了几分。）',who:'narrator',expr:'happy'},
@@ -2262,7 +2262,7 @@ const DIALOGUES = [
   },
   { id:'d93',type:'neutral',speaker:'——',avatar:'☕',minDay:5,cond:()=>GS.time>=1200,
     lines:[
-      {text:'（入职前的最后一个夜晚，你有点累，也有点兴奋。）',who:'narrator',expr:'neutral'},
+      {text:'（入职前的最后一个夜晚，你有点累，也有点兴奋。）',who:'narrator',expr:'tired'},
       {text:'（明天开始，你就不再是「找工作的人」，而是「有工作的人」了。）',who:'narrator',expr:'happy'},
     ],
     responses:[
@@ -2273,7 +2273,7 @@ const DIALOGUES = [
   { id:'d94',type:'positive',speaker:'——',avatar:'✨',minDay:6,cond:()=>GS.time>=1200,
     lines:[
       {text:'（一周快结束了。你躺在床上，回想这七天的每一步。）',who:'narrator',expr:'happy'},
-      {text:'（从迷茫到坚定，从害怕到勇敢——你真的走了很远很远。）',who:'narrator',expr:'happy'},
+      {text:'（从迷茫到坚定，从害怕到勇敢——你真的走了很远很远。）',who:'narrator',expr:'determined'},
     ],
     responses:[
       {text:'感谢坚持到现在的自己',fx:{confidence:+4,mood:+4},hint:'自信+4 心情+4'},
@@ -2478,7 +2478,7 @@ const STORY_DIALOGUES = {
       {text:'「小萤，我们决定录用你。下周一入职，职位是音频内容专员。」',who:'林薇',expr:'happy'},
       {text:'「面试时你对音频项目技术细节的把握，让我们印象很深。我们相信你会是个好内容制作人。」',who:'林薇',expr:'happy'},
       {text:'「公司会为你配好无障碍设备，通勤也有补贴。我们希望你能安心工作。」',who:'林薇',expr:'happy'},
-      {text:'「谢谢！我一定会努力的！」你握着手机，眼泪差点掉下来。',who:'小萤',expr:'happy'},
+      {text:'「谢谢！我一定会努力的！」你握着手机，眼泪差点掉下来。',who:'小萤',expr:'teary'},
       {text:'（挂了电话，你一个人在房间里笑了很久。这是你的第一份工作，也是你独立生活的真正开始。）',who:'narrator',expr:'happy'},
     ],
     responses:[
@@ -2495,7 +2495,7 @@ const STORY_DIALOGUES = {
       {text:'「小萤，我们决定录用你。职位是——无障碍体验顾问。」',who:'林薇',expr:'happy'},
       {text:'「面试时你讲的「为什么关注无障碍」，让我们看到你对用户的理解。这个岗位需要你直接和视障用户对话。」',who:'林薇',expr:'happy'},
       {text:'「公司会为你配好无障碍设备，通勤也有补贴。我们希望你能安心工作。」',who:'林薇',expr:'happy'},
-      {text:'「谢谢！我一定会努力的！」你握着手机，眼泪差点掉下来。',who:'小萤',expr:'happy'},
+      {text:'「谢谢！我一定会努力的！」你握着手机，眼泪差点掉下来。',who:'小萤',expr:'teary'},
       {text:'（挂了电话，你一个人在房间里笑了很久。这是你的第一份工作，也是你独立生活的真正开始。）',who:'narrator',expr:'happy'},
     ],
     responses:[
@@ -2512,7 +2512,7 @@ const STORY_DIALOGUES = {
       {text:'「小萤，我们决定录用你。职位是——无障碍测试专员。」',who:'林薇',expr:'happy'},
       {text:'「面试时你坦诚地讲了优势，也讲了需要支持的地方。这种真实，正是测试岗位最需要的品质。」',who:'林薇',expr:'happy'},
       {text:'「公司会为你配好无障碍设备，通勤也有补贴。我们希望你能安心工作。」',who:'林薇',expr:'happy'},
-      {text:'「谢谢！我一定会努力的！」你握着手机，眼泪差点掉下来。',who:'小萤',expr:'happy'},
+      {text:'「谢谢！我一定会努力的！」你握着手机，眼泪差点掉下来。',who:'小萤',expr:'teary'},
       {text:'（挂了电话，你一个人在房间里笑了很久。这是你的第一份工作，也是你独立生活的真正开始。）',who:'narrator',expr:'happy'},
     ],
     responses:[
@@ -2844,7 +2844,30 @@ function drawXiaoyingAnimated(ctx,cx,cy,scale,expr,animTime,isSpeaking){
     ctx.fillStyle='#f08080';ctx.beginPath();ctx.arc(0,mouthY+1*s,3*s,0,Math.PI);ctx.fill();
   }else if(expr==='sad'){
     ctx.strokeStyle='#c08080';ctx.lineWidth=1*s;
-    ctx.beginPath();ctx.arc(0,mouthY+7*s,4*s,Math.PI,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.arc(0,mouthY+3*s,4*s,0,Math.PI);ctx.stroke();
+  }else if(expr==='worried'){
+    ctx.strokeStyle='#c08080';ctx.lineWidth=1*s;
+    ctx.beginPath();ctx.moveTo(-4*s,mouthY+2*s);
+    ctx.quadraticCurveTo(-2*s,mouthY+4*s,0,mouthY+2*s);
+    ctx.quadraticCurveTo(2*s,mouthY+4*s,4*s,mouthY+2*s);ctx.stroke();
+  }else if(expr==='surprised'){
+    ctx.fillStyle='#d87070';
+    ctx.beginPath();ctx.ellipse(0,mouthY+2*s,3*s,4*s,0,0,Math.PI*2);ctx.fill();
+  }else if(expr==='tired'){
+    ctx.strokeStyle='#c08080';ctx.lineWidth=1*s;
+    ctx.beginPath();ctx.moveTo(-3*s,mouthY+2*s);ctx.lineTo(3*s,mouthY+2*s);ctx.stroke();
+  }else if(expr==='teary'){
+    ctx.strokeStyle='#c08080';ctx.lineWidth=1*s;
+    ctx.beginPath();ctx.arc(0,mouthY+3*s,3*s,0,Math.PI);ctx.stroke();
+    ctx.fillStyle='rgba(140,190,255,.9)';
+    ctx.beginPath();ctx.ellipse(-15*s,mouthY+1*s,2*s,3*s,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(15*s,mouthY+1*s,2*s,3*s,0,0,Math.PI*2);ctx.fill();
+  }else if(expr==='shy'){
+    ctx.strokeStyle='#c08080';ctx.lineWidth=1*s;
+    ctx.beginPath();ctx.arc(0,mouthY+2*s,2.5*s,0.15*Math.PI,0.85*Math.PI);ctx.stroke();
+  }else if(expr==='determined'){
+    ctx.strokeStyle='#c08080';ctx.lineWidth=1.2*s;
+    ctx.beginPath();ctx.moveTo(-3*s,mouthY+2*s);ctx.lineTo(3*s,mouthY+2*s);ctx.stroke();
   }else{
     // 说话时嘴张开
     if(isSpeaking&&Math.sin(animTime*0.03)>0){
@@ -3886,7 +3909,7 @@ const BOND_EVENTS = {
       lines:[
         {text:'（这天，小雨突然发来一段长长的语音，语气认真得不像平时的她。）',who:'narrator',expr:'neutral'},
         {text:'「小萤，我想跟你说，不管以后我们各自去了哪里，你永远是我最好的朋友。」',who:'小雨',expr:'happy'},
-        {text:'（你的眼眶突然有点热。在这个陌生的城市里，有这样一个朋友，真好。）',who:'narrator',expr:'happy'},
+        {text:'（你的眼眶突然有点热。在这个陌生的城市里，有这样一个朋友，真好。）',who:'narrator',expr:'teary'},
       ],
       responses:[
         {text:'「我也是。谢谢你一直在。」',fx:{mood:+6,social:+3},hint:'心情+6 社交+3'},
@@ -3944,7 +3967,7 @@ const BOND_EVENTS = {
       lines:[
         {text:'「小萤，跟你说个秘密——我其实想自己创业，做个真正好用的无障碍App。」阿凯的眼神很亮。',who:'同事阿凯',expr:'happy'},
         {text:'「我想拉你一起。你的体验和想法，是最宝贵的东西。」',who:'同事阿凯',expr:'happy'},
-        {text:'（你愣住了。原来你一直担心的「能力不足」，在别人眼里是「无可替代」。）',who:'narrator',expr:'happy'},
+        {text:'（你愣住了。原来你一直担心的「能力不足」，在别人眼里是「无可替代」。）',who:'narrator',expr:'surprised'},
       ],
       responses:[
         {text:'「好，我们一起试试看」',fx:{confidence:+8,independence:+4},hint:'自信+8 独立+4'},
