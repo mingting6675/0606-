@@ -1109,7 +1109,7 @@ const LOCATION_ACTIVITIES = {
     {id:'study',name:'学习充电',icon:'📖',desc:'用读屏电脑学习专业知识',time:90,cost:0,fx:{skill:+6,stamina:-5}},
     {id:'audiobook',name:'借有声书',icon:'🎧',desc:'借一本有声书带回去听',time:30,cost:0,fx:{skill:+3,mood:+4}},
     {id:'braille_teacher',name:'请教盲文老师',icon:'🖐️',desc:'向盲文阅览室的老师请教盲文阅读技巧',time:30,cost:0,fx:{skill:+2,confidence:+2}},
-    {id:'part_time_library',name:'整理图书兼职',icon:'📚',desc:'帮忙整理书架、转录有声书，赚点外快',time:150,cost:0,fx:{money:+30,skill:+3,stamina:-10}},
+    {id:'part_time_library',name:'整理图书兼职',icon:'📚',desc:'帮忙整理书架、转录有声书，赚点外快',time:150,cost:0,fx:{money:+35,skill:+3,stamina:-20}},
   ],
   community:[
     {id:'book_service',name:'预约无障碍服务',icon:'📋',desc:'登记接送、代购、陪诊等便民服务',time:30,cost:0,fx:{independence:+5}},
@@ -1118,7 +1118,7 @@ const LOCATION_ACTIVITIES = {
   cafe:[
     {id:'coffee',name:'点一杯咖啡',icon:'☕',desc:'享受一杯香浓的咖啡',time:30,cost:15,fx:{mood:+8}},
     {id:'chat_friend',name:'和朋友聊天',icon:'💬',desc:'约朋友来喝咖啡，聊聊近况',time:60,cost:15,fx:{social:+5,mood:+5}},
-    {id:'part_time_cafe',name:'兼职打工',icon:'🧑‍🍳',desc:'在咖啡馆帮忙半天，赚点零花钱',time:150,cost:0,fx:{money:+40,stamina:-15,social:+2}},
+    {id:'part_time_cafe',name:'兼职打工',icon:'🧑‍🍳',desc:'在咖啡馆帮忙半天，赚点零花钱',time:150,cost:0,fx:{money:+45,stamina:-25,social:+2}},
   ],
   bank:[
     {id:'bank_service',name:'办理银行业务',icon:'🏦',desc:'请大堂经理引导到窗口办理存取款',time:40,cost:0,fx:{independence:+4,confidence:+2}},
@@ -1563,6 +1563,28 @@ const SCENARIOS = {
           ok:{text:'工作人员带你走了宽闸机，还帮你刷了卡。',time:1,mood:0},
           no:{text:'工作人员正在忙，指了个方向，你摸索了半天才找到。',time:3,mood:-1}},
       ]},
+    {id:'st3',name:'找对站台方向',icon:'🚇',cost:0,
+      atmo:['站台两边各停着一列车，开门声和报站声几乎同时响起。','两侧的电子屏和广播不断滚动着线路信息，报站声重叠在一起。'],
+      prompt:'三号线有「开往市区」和「开往郊区」两个方向，两个站台面对面。报站声重叠，你一时分不清哪边是你要去的方向。',
+      choices:[
+        {text:'听报站分辨方向',ability:'perception',desc:'仔细听列车进站时播报的终点站名，判断哪边才是你要去的方向。',
+          ok:{text:'你听清了终点站名，准确地走向了正确的站台。',time:1,mood:0},
+          no:{text:'两列车同时进站，报站声混在一起，你差点上了反方向的车，幸亏在车门关闭前退了出来。',time:3,mood:-2}},
+        {text:'请乘客帮忙确认',ability:'communication',desc:'向身边等车的乘客确认「您好，请问去XX站是在这边上车吗」。',
+          ok:{text:'对方很耐心地帮你确认了方向，还提醒你还有几站到。',time:1,mood:0},
+          no:{text:'连问了两个人，一个说「不清楚」，另一个随手一指就走，你最后靠自己听报站才确认。',time:3,mood:-1}},
+      ]},
+    {id:'st4',name:'高峰期的站台',icon:'👥',cost:0,
+      atmo:['早高峰的站台人山人海，脚步声、广播声、手机声混成一片。','人群推挤着向前，盲杖容易被踩到，也容易绊到别人。'],
+      prompt:'早高峰地铁人满为患，你被人流裹挟着往前走。车门打开时，大量乘客涌出，你被挤得几乎站不稳。',
+      choices:[
+        {text:'稳住重心靠边等',ability:'perception',desc:'双手握紧盲杖横在身前，后背贴近站台立柱，等第一波人流过去再上车。',
+          ok:{text:'你稳稳地等到了人流过去，顺利上了车，还找到个扶手。',time:2,mood:0},
+          no:{text:'人群太猛，你被撞了一下，盲杖差点脱手。好在没摔倒，只是上车晚了几秒。',time:3,mood:-2}},
+        {text:'请站务员协助上车',ability:'communication',desc:'向站台工作人员求助，说明自己视障，请他引导你到车门处上车。',
+          ok:{text:'站务员帮你挡开人流，护送你到车门口，还帮你找了个靠边的位置。',time:2,mood:0},
+          no:{text:'站务员分身乏术，让你「稍等一下」，你只能自己硬着头皮挤上车。',time:3,mood:-1}},
+      ]},
   ],
   shop:[
     {id:'sp1',name:'自助结账',icon:'🧾',cost:0,
@@ -1586,6 +1608,17 @@ const SCENARIOS = {
         {text:'请店员带路',ability:'communication',desc:'直接问店员「饮料和纸巾在哪」。',
           ok:{text:'店员带你走到货架前，把商品递到你手上。',time:1,mood:0},
           no:{text:'店员说「就在最里面」，但你走了几排还是没找到。',time:3,mood:-1}},
+      ]},
+    {id:'sp3',name:'门前的台阶',icon:'🚪',cost:0,
+      atmo:['便利店门口有三级台阶，没有斜坡。门口地面有点湿，感应门的「叮咚」声在身后响起。','你手里提着刚买的袋子，平衡不如平时那么稳。'],
+      prompt:'买完东西出来，你提着袋子。门口的台阶没有扶手，地面又有点湿滑，你手里还拿着东西。',
+      choices:[
+        {text:'用盲杖探台阶再走',ability:'perception',desc:'停下脚步，先用盲杖探清三级台阶的高度和宽度，把袋子挎到手臂上，扶稳再一步步下。',
+          ok:{text:'你稳稳地走下了台阶，心里踏实。',time:1,mood:0},
+          no:{text:'地面太滑，你下到最后一级时滑了一下，好在及时用盲杖撑住没有摔倒。',time:2,mood:-1}},
+        {text:'请身后的人搭把手',ability:'communication',desc:'听到身后有人出来，礼貌地请对方帮忙扶一下下台阶。',
+          ok:{text:'对方很热心，扶着你稳稳走下台阶，还提醒你「慢点」。',time:1,mood:0},
+          no:{text:'你喊了一声，但身后的人戴着耳机没听见，你只能自己小心地慢慢下。',time:2,mood:-1}},
       ]},
   ],
   hospital:[
@@ -2134,6 +2167,78 @@ const DIALOGUES = [
       {text:'紧紧握住导盲杖',fx:{stamina:-2,confidence:+1},hint:'体力-2 自信+1'},
       {text:'在避风处等风停',fx:{mood:+1},hint:'心情+1'},
       {text:'请路人帮忙确认方向',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+    ]
+  },
+  { id:'d107',type:'positive',speaker:'——',avatar:'🌧️',weather:'rain',
+    lines:[
+      {text:'（雨突然下大了。你没带伞，只好躲进路边的屋檐下，听着雨点噼里啪啦地响。）',who:'narrator',expr:'worried'},
+      {text:'（雨声很大，几乎盖过了导航的语音。你有些无措地站在原地。）',who:'narrator',expr:'neutral'},
+      {text:'「小姑娘，没带伞吧？来，我送你到地铁口。」一把伞撑到了你头顶。',who:'陌生人',expr:'happy'},
+    ],
+    responses:[
+      {text:'「太谢谢您了」',fx:{mood:+3,social:+2},hint:'心情+3 社交+2'},
+      {text:'（把这把伞的温度记在心里）',fx:{mood:+4},hint:'心情+4'},
+      {text:'「我自己可以，不麻烦您了」',fx:{independence:+2,confidence:+2},hint:'独立+2 自信+2'},
+    ]
+  },
+  { id:'d108',type:'neutral',speaker:'——',avatar:'🌧️',weather:'rain',
+    lines:[
+      {text:'（雨天的人行道格外湿滑。你放慢脚步，盲杖在湿漉漉的地面上一寸寸地探着。）',who:'narrator',expr:'worried'},
+      {text:'（水坑、井盖、被雨水打湿的盲道……每一处都要格外小心。）',who:'narrator',expr:'neutral'},
+      {text:'（你忽然想起妈妈的话：「雨天慢点走，没什么比安全更重要。」）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'（深吸一口气，稳稳地继续走）',fx:{confidence:+3,independence:+2},hint:'自信+3 独立+2'},
+      {text:'在路边咖啡店歇一歇，等雨小点',fx:{stamina:+3,mood:+2},hint:'体力+3 心情+2'},
+      {text:'「我能照顾好自己」',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
+    ]
+  },
+  { id:'d109',type:'neutral',speaker:'——',avatar:'💨',weather:'wind',
+    lines:[
+      {text:'（大风天，落叶和塑料袋被风吹得满地跑。你的盲杖好几次探到了被风吹倒的东西。）',who:'narrator',expr:'worried'},
+      {text:'（一阵大风刮来，你下意识地扶住了路边的栏杆。）',who:'narrator',expr:'neutral'},
+      {text:'「风大，靠边走！前面有个施工围挡！」一个路过的声音提醒你。',who:'路人',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「谢谢提醒！」',fx:{mood:+3,social:+2},hint:'心情+3 社交+2'},
+      {text:'靠边慢行，先等这阵风过去',fx:{stamina:+2,confidence:+1},hint:'体力+2 自信+1'},
+      {text:'（记住这个施工路段）',fx:{independence:+2},hint:'独立+2'},
+    ]
+  },
+  { id:'d110',type:'positive',speaker:'——',avatar:'🍂',weather:'wind',
+    lines:[
+      {text:'（一阵大风过后，空气中飘来桂花的香味。你停下脚步，深深地吸了一口气。）',who:'narrator',expr:'happy'},
+      {text:'（这座城市，也有温柔的一面。虽然看不见，但风会告诉你季节的变化。）',who:'narrator',expr:'happy'},
+      {text:'（一片叶子轻轻落在你的肩头，你用手指摸了摸它的纹路。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（享受这一刻的平静）',fx:{mood:+4,stamina:+2},hint:'心情+4 体力+2'},
+      {text:'把桂花香记在心里',fx:{mood:+3,confidence:+2},hint:'心情+3 自信+2'},
+      {text:'「看不见，也感受得到美好」',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
+    ]
+  },
+  { id:'d111',type:'neutral',speaker:'——',avatar:'☁️',weather:'cloudy',
+    lines:[
+      {text:'（阴天，光线灰蒙蒙的。虽然没有雨，但空气里透着一股沉沉的闷。）',who:'narrator',expr:'neutral'},
+      {text:'（少了阳光，周围的声音似乎也变得更安静了些。）',who:'narrator',expr:'neutral'},
+      {text:'（你忽然有点想家，想妈妈炖的那锅汤。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'给妈妈打个电话',fx:{mood:+4,social:+2},hint:'心情+4 社交+2'},
+      {text:'去公园坐坐，透透气',fx:{mood:+3,stamina:+2},hint:'心情+3 体力+2'},
+      {text:'「阴天，也适合慢慢走」',fx:{confidence:+2,mood:+2},hint:'自信+2 心情+2'},
+    ]
+  },
+  { id:'d112',type:'positive',speaker:'——',avatar:'☁️',weather:'cloudy',
+    lines:[
+      {text:'（阴天不晒，正是散步的好时候。你慢慢走着，用盲杖轻轻点着地面。）',who:'narrator',expr:'neutral'},
+      {text:'（一阵微风带来雨后泥土的味道，还有附近面包店飘来的香气。）',who:'narrator',expr:'happy'},
+      {text:'（原来阴天也有阴天的温柔——不刺眼，不喧闹，刚刚好。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（享受这份恰到好处的安静）',fx:{mood:+4},hint:'心情+4'},
+      {text:'循着香味去买个面包',fx:{mood:+3,money:-5},hint:'心情+3 💰-5'},
+      {text:'「每一种天气，都值得好好感受」',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
     ]
   },
   // ===== 朋友支线：小雨（大学挚友） =====
@@ -3065,6 +3170,455 @@ const DIALOGUES = [
       {text:'"以后可能真要麻烦您了"',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
     ]
   },
+  // ===== 连锁小故事：流浪猫「小橘」（跨 3 天，地点公园→便利店→家门口） =====
+  { id:'arc_cat1',arc:'cat',type:'positive',speaker:'——',avatar:'🐱',minDay:1,location:'park',
+    lines:[
+      {text:'（公园的长椅下，传来一阵细弱的「喵呜」声。你用盲杖轻轻探了探，碰到一团小小的、正在发抖的东西。）',who:'narrator',expr:'neutral'},
+      {text:'是一只饿得直叫的小橘猫。它没有躲开，反而凑近你的盲杖，用脑袋轻轻蹭了蹭。',who:'narrator',expr:'neutral'},
+      {text:'（你蹲下身，能摸到它瘦得肋骨根根分明。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'把包里的食物分它一点',fx:{mood:+3,independence:+1},hint:'心情+3 独立+1'},
+      {text:'只是蹲下，轻轻陪它一会儿',fx:{mood:+2},hint:'心情+2'},
+      {text:'记住它待的位置，下次再来',fx:{confidence:+2,mood:+1},hint:'自信+2 心情+1'},
+    ]
+  },
+  { id:'arc_cat2',arc:'cat',type:'positive',speaker:'——',avatar:'🐱',minDay:3,location:'shop',cond:()=>(GS.triggeredDialogues||[]).includes('arc_cat1'),
+    lines:[
+      {text:'（便利店门口，你又一次听到了那声熟悉的「喵」。）',who:'narrator',expr:'neutral'},
+      {text:'是小橘！它似乎认出了你的脚步声，小跑着凑到你脚边，尾巴轻轻扫过你的脚踝。',who:'narrator',expr:'happy'},
+      {text:'（店员的语气有点无奈：「这只猫最近老在门口晃悠，赶也赶不走。」）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'进店买点猫粮喂它',fx:{money:-10,mood:+4,social:+2},hint:'💰-10 心情+4 社交+2'},
+      {text:'蹲下来摸摸它，跟它说说话',fx:{mood:+3},hint:'心情+3'},
+      {text:'用手机查附近的动物救助站',fx:{mood:+2,skill:+2},hint:'心情+2 专业+2'},
+    ]
+  },
+  { id:'arc_cat3',arc:'cat',type:'positive',speaker:'——',avatar:'🐱',minDay:5,cond:()=>(GS.triggeredDialogues||[]).includes('arc_cat2'),
+    lines:[
+      {text:'（傍晚，你听到门口传来微弱的挠门声，还有一声声「喵呜」。）',who:'narrator',expr:'neutral'},
+      {text:'开门一摸，是小橘。它的前腿似乎受了点伤，却像把你当成了唯一的依靠，安静地蜷在你脚边。',who:'narrator',expr:'sad'},
+      {text:'（你犹豫了：七天后你就要离开这座城市，能给得了它一个家吗？）',who:'narrator',expr:'worried'},
+    ],
+    responses:[
+      {text:'带它回家，先处理伤口',fx:{mood:+5,independence:+3,money:-5},hint:'心情+5 独立+3 💰-5'},
+      {text:'联系救助站，请人来接',fx:{social:+4,confidence:+2},hint:'社交+4 自信+2'},
+      {text:'先喂它，再在门口铺个软垫',fx:{mood:+3,independence:+2},hint:'心情+3 独立+2'},
+    ]
+  },
+  // ===== 连锁小故事：地铁里的「陈叔」（跨 2 天，地点地铁站） =====
+  { id:'arc_metro1',arc:'metro',type:'neutral',speaker:'陈叔',avatar:'👨‍🦳',minDay:2,location:'station',
+    lines:[
+      {text:'（地铁站里，广播突然响起：列车延误。人流一下子躁动起来，脚步声、抱怨声混成一片。）',who:'narrator',expr:'worried'},
+      {text:'（你被裹挟在人流里，盲杖几次差点脱手。这时，一只手稳稳地扶住了你的胳膊。）',who:'narrator',expr:'neutral'},
+      {text:'「姑娘，别慌，跟着我，我带你到安全的地方等。」一个温和的男声在你身边响起。',who:'陈叔',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「谢谢您，麻烦您了」',fx:{mood:+3,social:+2},hint:'心情+3 社交+2'},
+      {text:'（把这个声音和这份暖意记在心里）',fx:{confidence:+2,mood:+2},hint:'自信+2 心情+2'},
+      {text:'「多亏有您，不然我真不知道怎么办」',fx:{social:+3,confidence:+1},hint:'社交+3 自信+1'},
+    ]
+  },
+  { id:'arc_metro2',arc:'metro',type:'positive',speaker:'陈叔',avatar:'👨‍🦳',minDay:5,location:'station',cond:()=>(GS.triggeredDialogues||[]).includes('arc_metro1'),
+    lines:[
+      {text:'（地铁站里，一个熟悉的声音叫住了你：「姑娘，又见面了！」）',who:'narrator',expr:'happy'},
+      {text:'是那天帮你的陈叔。他退休后常来这站接老伴，一来二去，竟认出了你的盲杖敲击声。',who:'陈叔',expr:'happy'},
+      {text:'「我孙女也跟你差不多大。一个人在这座城市打拼，不容易吧？」他关切地问。',who:'陈叔',expr:'neutral'},
+    ],
+    responses:[
+      {text:'跟他聊聊你的近况',fx:{social:+4,mood:+3},hint:'社交+4 心情+3'},
+      {text:'「有您这样的好心人，我不怕」',fx:{confidence:+3,mood:+3},hint:'自信+3 心情+3'},
+      {text:'互相留个联系方式，保持联络',fx:{social:+4,confidence:+2},hint:'社交+4 自信+2'},
+    ]
+  },
+  // ===== 连锁小故事：盲道上的障碍（跨 3 天，任意地点） =====
+  { id:'arc_road1',arc:'road',type:'neutral',speaker:'——',avatar:'🦯',minDay:1,
+    lines:[
+      {text:'（盲道被几辆共享单车挡住了。你用盲杖敲了敲，金属车架发出「当当」的响声。）',who:'narrator',expr:'neutral'},
+      {text:'（周围没有人，你只能小心地绕过单车，盲杖探到路边，一步步蹭过去。）',who:'narrator',expr:'worried'},
+      {text:'（你忽然想：这样的路，每天有多少视障者走得磕磕绊绊？）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'把挡路的单车挪到路边',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+      {text:'用手机拍下照片留存',fx:{skill:+2},hint:'专业+2'},
+      {text:'记下这个路段，今天先绕道',fx:{mood:-1,confidence:+1},hint:'心情-1 自信+1'},
+    ]
+  },
+  { id:'arc_road2',arc:'road',type:'positive',speaker:'——',avatar:'📞',minDay:3,cond:()=>(GS.triggeredDialogues||[]).includes('arc_road1'),
+    lines:[
+      {text:'（你又经过了那段被占的盲道，还是老样子。这次，你决定不再绕开，而是做点什么。）',who:'narrator',expr:'neutral'},
+      {text:'（你拨通了 12345 市政服务热线，说明了盲道被共享单车长期占用的情况。）',who:'narrator',expr:'neutral'},
+      {text:'（电话那头的工作人员认真记录，还主动问了具体路段和你的联系方式。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'详细说明路段和问题',fx:{social:+3,confidence:+3},hint:'社交+3 自信+3'},
+      {text:'提出「设置停车提示」的建议',fx:{skill:+3,confidence:+2},hint:'专业+3 自信+2'},
+      {text:'「希望更多人能顺畅地走路」',fx:{mood:+3,independence:+2},hint:'心情+3 独立+2'},
+    ]
+  },
+  { id:'arc_road3',arc:'road',type:'positive',speaker:'——',avatar:'✨',minDay:6,cond:()=>(GS.triggeredDialogues||[]).includes('arc_road2'),
+    lines:[
+      {text:'（手机收到一条短信，是市政部门的回复：您反映的盲道被占用问题已处理。）',who:'narrator',expr:'happy'},
+      {text:'（你特意绕过去看了看——虽然看不见，但盲杖一路畅通无阻，再没碰到那几辆单车。）',who:'narrator',expr:'happy'},
+      {text:'（你忽然明白：改变，有时候就是从一通电话、一次不绕开开始的。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（为自己点个赞，继续前行）',fx:{confidence:+4,mood:+3},hint:'自信+4 心情+3'},
+      {text:'把这个好消息分享给朋友',fx:{social:+4,mood:+2},hint:'社交+4 心情+2'},
+      {text:'「原来我的声音，真的有人听」',fx:{independence:+4,confidence:+2},hint:'独立+4 自信+2'},
+    ]
+  },
+  // ===== 连锁小故事：邻里守望「社区的家」（跨 3 天，社区中心→楼下→家门口） =====
+  { id:'arc_nei1',arc:'neighbor',type:'positive',speaker:'——',avatar:'🏛️',minDay:2,location:'community',
+    lines:[
+      {text:'（社区中心里人声嘈杂，各个窗口的叫号声、脚步声混成一片。你攥着材料站在门口，一时不知道该往哪儿走。）',who:'narrator',expr:'worried'},
+      {text:'（你听着周围的动静，盲杖在地上轻轻点着，几次想开口问，又咽了回去。）',who:'narrator',expr:'neutral'},
+      {text:'「小姑娘，头一回来办事吧？」一个热情的声音传来，「来，我带你过去，这地方绕得很。」',who:'邻居阿姨',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢您，我确实有点懵」',fx:{mood:+3,social:+2},hint:'心情+3 社交+2'},
+      {text:'「麻烦您带我去办理窗口」',fx:{independence:+2,social:+2},hint:'独立+2 社交+2'},
+      {text:'默默记下社区中心的位置和流程',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+    ]
+  },
+  { id:'arc_nei2',arc:'neighbor',type:'positive',speaker:'邻居阿姨',avatar:'👵',minDay:4,cond:()=>(GS.triggeredDialogues||[]).includes('arc_nei1'),
+    lines:[
+      {text:'（这天你出门晚了，天色阴沉。刚走到楼下，就听见一个熟悉的声音在喊你。）',who:'narrator',expr:'neutral'},
+      {text:'「小萤！等等！看你走得急，是不是又没吃早饭？」是那天社区中心帮你的阿姨。',who:'邻居阿姨',expr:'happy'},
+      {text:'（她往你手里塞了两个热乎乎的包子，又递来一把伞：「拿着，路上吃。一个人在外，饭要按时吃。」）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「谢谢您，太麻烦您了」',fx:{mood:+3,social:+2},hint:'心情+3 社交+2'},
+      {text:'心里涌起一阵暖意，鼻子有点酸',fx:{mood:+4},hint:'心情+4'},
+      {text:'「我晚上回来把伞还您」',fx:{social:+2,independence:+2},hint:'社交+2 独立+2'},
+    ]
+  },
+  { id:'arc_nei3',arc:'neighbor',type:'positive',speaker:'——',avatar:'🏠',minDay:6,cond:()=>(GS.triggeredDialogues||[]).includes('arc_nei2'),
+    lines:[
+      {text:'（傍晚回家，你在门口的信箱里摸到一个软软的东西——是一袋洗好的水果，还有一张折起来的纸条。）',who:'narrator',expr:'neutral'},
+      {text:'（纸条上是歪歪扭扭的字：「小萤，一个人在外不容易。阿姨明天包饺子，给你留一碗。」）',who:'narrator',expr:'happy'},
+      {text:'（你忽然眼眶一热。这座城市，好像不再那么陌生了。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（把这份温暖牢牢记在心里）',fx:{mood:+5,independence:+2},hint:'心情+5 独立+2'},
+      {text:'「原来我也有可以回去的地方」',fx:{mood:+4,confidence:+3},hint:'心情+4 自信+3'},
+      {text:'回屋写张感谢的纸条，塞进阿姨的信箱',fx:{social:+3,mood:+3},hint:'社交+3 心情+3'},
+    ]
+  },
+  // ===== 连锁小故事：独立出行「从害怕到从容」（跨 3 天，公交站→任意→任意） =====
+  { id:'arc_tra1',arc:'travel',type:'neutral',speaker:'——',avatar:'🚌',minDay:1,location:'busstop',
+    lines:[
+      {text:'（你第一次独立坐公交。站台上人来人往，你在心里默念着要坐的那路车、要下的站名。）',who:'narrator',expr:'worried'},
+      {text:'（车来了，你扶着门框上车，刷完卡后站在原地，不知道该往哪边找座位，也不敢确定这辆车对不对。）',who:'narrator',expr:'neutral'},
+      {text:'（司机的语气很温和：「姑娘，你要去哪儿？我可以到站提醒你。」）',who:'司机师傅',expr:'neutral'},
+    ],
+    responses:[
+      {text:'「谢谢师傅，我到图书馆站下」',fx:{social:+2,mood:+2},hint:'社交+2 心情+2'},
+      {text:'用读屏软件打开导航，确认路线',fx:{skill:+2,independence:+2},hint:'专业+2 独立+2'},
+      {text:'（握紧盲杖，靠边站稳）',fx:{independence:+2,confidence:+1},hint:'独立+2 自信+1'},
+    ]
+  },
+  { id:'arc_tra2',arc:'travel',type:'positive',speaker:'——',avatar:'🚌',minDay:3,cond:()=>(GS.triggeredDialogues||[]).includes('arc_tra1'),
+    lines:[
+      {text:'（又一次坐公交，你已经能熟练地报出站名、听清到站播报，还能用导航判断还剩几站。）',who:'narrator',expr:'neutral'},
+      {text:'（旁边一位老人犹豫着问：「小姑娘，这车到不到医院啊？」）',who:'老人',expr:'neutral'},
+      {text:'（你愣了一下，然后笃定地回答：「到的，还有三站。您别急，到站我叫您。」）',who:'小萤',expr:'happy'},
+    ],
+    responses:[
+      {text:'到站时提醒那位老人下车',fx:{social:+3,mood:+3},hint:'社交+3 心情+3'},
+      {text:'帮老人打开导航语音',fx:{skill:+2,social:+2},hint:'专业+2 社交+2'},
+      {text:'心里暗暗为自己骄傲',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
+    ]
+  },
+  { id:'arc_tra3',arc:'travel',type:'positive',speaker:'——',avatar:'✨',minDay:5,cond:()=>(GS.triggeredDialogues||[]).includes('arc_tra2'),
+    lines:[
+      {text:'（现在的你，已经能凭声音、触感和导航，独立地在这座城市里来去自如。）',who:'narrator',expr:'happy'},
+      {text:'（有次你甚至给一位初来乍到的外地人指了路，对方连声道谢。）',who:'narrator',expr:'happy'},
+      {text:'（你忽然意识到：那个曾经连坐车都害怕的自己，正在一点点变得强大。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「我做到了，而且还能帮到别人」',fx:{confidence:+4,independence:+3},hint:'自信+4 独立+3'},
+      {text:'（感谢那个没有放弃的自己）',fx:{mood:+4,confidence:+2},hint:'心情+4 自信+2'},
+      {text:'把这份成长牢牢记在心里',fx:{independence:+3,mood:+3},hint:'独立+3 心情+3'},
+    ]
+  },
+  // ===== 连锁小故事：城市的声音「声音地图」（跨 3 天，任意地点） =====
+  { id:'arc_sou1',arc:'sound',type:'neutral',speaker:'——',avatar:'🔊',minDay:1,
+    lines:[
+      {text:'（初到这座城市，各种声音扑面而来：汽车的喇叭、施工的电钻、行人的交谈、店铺的促销广播……）',who:'narrator',expr:'worried'},
+      {text:'（你被淹没在这片声音的海洋里，分不清方向，也静不下心。）',who:'narrator',expr:'neutral'},
+      {text:'（「好吵啊……」你下意识地按了按耳机，想把世界关在外面。）',who:'小萤',expr:'sad'},
+    ],
+    responses:[
+      {text:'戴上耳机，听一段音乐平静一下',fx:{mood:+2},hint:'心情+2'},
+      {text:'深呼吸，试着慢慢习惯',fx:{confidence:+2,mood:+1},hint:'自信+2 心情+1'},
+      {text:'（记住几个常听到的声音）',fx:{independence:+2},hint:'独立+2'},
+    ]
+  },
+  { id:'arc_sou2',arc:'sound',type:'positive',speaker:'——',avatar:'🔊',minDay:3,cond:()=>(GS.triggeredDialogues||[]).includes('arc_sou1'),
+    lines:[
+      {text:'（几天过去，你渐渐发现，声音其实是有「地图」的。）',who:'narrator',expr:'neutral'},
+      {text:'（巷口那家早餐店的油锅声、拐角咖啡店的磨豆声、头顶呼啸而过的地铁声……都成了你的路标。）',who:'narrator',expr:'happy'},
+      {text:'（原来，看不见的世界，可以用听的。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（在心里画一张声音地图）',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+      {text:'跟朋友分享这个发现',fx:{social:+2,mood:+2},hint:'社交+2 心情+2'},
+      {text:'「我的耳朵，就是我的眼睛」',fx:{confidence:+3},hint:'自信+3'},
+    ]
+  },
+  { id:'arc_sou3',arc:'sound',type:'positive',speaker:'——',avatar:'✨',minDay:5,cond:()=>(GS.triggeredDialogues||[]).includes('arc_sou2'),
+    lines:[
+      {text:'（现在的你，已经能靠声音在这座城市里从容穿行。甚至，你开始喜欢上这里的声音。）',who:'narrator',expr:'happy'},
+      {text:'（清晨的鸟鸣、傍晚的广播、地铁报站的温柔女声……它们织成了一张看不见的网，兜住了你的每一天。）',who:'narrator',expr:'happy'},
+      {text:'（你忽然觉得，这座城市在用它的方式，跟你打招呼。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「这座城，我听见了」',fx:{confidence:+4,mood:+3},hint:'自信+4 心情+3'},
+      {text:'（把这份从容记在心里）',fx:{independence:+4,confidence:+2},hint:'独立+4 自信+2'},
+      {text:'「原来声音也可以这么温柔」',fx:{mood:+4,independence:+2},hint:'心情+4 独立+2'},
+    ]
+  },
+  // ===== 连锁小故事：声音日记「记录这段旅程」（跨 3 天，任意地点） =====
+  { id:'arc_dia1',arc:'diary',type:'neutral',speaker:'——',avatar:'🎙️',minDay:1,
+    lines:[
+      {text:'（晚上，你打开手机的录音软件，想录一段「声音日记」。）',who:'narrator',expr:'neutral'},
+      {text:'「今天是来到这座城市的第一天……」你按下录音键，声音却有些发颤。',who:'小萤',expr:'neutral'},
+      {text:'（看不见，所以想用声音把这一切记下来。这样，以后就不会忘了。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'认真录下这一天的感受',fx:{mood:+3,confidence:+2},hint:'心情+3 自信+2'},
+      {text:'「以后每天都要录一段」',fx:{independence:+3},hint:'独立+3'},
+      {text:'（把最想记住的声音录进去）',fx:{mood:+2,confidence:+2},hint:'心情+2 自信+2'},
+    ]
+  },
+  { id:'arc_dia2',arc:'diary',type:'positive',speaker:'——',avatar:'🎙️',minDay:4,cond:()=>(GS.triggeredDialogues||[]).includes('arc_dia1'),
+    lines:[
+      {text:'（这天晚上，你回听起前几天录下的声音日记。）',who:'narrator',expr:'neutral'},
+      {text:'（第一天那个声音发颤、说「有点害怕」的自己，还清晰地在耳边。而现在，你已经能报出站名、给人指路了。）',who:'narrator',expr:'happy'},
+      {text:'（原来成长，就藏在这些声音的对比里。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（把这份发现录进今天的日记）',fx:{confidence:+3,mood:+3},hint:'自信+3 心情+3'},
+      {text:'「我比想象中更勇敢」',fx:{confidence:+4},hint:'自信+4'},
+      {text:'把日记分享给小雨听',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+    ]
+  },
+  { id:'arc_dia3',arc:'diary',type:'positive',speaker:'——',avatar:'✨',minDay:6,cond:()=>(GS.triggeredDialogues||[]).includes('arc_dia2'),
+    lines:[
+      {text:'（旅程快结束了，你录下了这段时间的最后一篇声音日记。）',who:'narrator',expr:'neutral'},
+      {text:'「谢谢这些天里，每一个帮助过我的人，也谢谢没有放弃的自己。」',who:'小萤',expr:'happy'},
+      {text:'（声音日记不会说话，但它替你记住了——你一个人，走过了多少路。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「这段旅程，我会一直记得」',fx:{confidence:+5,mood:+3},hint:'自信+5 心情+3'},
+      {text:'（把日记收藏在最安全的地方）',fx:{independence:+4,confidence:+2},hint:'独立+4 自信+2'},
+      {text:'「谢谢自己，走到这里」',fx:{mood:+5,confidence:+2},hint:'心情+5 自信+2'},
+    ]
+  },
+  // ===== 城市生活的小温暖（日常随机事件） =====
+  { id:'d113',type:'positive',speaker:'——',avatar:'🫶',minDay:2,
+    lines:[
+      {text:'（过马路时，绿灯亮起，你正想迈步，一位陌生阿姨轻轻扶住了你的胳膊。）',who:'narrator',expr:'neutral'},
+      {text:'「姑娘，我扶你过吧，这路口车多。」她的声音很温和。',who:'陌生阿姨',expr:'happy'},
+      {text:'（过了马路，你还没来得及道谢，她就摆摆手走远了。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'（把这份善意记在心里）',fx:{mood:+4},hint:'心情+4'},
+      {text:'「这座城市，还是好人多」',fx:{mood:+3,confidence:+2},hint:'心情+3 自信+2'},
+      {text:'「下次我也要帮助别人」',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+    ]
+  },
+  { id:'d114',type:'positive',speaker:'——',avatar:'🎯',minDay:3,
+    lines:[
+      {text:'（今天，你第一次不用问路，就凭记忆和导航，顺利找到了要去的地方。）',who:'narrator',expr:'happy'},
+      {text:'（站在目的地门口，你愣了一下——原来，这条路你已经能自己走了。）',who:'narrator',expr:'happy'},
+      {text:'（小小的成就感，像一颗糖，在心里慢慢化开。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（为自己鼓掌）',fx:{confidence:+4,mood:+2},hint:'自信+4 心情+2'},
+      {text:'「我做到了，而且没问任何人」',fx:{independence:+4,confidence:+2},hint:'独立+4 自信+2'},
+      {text:'把这条路线记牢，下次更快',fx:{independence:+3},hint:'独立+3'},
+    ]
+  },
+  { id:'d115',type:'neutral',speaker:'——',avatar:'🌆',minDay:4,
+    lines:[
+      {text:'（傍晚，你坐在路边的长椅上，听着城市的晚高峰一点点安静下来。）',who:'narrator',expr:'neutral'},
+      {text:'（车流声、脚步声、远处店铺打烊的卷帘门声……像一首慢慢收尾的曲子。）',who:'narrator',expr:'neutral'},
+      {text:'（你忽然觉得，这座城市的节奏，你好像也慢慢跟上了。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（享受这一刻的安宁）',fx:{mood:+3,stamina:+2},hint:'心情+3 体力+2'},
+      {text:'「我也在慢慢融入这里」',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
+      {text:'起身回家，明天继续',fx:{independence:+2,stamina:+1},hint:'独立+2 体力+1'},
+    ]
+  },
+  // ===== 欢乐谷 & 出行枢纽 专属随机事件（补齐这两处远方地点的氛围） =====
+  { id:'d116',type:'positive',speaker:'小女孩',avatar:'👧',location:'happyvalley',
+    lines:[
+      {text:'（排队时，你听到身后传来一个小女孩清脆的声音。）',who:'narrator',expr:'neutral'},
+      {text:'"姐姐，你怎么闭着眼睛呀？"',who:'小女孩',expr:'happy'},
+      {text:'"因为姐姐看不见，所以在用耳朵听。"',who:'小萤',expr:'neutral'},
+      {text:'"那你听！过山车冲下来的时候，大家都在叫！"小女孩兴奋地扯着你的衣角，"姐姐，这个声音可好玩了！"',who:'小女孩',expr:'happy'},
+      {text:'（你笑了。原来快乐，也可以被一个孩子这样分享给你。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'认真地陪她一起"听"过山车',fx:{mood:+4,confidence:+2},hint:'心情+4 自信+2'},
+      {text:'谢谢她，告诉她这是你今天最开心的事',fx:{social:+3,mood:+3},hint:'社交+3 心情+3'},
+      {text:'（在心里记住这份纯真的善意）',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
+    ]
+  },
+  { id:'d117',type:'neutral',speaker:'——',avatar:'🎠',location:'happyvalley',
+    lines:[
+      {text:'（站在欢乐谷的广场上，你闭上眼睛，让各种声音一起涌进来。）',who:'narrator',expr:'neutral'},
+      {text:'（左边是旋转木马轻快的八音盒声，右边是过山车呼啸而过的尖叫，风里还裹着爆米花的甜香。）',who:'narrator',expr:'happy'},
+      {text:'（看不见的乐园，原来是可以靠耳朵和鼻子逛的。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（把这份感受记进声音日记）',fx:{mood:+3,confidence:+2},hint:'心情+3 自信+2'},
+      {text:'买一份爆米花，慢慢逛',fx:{money:-5,mood:+3},hint:'金钱-5 心情+3'},
+      {text:'「原来乐园不一定要用眼睛看」',fx:{confidence:+3},hint:'自信+3'},
+    ]
+  },
+  { id:'d118',type:'positive',speaker:'同路旅客',avatar:'🧳',location:'longtravel',
+    lines:[
+      {text:'（在候车大厅，你正听着广播，一位拖着行李箱的人在你身边坐下。）',who:'narrator',expr:'neutral'},
+      {text:'"姑娘，你一个人坐车？要不要我上车的时候带你一下？"',who:'同路旅客',expr:'happy'},
+      {text:'"真的可以吗？那太谢谢您了。"',who:'小萤',expr:'happy'},
+      {text:'"出门在外，互相照应嘛。"对方笑了笑，声音很温和。',who:'同路旅客',expr:'happy'},
+      {text:'（陌生的旅途上，一份陌生人的善意，让出发变得没那么孤单。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'感激地接受这份帮助',fx:{mood:+3,social:+2},hint:'心情+3 社交+2'},
+      {text:'也主动和对方聊聊行程',fx:{social:+3,mood:+2},hint:'社交+3 心情+2'},
+      {text:'（把这份善意记在心里）',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
+    ]
+  },
+  { id:'d119',type:'neutral',speaker:'——',avatar:'🚄',location:'longtravel',
+    lines:[
+      {text:'（候车大厅的广播一遍遍播报着开往各地的车次。你忽然有些出神。）',who:'narrator',expr:'neutral'},
+      {text:'（每一列火车，都载着一群要出发的人；每一个站台，都有人在告别，也有人在重逢。）',who:'narrator',expr:'neutral'},
+      {text:'（而此刻的你，也正站在自己人生的站台上，准备驶向未知的方向。）',who:'narrator',expr:'neutral'},
+    ],
+    responses:[
+      {text:'（给自己鼓鼓劲，出发）',fx:{confidence:+3,mood:+1},hint:'自信+3 心情+1'},
+      {text:'给家里打个电话报平安',fx:{social:+2,mood:+3},hint:'社交+2 心情+3'},
+      {text:'（把这份心情录进日记）',fx:{independence:+3,mood:+2},hint:'独立+3 心情+2'},
+    ]
+  },
+  { id:'d120',type:'negative',speaker:'——',avatar:'⏰',location:'longtravel',
+    lines:[
+      {text:'（你急着赶车，但广播里报的检票口和手机导航说的不一样。）',who:'narrator',expr:'worried'},
+      {text:'（站厅太大，你拉着行李，一时分不清该往哪个方向跑。）',who:'narrator',expr:'worried'},
+      {text:'（时间一点点过去，你额头上渗出了汗。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'停下脚步，先冷静听广播',fx:{confidence:+2,mood:-1},hint:'自信+2 心情-1'},
+      {text:'抓住一个工作人员问清楚',fx:{social:+2,mood:-1},hint:'社交+2 心情-1'},
+      {text:'（自责，但提醒自己下次早点到）',fx:{independence:+2,mood:-2},hint:'独立+2 心情-2'},
+    ]
+  },
+  // ===== 连锁小故事：厨房「独立生活的第一顿饭」（跨 3 天，任意地点） =====
+  { id:'arc_food1',arc:'food',type:'neutral',speaker:'——',avatar:'🍳',minDay:2,
+    lines:[
+      {text:'（晚上回到出租屋，你决定自己下厨，不再顿顿吃外卖。）',who:'narrator',expr:'neutral'},
+      {text:'（可是切菜时，刀子在看不见的世界里格外危险。你一手扶着菜，一手摸索着下刀，紧张得手指都在抖。）',who:'narrator',expr:'worried'},
+      {text:'（盐、糖、味精……几个调料罐长得差不多，你分不清哪个是哪个。）',who:'narrator',expr:'worried'},
+    ],
+    responses:[
+      {text:'（小心翼翼，先闻一闻再放）',fx:{independence:+2,confidence:+1},hint:'独立+2 自信+1'},
+      {text:'（把调料罐按味道贴上盲文标签）',fx:{skill:+2,independence:+2},hint:'专业+2 独立+2'},
+      {text:'「第一次，能做熟就行」',fx:{mood:+2,confidence:+1},hint:'心情+2 自信+1'},
+    ]
+  },
+  { id:'arc_food2',arc:'food',type:'positive',speaker:'——',avatar:'🍲',minDay:4,cond:()=>(GS.triggeredDialogues||[]).includes('arc_food1'),
+    lines:[
+      {text:'（几天下来，你渐渐摸出了做饭的窍门。）',who:'narrator',expr:'neutral'},
+      {text:'（闻一闻能分辨葱姜蒜，摸一摸能判断土豆和地瓜，听着油锅的声音就知道该翻面了。）',who:'narrator',expr:'happy'},
+      {text:'（原来，看不见的人，也能靠触觉、嗅觉和听觉，做出一顿像样的饭。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（把这些小窍门记下来）',fx:{skill:+3,independence:+2},hint:'专业+3 独立+2'},
+      {text:'给小雨发语音，炫耀今天做的饭',fx:{social:+2,mood:+3},hint:'社交+2 心情+3'},
+      {text:'「我的手，也能认出这个世界」',fx:{confidence:+3},hint:'自信+3'},
+    ]
+  },
+  { id:'arc_food3',arc:'food',type:'positive',speaker:'——',avatar:'🍚',minDay:6,cond:()=>(GS.triggeredDialogues||[]).includes('arc_food2'),
+    lines:[
+      {text:'（今天，你做了三菜一汤。）',who:'narrator',expr:'neutral'},
+      {text:'（番茄炒蛋的酸甜、清炒时蔬的脆爽、还有一碗热乎乎的汤……你尝了一口，鼻子有点酸。）',who:'narrator',expr:'happy'},
+      {text:'（从第一顿手忙脚乱，到现在能为自己张罗一桌饭。原来独立，就藏在这一日三餐里。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（慢慢吃完，把这份踏实记在心里）',fx:{independence:+4,confidence:+3,mood:+2},hint:'独立+4 自信+3 心情+2'},
+      {text:'「原来我也能照顾好自己」',fx:{confidence:+4,independence:+3},hint:'自信+4 独立+3'},
+      {text:'给家里打个电话，说说今天的晚饭',fx:{social:+3,mood:+3},hint:'社交+3 心情+3'},
+    ]
+  },
+  // ===== 连锁小故事：家人「报喜不报忧」（跨 3 天，任意地点） =====
+  { id:'arc_fam1',arc:'family',type:'neutral',speaker:'——',avatar:'📞',minDay:2,
+    lines:[
+      {text:'（晚上，你拨通了妈妈的电话。）',who:'narrator',expr:'neutral'},
+      {text:'"妈，我挺好的，住的地方也收拾好了，别担心。"你努力让自己的声音听起来轻松些。',who:'小萤',expr:'neutral'},
+      {text:'（其实今天找路时差点走丢，饭也做得糊了一锅。但这些，你一个字都没说。）',who:'narrator',expr:'sad'},
+    ],
+    responses:[
+      {text:'（把委屈咽下去，说「我很好」）',fx:{mood:-1,independence:+2},hint:'心情-1 独立+2'},
+      {text:'说一点小事，但别让妈妈太担心',fx:{social:+2,mood:+1},hint:'社交+2 心情+1'},
+      {text:'「等我把日子过好，再跟你细说」',fx:{confidence:+2,mood:+1},hint:'自信+2 心情+1'},
+    ]
+  },
+  { id:'arc_fam2',arc:'family',type:'positive',speaker:'——',avatar:'☎️',minDay:4,cond:()=>(GS.triggeredDialogues||[]).includes('arc_fam1'),
+    lines:[
+      {text:'（这天，妈妈先打了过来。）',who:'narrator',expr:'neutral'},
+      {text:'"小萤，妈这几天总梦见你。你跟妈说实话，是不是挺难的？"',who:'妈妈',expr:'worried'},
+      {text:'（这一次，你没有再只说"我很好"。你跟她说了迷路的事、做饭糊锅的事，也说了一个人慢慢摸清这座城市的小小成就感。）',who:'narrator',expr:'neutral'},
+      {text:'"难是难，但我能应付。妈，我比你想的要能干一点。"',who:'小萤',expr:'happy'},
+    ],
+    responses:[
+      {text:'（把真实的自己，一点点讲给妈妈听）',fx:{mood:+3,social:+2},hint:'心情+3 社交+2'},
+      {text:'「妈，你放心，我会照顾好自己」',fx:{confidence:+3,mood:+2},hint:'自信+3 心情+2'},
+      {text:'（听出妈妈声音里的牵挂，鼻子一酸）',fx:{mood:+2,independence:+1},hint:'心情+2 独立+1'},
+    ]
+  },
+  { id:'arc_fam3',arc:'family',type:'positive',speaker:'——',avatar:'💝',minDay:6,cond:()=>(GS.triggeredDialogues||[]).includes('arc_fam2'),
+    lines:[
+      {text:'（临别前的这通电话，妈妈的声音有些哽咽，却带着笑意。）',who:'narrator',expr:'neutral'},
+      {text:'"小萤，妈不担心了。这些天你一个人把日子过得有模有样，妈……为你骄傲。"',who:'妈妈',expr:'happy'},
+      {text:'（你的眼眶一下子热了。原来独立，不是不让家人担心，而是让家人安心。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「妈，谢谢。我会继续加油的」',fx:{confidence:+4,mood:+3,independence:+2},hint:'自信+4 心情+3 独立+2'},
+      {text:'（把这份骄傲，也收进自己的行囊）',fx:{confidence:+4,independence:+3},hint:'自信+4 独立+3'},
+      {text:'「等稳定了，我接你来看我」',fx:{social:+3,mood:+3},hint:'社交+3 心情+3'},
+    ]
+  },
+  // ===== 通用温情事件（任意地点，中期） =====
+  { id:'d121',type:'neutral',speaker:'——',avatar:'🌃',minDay:4,
+    lines:[
+      {text:'（走过熟悉的街角，小萤忽然意识到，她开始认得这座城市的声音了。）',who:'narrator',expr:'neutral'},
+      {text:'（哪家早餐店门口有蒸笼的热气声，哪个路口的风会拐个弯，哪段盲道旁的树总在落叶。）',who:'narrator',expr:'neutral'},
+      {text:'（这些细小的声音，成了她心里一幅看不见、却越来越清晰的地图。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'（把新发现的声音记进日记里）',fx:{confidence:+2,mood:+2},hint:'自信+2 心情+2'},
+      {text:'顺着熟悉的声音，多走一段路',fx:{independence:+2,confidence:+2},hint:'独立+2 自信+2'},
+      {text:'（在心里默念：这条路，我认得）',fx:{independence:+3},hint:'独立+3'},
+    ]
+  },
+  { id:'d122',type:'positive',speaker:'——',avatar:'🤝',
+    lines:[
+      {text:'（路口，你在等红绿灯，犹豫着该不该先探一步。）',who:'narrator',expr:'neutral'},
+      {text:'「需要我带你过马路吗？这会儿车多。」一个温和的声音在旁边响起。',who:'路人',expr:'happy'},
+      {text:'（一份不期而遇的善意。这座城，其实没那么冷。）',who:'narrator',expr:'happy'},
+    ],
+    responses:[
+      {text:'「谢谢您，那就麻烦您了」',fx:{social:+2,mood:+3},hint:'社交+2 心情+3'},
+      {text:'记下这个路口的声音，下次自己过',fx:{independence:+3,confidence:+2},hint:'独立+3 自信+2'},
+      {text:'「谢谢，我可以的」然后慢慢走过',fx:{confidence:+3,independence:+1},hint:'自信+3 独立+1'},
+    ]
+  },
 ];
 
 // ============================================================
@@ -3331,15 +3885,15 @@ const LOCATIONS = {
 };
 
 const TRANSPORT = {
-  walk:{id:'walk',name:'步行',timeMin:20,timeMax:30,stamina:-25,money:0,eventRate:.60},
-  bus:{id:'bus',name:'公交',timeMin:10,timeMax:18,stamina:-12,money:-2,eventRate:.45},
-  metro:{id:'metro',name:'地铁',timeMin:5,timeMax:12,stamina:-7,money:-5,eventRate:.25},
-  taxi:{id:'taxi',name:'打车',timeMin:8,timeMax:15,stamina:-3,money:-25,eventRate:.10,indoor:true},
+  walk:{id:'walk',name:'步行',timeMin:20,timeMax:30,stamina:-10,money:0,eventRate:.60},
+  bus:{id:'bus',name:'公交',timeMin:10,timeMax:18,stamina:-6,money:-2,eventRate:.45},
+  metro:{id:'metro',name:'地铁',timeMin:5,timeMax:12,stamina:-4,money:-5,eventRate:.25},
+  taxi:{id:'taxi',name:'打车',timeMin:8,timeMax:15,stamina:-2,money:-25,eventRate:.10,indoor:true},
 };
 
 const DEFAULT_STATE = {
   perception:0,toolUse:0,communication:0,
-  stamina:100,money:70,mood:60,
+  stamina:100,money:80,mood:60,
   currentLocation:'home',time:480,day:1,
   inventory:[
     {id:'cane',name:'导盲杖',weight:1.5,desc:'基本的出行辅助工具'},
@@ -3355,7 +3909,7 @@ const DEFAULT_STATE = {
   storyStage:0,storyFlags:{},storyTriggeredToday:false,
   eventLog:[],triggeredEvents:[],triggeredDialogues:[],
   travelsCompleted:0,totalEventsTriggered:0,scenariosDone:0,
-  gameOver:false,selectedDest:null,doneActivities:{},achievements:[],visitedLocations:['home'],weather:'sunny',usedItems:{},bonds:{小雨:30,林薇:18,阿凯:10},bondMilestones:{}
+  gameOver:false,selectedDest:null,doneActivities:{},achievements:[],visitedLocations:['home'],weather:'sunny',usedItems:{},bonds:{小雨:30,林薇:18,阿凯:10},bondMilestones:{},dailyGoal:null,dailyGoalDoneCount:0
 };
 
 // ============================================================
@@ -3375,6 +3929,7 @@ const ACHIEVEMENTS = [
   {id:'independent',name:'独立自主',icon:'🏠',desc:'独立达到70',cond:()=>GS.independence>=70,reward:{confidence:+8}},
   {id:'graduate',name:'职场新星',icon:'🌟',desc:'完成入职主线',cond:()=>GS.storyStage>=6,reward:{confidence:+10,skill:+10}},
   {id:'survivor',name:'生存达人',icon:'🏆',desc:'坚持到第7天',cond:()=>GS.day>=7,reward:{money:+50}},
+  {id:'goal_getter',name:'目标达成者',icon:'🎯',desc:'完成3次今日目标',cond:()=>(GS.dailyGoalDoneCount||0)>=3,reward:{confidence:+5,money:+20}},
   {id:'soulmate',name:'挚友',icon:'💞',desc:'与某位朋友羁绊达到60',cond:()=>Object.values(GS.bonds||{}).some(v=>v>=60),reward:{social:+5,mood:+5}},
   {id:'science_fan',name:'科普爱好者',icon:'🧠',desc:'到访6个地点，解锁半本无障碍科普图鉴',cond:()=>(GS.visitedLocations||[]).length>=6,reward:{skill:+3}},
   {id:'best_friend',name:'知己',icon:'💝',desc:'与某位朋友羁绊达到80',cond:()=>Object.values(GS.bonds||{}).some(v=>v>=80),reward:{social:+8,mood:+5}},
@@ -3383,6 +3938,14 @@ const ACHIEVEMENTS = [
   {id:'energetic',name:'元气满满',icon:'🌞',desc:'心情达到90',cond:()=>GS.mood>=90,reward:{stamina:+10}},
   {id:'rich',name:'第一桶金',icon:'💰',desc:'存款达到300',cond:()=>GS.money>=300,reward:{mood:+5}},
   {id:'perfectionist',name:'全面发展',icon:'📈',desc:'四项成长属性都达到60',cond:()=>GS.confidence>=60&&GS.skill>=60&&GS.social>=60&&GS.independence>=60,reward:{money:+30}},
+  {id:'story_collector',name:'故事收藏家',icon:'📖',desc:'完成3条连锁小故事线',cond:()=>{const t=GS.triggeredDialogues||[];return ['arc_cat3','arc_metro2','arc_road3','arc_nei3','arc_tra3','arc_sou3','arc_dia3','arc_food3','arc_fam3'].filter(id=>t.includes(id)).length>=3;},reward:{confidence:+6,independence:+4}},
+  {id:'story_master',name:'故事大师',icon:'🏅',desc:'完成全部9条连锁小故事线',cond:()=>{const t=GS.triggeredDialogues||[];return ['arc_cat3','arc_metro2','arc_road3','arc_nei3','arc_tra3','arc_sou3','arc_dia3','arc_food3','arc_fam3'].every(id=>t.includes(id));},reward:{confidence:+10,mood:+8}},
+  {id:'subway_pro',name:'地铁达人',icon:'🚇',desc:'完成地铁站全部场景',cond:()=>{const d=GS.doneActivities||{};return (SCENARIOS.station||[]).every(s=>d[s.id]);},reward:{confidence:+3,independence:+2}},
+  {id:'shop_familiar',name:'便利店熟客',icon:'🏪',desc:'完成便利店全部场景',cond:()=>{const d=GS.doneActivities||{};return (SCENARIOS.shop||[]).every(s=>d[s.id]);},reward:{social:+3,mood:+3}},
+  {id:'sound_traveler',name:'远方有故事',icon:'🎡',desc:'在欢乐谷或出行枢纽触发一次专属事件',cond:()=>{const t=GS.triggeredDialogues||[];return ['d116','d117','d118','d119','d120'].some(id=>t.includes(id));},reward:{mood:+4,confidence:+2}},
+  {id:'health_graduate',name:'从容毕业',icon:'🎓',desc:'身心健康地坚持到第7天',cond:()=>GS.day>=7&&GS.mood>=70&&GS.stamina>=70,reward:{confidence:+5,mood:+5}},
+  {id:'ability_max',name:'专精一技',icon:'🎯',desc:'某项能力达到满点6',cond:()=>GS.perception>=6||GS.toolUse>=6||GS.communication>=6,reward:{confidence:+5,independence:+3}},
+  {id:'city_shuttler',name:'城市穿梭者',icon:'🚇',desc:'累计出行20次',cond:()=>GS.travelsCompleted>=20,reward:{money:+30,mood:+3}},
 ];
 
 // ============================================================
@@ -3390,11 +3953,12 @@ const ACHIEVEMENTS = [
 // ============================================================
 const WEATHERS = {
   sunny:{name:'晴',icon:'☀️',staminaMul:1.0,moodDrift:0},
-  rain:{name:'雨',icon:'🌧️',staminaMul:1.25,moodDrift:-3},
-  wind:{name:'风',icon:'💨',staminaMul:1.1,moodDrift:-2},
+  cloudy:{name:'阴',icon:'☁️',staminaMul:1.0,moodDrift:-1},
+  rain:{name:'雨',icon:'🌧️',staminaMul:1.15,moodDrift:-2},
+  wind:{name:'风',icon:'💨',staminaMul:1.1,moodDrift:-1},
 };
 function rollWeather(){
-  const pool=['sunny','sunny','sunny','rain','wind'];
+  const pool=['sunny','sunny','sunny','cloudy','rain','wind'];
   GS.weather=pool[Math.floor(Math.random()*pool.length)];
 }
 
@@ -3402,8 +3966,10 @@ function rollWeather(){
 // 背包可消耗道具
 // ============================================================
 const USABLE_ITEMS = {
-  water:{name:'喝水',icon:'💧',fx:{stamina:+8,mood:+1}},
+  water:{name:'喝水',icon:'💧',fx:{stamina:+10,mood:+1}},
   headphones:{name:'听音乐',icon:'🎵',fx:{mood:+5}},
+  phone:{name:'打电话给朋友',icon:'📱',fx:{mood:+6,social:+2}},
+  cane:{name:'检查导盲杖',icon:'🦯',fx:{confidence:+3,independence:+2}},
 };
 
 let GS=null,previewAttr=null,mapData2=null,animFrame2=null,particles2=[];
@@ -4312,7 +4878,7 @@ function startGameScreen(){
   document.getElementById('screen-start').classList.add('hidden');
   document.getElementById('screen-ending').classList.add('hidden');
   document.getElementById('screen-game').classList.remove('hidden');
-  initMap();drawCurrentCharacter('neutral');renderAll();checkEndings();
+  initMap();drawCurrentCharacter('neutral');if(!GS.dailyGoal)rollDailyGoal();renderAll();checkEndings();
   showToast('👆 点击地图上的建筑选择目的地');
   setTimeout(()=>maybeStartStory(),500);
 }
@@ -4572,8 +5138,9 @@ function startTravel(){
 function advanceTime(minutes){
   GS.time+=minutes;
   while(GS.time>=1320){
-    GS.time=480+(GS.time-1320);GS.day++;GS.stamina=Math.min(100,GS.stamina+25);GS.mood=clamp(GS.mood+2,0,100);GS.storyTriggeredToday=false;
+    GS.time=480+(GS.time-1320);GS.day++;GS.stamina=Math.min(100,GS.stamina+45);GS.mood=clamp(GS.mood+2,0,100);GS.storyTriggeredToday=false;
     GS.pendingReflection=true;
+    rollDailyGoal();
     rollWeather();
     const w=WEATHERS[GS.weather]||WEATHERS.sunny;
     addLog('🌅 新的一天！今天'+w.name);
@@ -4583,25 +5150,37 @@ function advanceTime(minutes){
 // ---- 睡前反思（跨天时的小萤内心独白，填补「一天结束」的情感空白）----
 const NIGHT_OPENERS=[
   {min:1,max:1,t:'第一晚，躺在陌生的床上，小萤久久没能入睡。'},
-  {min:2,max:3,t:'夜渐渐深了，小萤躺在床上，回想着这一天的路。'},
-  {min:4,max:5,t:'城市的夜灯再亮，小萤也看不见，但她的心里有一盏自己的灯。'},
+  {min:2,max:2,t:'第二天了。小萤躺在被窝里，把今天走过的每一条路都在心里重走了一遍。'},
+  {min:3,max:3,t:'夜渐深，小萤回想着这几天的变化，心里有了一点说不上来的踏实。'},
+  {min:4,max:4,t:'城市的夜灯再亮，小萤也看不见，但她的心里有了一盏自己的灯。'},
+  {min:5,max:5,t:'临睡前，小萤在脑海里描摹着这座城市的轮廓，已经不再那么陌生。'},
   {min:6,max:6,t:'夜已深，小萤翻来覆去，把这段日子的点滴在脑子里过了一遍。'},
   {min:7,max:7,t:'最后一晚了。小萤躺在床上，听着窗外看不见的夜色。'},
 ];
 function nightLineMood(){
+  if(GS.mood>=85)return {t:'今天过得很开心，小萤甚至忍不住轻轻哼起歌来。',e:'happy'};
   if(GS.mood>=70)return {t:'今天过得还算顺心，连呼吸都轻快了些。',e:'happy'};
+  if(GS.mood<25)return {t:'太累了，小萤把脸埋进枕头里，眼泪终于没忍住。',e:'sad'};
   if(GS.mood<40)return {t:'有点累，也有点委屈，但小萤没让眼泪掉下来。',e:'sad'};
   return {t:'说不上好，也说不上坏，只是寻常的一天。',e:'neutral'};
 }
 function nightLineGrowth(){
-  if((GS.independence||0)>=60)return '她忽然发现，原来自己一个人，也能走这么远的路。';
-  if((GS.confidence||0)>=60)return '曾经害怕的事，现在好像也没那么可怕了。';
+  const vals={independence:GS.independence||0,confidence:GS.confidence||0,skill:GS.skill||0,social:GS.social||0};
+  const map={
+    independence:'她忽然发现，原来自己一个人，也能走这么远的路。',
+    confidence:'曾经害怕的事，现在好像也没那么可怕了。',
+    skill:'专业上又精进了一点，这让她对未来多了几分底气。',
+    social:'认识的人、说过的话，都在一点点织成她在这座城市的人脉。',
+  };
+  const top=Object.entries(vals).sort((a,b)=>b[1]-a[1])[0];
+  if(top[1]>=60)return map[top[0]];
   return '还有好多路要学，但至少，今天又迈出了一小步。';
 }
 function nightLineBond(){
   const b=GS.bonds||{};
   const hit=['小雨','林薇','阿凯'].filter(n=>(b[n]||0)>=30);
   if(!hit.length)return null;
+  if(hit.length>=2)return {t:'想到身边有这些惦记着她的人，小萤觉得，这座城市也没那么冷了。',e:'happy'};
   const map={
     '小雨':'想到小雨今天对她说的话，小萤的嘴角不自觉地翘了起来。',
     '林薇':'林薇的鼓励还在耳边，像一盏灯，照着她往前走。',
@@ -4610,9 +5189,13 @@ function nightLineBond(){
   return {t:map[hit[0]],e:'happy'};
 }
 function nightLineGoal(){
-  if(GS.day<=3)return '工作的事还没有着落，但小萤告诉自己：急不得。';
-  if(GS.day<=5)return '面试、等待、再面试……她第一次知道，找工作也是一场仗。';
-  return '这段旅程就快走到头了，她不想留下遗憾。';
+  const st=GS.storyStage||0;
+  if(st>=6)return '工作已经落定，小萤想着即将开始的新生活，既期待又紧张。';
+  if(st>=5)return '入职在即，小萤反复在脑海里排练着第一天该说什么、该怎么做。';
+  if(st>=4)return 'offer 已经到手，压在心头的那块石头，总算轻了一些。';
+  if(st>=2)return '面试、等待、再面试……她第一次知道，找工作也是一场仗。';
+  if(st>=1)return '简历投出去好几份，小萤告诉自己：急不得，慢慢来。';
+  return '毕业了，工作的事还没有着落。这是她在陌生城市的第一个难题。';
 }
 function buildNightReflection(){
   const opener=(NIGHT_OPENERS.find(o=>GS.day>=o.min&&GS.day<=o.max)||NIGHT_OPENERS[0]).t;
@@ -4621,6 +5204,8 @@ function buildNightReflection(){
   lines.push({text:nightLineGrowth(),who:'narrator',expr:'neutral'});
   const b=nightLineBond();if(b)lines.push({text:b.t,who:'narrator',expr:b.e});
   lines.push({text:nightLineGoal(),who:'narrator',expr:'neutral'});
+  const dg=GS.dailyGoal;
+  if(dg){lines.push({text:dg.done?('今天定下的小目标——「'+dg.desc+'」——已经完成了，心里踏实。'):('今天那个「'+dg.desc+'」的小目标还差一点，明天再试试。'),who:'narrator',expr:dg.done?'happy':'neutral'});}
   lines.push({text:'晚安，这座城市。晚安，还在努力的小萤。',who:'narrator',expr:'neutral'});
   return {id:'night_'+GS.day,type:'night',_noTrack:true,speaker:'🌙 睡前独白',avatar:'🌙',lines,responses:[{text:'合上眼，睡去',fx:{},hint:'新的一天'}]};
 }
@@ -4634,6 +5219,82 @@ function maybeNightReflection(after){
   const dlg=buildNightReflection();
   startDialogue(dlg,()=>{renderAll();saveGame();checkEndings();if(after)after();});
   return true;
+}
+
+// ---- 每日目标（每天随机一个小目标，给玩家明确方向）----
+const DAILY_GOALS=[
+  {id:'visit_new',name:'探索新地方',icon:'🗺️',desc:'去一个从没去过的地方',reward:{money:+15,mood:+3},
+    base:()=>({v:(GS.visitedLocations||[]).length}),
+    check:()=>(GS.visitedLocations||[]).length>(GS.dailyGoal.base.v)},
+  {id:'do_scenario',name:'来一场经历',icon:'📖',desc:'完成一次场景探索',reward:{confidence:+3,independence:+2},
+    base:()=>({v:GS.scenariosDone||0}),
+    check:()=>(GS.scenariosDone||0)>(GS.dailyGoal.base.v)},
+  {id:'travel2',name:'多走两步',icon:'🚶',desc:'今天出行 2 次',reward:{money:+10,independence:+2},
+    base:()=>({v:GS.travelsCompleted||0}),
+    check:()=>(GS.travelsCompleted||0)>=(GS.dailyGoal.base.v+2)},
+  {id:'meet_people',name:'与人相遇',icon:'💬',desc:'触发一次对话或羁绊事件',reward:{social:+3,mood:+3},
+    base:()=>({v:GS.totalEventsTriggered||0}),
+    check:()=>(GS.totalEventsTriggered||0)>(GS.dailyGoal.base.v)},
+  {id:'good_mood',name:'笑一笑',icon:'😊',desc:'让心情达到 70',reward:{money:+12,mood:+2},
+    base:()=>({v:0}),
+    check:()=>GS.mood>=70},
+  {id:'rest_well',name:'好好照顾自己',icon:'🛏️',desc:'让体力恢复到 80 以上',reward:{money:+10,confidence:+2},
+    base:()=>({v:0}),
+    check:()=>GS.stamina>=80},
+  {id:'scenario2',name:'多些经历',icon:'🎭',desc:'完成 2 次场景探索',reward:{confidence:+4,independence:+2},
+    base:()=>({v:GS.scenariosDone||0}),
+    check:()=>(GS.scenariosDone||0)>=(GS.dailyGoal.base.v+2)},
+  {id:'save_money',name:'攒点小钱',icon:'💰',desc:'让存款达到 100',reward:{mood:+3},
+    base:()=>({v:0}),
+    check:()=>GS.money>=100},
+  {id:'confident',name:'挺起胸膛',icon:'💪',desc:'让自信达到 60',reward:{mood:+4},
+    base:()=>({v:0}),
+    check:()=>GS.confidence>=60},
+  {id:'visit3',name:'足迹多点',icon:'👣',desc:'今天到访 3 个新地点',reward:{money:+20,mood:+2},
+    base:()=>({v:(GS.visitedLocations||[]).length}),
+    check:()=>(GS.visitedLocations||[]).length>=(GS.dailyGoal.base.v+3)},
+  {id:'far_trip',name:'去远一点',icon:'🚄',desc:'今天去欢乐谷或出行枢纽',reward:{confidence:+5,mood:+3},
+    base:()=>({v:0}),
+    check:()=>GS.currentLocation==='happyvalley'||GS.currentLocation==='longtravel'},
+  {id:'grow_skill',name:'充充电',icon:'📚',desc:'让专业达到 65',reward:{confidence:+3,skill:+2},
+    base:()=>({v:0}),
+    check:()=>GS.skill>=65},
+  {id:'grow_indep',name:'更独立一点',icon:'🦯',desc:'让独立达到 65',reward:{mood:+3,independence:+2},
+    base:()=>({v:0}),
+    check:()=>GS.independence>=65},
+  {id:'grow_social',name:'多聊聊天',icon:'💬',desc:'让社交达到 65',reward:{mood:+3,social:+2},
+    base:()=>({v:0}),
+    check:()=>GS.social>=65},
+];
+function rollDailyGoal(){
+  let g,guard=0;
+  do{
+    g=DAILY_GOALS[Math.floor(Math.random()*DAILY_GOALS.length)];
+    GS.dailyGoal={id:g.id,name:g.name,icon:g.icon,desc:g.desc,reward:g.reward,done:false,base:g.base()};
+    guard++;
+  }while(guard<20&&g.check());
+}
+function checkDailyGoal(){
+  const g=GS.dailyGoal;
+  if(!g||g.done||GS.gameOver)return;
+  const def=DAILY_GOALS.find(x=>x.id===g.id);
+  if(!def)return;
+  let ok=false;try{ok=def.check()}catch(e){}
+  if(!ok)return;
+  g.done=true;
+  Object.entries(g.reward||{}).forEach(([k,v])=>{
+    if(k==='money')GS.money=Math.round(GS.money+v);
+    else if(k==='stamina')GS.stamina=clamp(GS.stamina+v,0,100);
+    else if(k==='mood')GS.mood=clamp(GS.mood+v,0,100);
+    else if(k==='confidence')GS.confidence=clamp(GS.confidence+v,0,100);
+    else if(k==='skill')GS.skill=clamp(GS.skill+v,0,100);
+    else if(k==='social')GS.social=clamp(GS.social+v,0,100);
+    else if(k==='independence')GS.independence=clamp(GS.independence+v,0,100);
+  });
+  GS.dailyGoalDoneCount=(GS.dailyGoalDoneCount||0)+1;
+  addLog(`✅ 今日目标达成：${g.name}（${fxSummary(g.reward)}）`);
+  showToast(`✅ 今日目标达成 · ${g.name} ${fxSummary(g.reward)}`);
+  renderAll();
 }
 
 // ---- 对话触发 ----
@@ -4663,6 +5324,11 @@ function selectDialogue(){
   const fresh=eligible.filter(d=>!GS.triggeredDialogues.includes(d.id));
   const pool=fresh.length>0?fresh:eligible;
   let candidates=pool;
+  // 连锁小故事优先：可推进的 arc 事件有较高概率抢先触发
+  const arcPool=pool.filter(d=>d.arc);
+  if(arcPool.length>0&&Math.random()<.8){
+    return arcPool[Math.floor(Math.random()*arcPool.length)];
+  }
   // 地点联动：当前地点专属的事件优先触发
   const locMatch=pool.filter(d=>d.location===GS.currentLocation);
   if(locMatch.length>0&&Math.random()<.5){
@@ -4696,6 +5362,9 @@ function renderAll(){
   document.getElementById('g-independence').textContent=GS.independence;
   if(document.getElementById('g-stage'))document.getElementById('g-stage').textContent=STORY_STAGES[GS.storyStage]?STORY_STAGES[GS.storyStage].label:'';
   document.getElementById('dp-text').textContent=GS.selectedDest?'前往 '+LOCATIONS[GS.selectedDest].name+'…':'点击地图选择目的地';
+  const dg=GS.dailyGoal;
+  document.getElementById('dp-hint').textContent=dg?(dg.done?'✅ 今日目标已完成':dg.icon+' 今日目标：'+dg.desc):'';
+  checkDailyGoal();
 }
 
 function toggleBackpack(){
@@ -4738,6 +5407,10 @@ function getStoryEnding(){
   const c=GS.confidence,s=GS.skill,so=GS.social,ind=GS.independence;
   // —— 低谷结局（基础能力不足，无论去向）——
   if(c<55&&s<55)return {icon:'🌱',title:'磕绊前行 — 小萤还在适应',cls:'bad',desc:'入职只是开始，小萤在新环境里依然磕磕绊绊。方案被退回、会议上不敢发言、回家的路上迷了路。<br><br>但每一次跌倒，她都重新站了起来。成长从来不是一蹴而就，她还有很长的路要走。'};
+  // —— 城市故事集结局（集齐全部 9 条连锁小故事线）——
+  {const t=GS.triggeredDialogues||[];if(['arc_cat3','arc_metro2','arc_road3','arc_nei3','arc_tra3','arc_sou3','arc_dia3','arc_food3','arc_fam3'].every(id=>t.includes(id)))return {icon:'📖',title:'城市故事集 — 小萤把这七天写成了故事',cls:'good',desc:'七天里，小萤遇见了一只流浪猫、一位地铁里的陈叔、一道路边的盲道障碍、一位楼下的邻居阿姨，还有这座城市或嘈杂或温柔的声音，也把它们一一录进了自己的声音日记，更亲手为自己张罗起一日三餐，也在电话里慢慢学会了让远方的妈妈安心。<br><br>这些细碎的相遇，被她一点一点收进了心里，织成了属于自己的「城市故事集」。原来，看不见的城市，也有数不清的、值得记住的人与事。'};}
+  // —— 自律达人结局（完成 5 次每日目标）——
+  {if((GS.dailyGoalDoneCount||0)>=5)return {icon:'🎯',title:'自律达人 — 小萤把每一天都过成了计划',cls:'good',desc:'七天里，小萤几乎每天都给自己定下一个小目标，然后认认真真地去完成。<br><br>探索新地方、完成一次探索、攒下一点钱……这些看似微小的目标，累积起来，成了她在陌生城市里最踏实的底气。原来，掌控生活，从完成每一个小目标开始。'};}
   // —— 友情满点结局 ——
   {const b=GS.bonds||{};if((b['小雨']||0)>=60&&(b['林薇']||0)>=60&&(b['阿凯']||0)>=60)return {icon:'💞',title:'友情满点 — 这座城市的第二双眼睛',cls:'good',desc:'七天里，小萤最大的收获不是一份工作，而是三个真心相待的朋友。小雨的鼓励、林薇的引路、阿凯的陪伴，让她在陌生的城市里有了坚实的依靠。<br><br>视障从不是孤独的理由。她终于明白：有人同行，路再难也走得下去。'};}
   // —— 职业去向① 独立创业 ——
@@ -4758,8 +5431,17 @@ function getStoryEnding(){
 function checkEndings(){
   checkAchievements();
   if(GS.gameOver)return;
-  if(GS.stamina<=0)triggerEnding('stamina');
-  else if(GS.mood<=0)triggerEnding('mood');
+  if(GS.stamina<=0){
+    // 体力耗尽：软性恢复（被好心人送回家），不再直接判负；心情归零才真正累倒
+    GS.stamina=30;
+    GS.mood=clamp(GS.mood-10,0,100);
+    GS.currentLocation='home';
+    GS.selectedDest=null;
+    addLog('😵 体力透支，一位好心人把你送回了家');
+    showToast('😵 体力耗尽！被送回家休息（心情-10）');
+    renderAll();saveGame();
+  }
+  if(GS.mood<=0)triggerEnding('mood');
   else if(GS.money<0)triggerEnding('money');
 }
 
@@ -4798,6 +5480,17 @@ function renderAchievements(){
 const BOND_META={小雨:{avatar:'👩‍🎓',desc:'大学最好的朋友',color:'#7ac870'},林薇:{avatar:'👩‍💼',desc:'听澜科技产品总监',color:'#6aa0e0'},阿凯:{avatar:'👨‍💻',desc:'工位旁的同事',color:'#e0a060'}};
 const BOND_EVENTS = {
   小雨:{
+    40:{id:'bond_xiaoyu_40',speaker:'小雨',avatar:'👩‍🎓',type:'positive',
+      lines:[
+        {text:'（手机震动，是小雨发来的消息：「小萤，今天过得怎么样？吃饭了吗？」）',who:'narrator',expr:'neutral'},
+        {text:'「别总说『还好』。说真的，我想知道你最近累不累、开不开心。」',who:'小雨',expr:'neutral'},
+        {text:'（隔着屏幕，你都能想象出她一脸认真的样子。）',who:'narrator',expr:'happy'},
+      ],
+      responses:[
+        {text:'把这几天的经历讲给她听',fx:{social:+4,mood:+3},hint:'社交+4 心情+3'},
+        {text:'「有你在，我不觉得累」',fx:{mood:+4,social:+2},hint:'心情+4 社交+2'},
+      ]
+    },
     60:{id:'bond_xiaoyu_60',speaker:'小雨',avatar:'👩‍🎓',type:'positive',
       lines:[
         {text:'（这天，小雨突然发来一段长长的语音，语气认真得不像平时的她。）',who:'narrator',expr:'neutral'},
@@ -4821,6 +5514,17 @@ const BOND_EVENTS = {
     },
   },
   林薇:{
+    40:{id:'bond_linwei_40',speaker:'林薇',avatar:'👩‍💼',type:'positive',
+      lines:[
+        {text:'「小萤，你上次交的那份无障碍体验报告我看了。」林薇的声音里带着赞许。',who:'林薇',expr:'neutral'},
+        {text:'「很细致，很多角度是我们健全人根本想不到的。这份敏锐很珍贵。」',who:'林薇',expr:'happy'},
+        {text:'（被这样认真对待，你忽然对自己的专业多了几分底气。）',who:'narrator',expr:'happy'},
+      ],
+      responses:[
+        {text:'「谢谢您，我会继续努力」',fx:{confidence:+4,skill:+3},hint:'自信+4 专业+3'},
+        {text:'「能帮上忙，我也很开心」',fx:{mood:+4,skill:+2},hint:'心情+4 专业+2'},
+      ]
+    },
     60:{id:'bond_linwei_60',speaker:'林薇',avatar:'👩‍💼',type:'positive',
       lines:[
         {text:'「小萤，这个项目我打算交给你独立负责一部分。」林薇的语气里满是信任。',who:'林薇',expr:'neutral'},
@@ -4845,6 +5549,17 @@ const BOND_EVENTS = {
     },
   },
   阿凯:{
+    40:{id:'bond_akai_40',speaker:'同事阿凯',avatar:'👨‍💻',type:'positive',
+      lines:[
+        {text:'（午休时间，工位旁传来一个友善的声音。）',who:'narrator',expr:'neutral'},
+        {text:'「小萤，一起去食堂吗？我带你认认路，以后你就熟门熟路了。」阿凯热情地招呼你。',who:'同事阿凯',expr:'happy'},
+        {text:'（从陌生到熟悉，原来同事之间的善意，来得这么自然。）',who:'narrator',expr:'happy'},
+      ],
+      responses:[
+        {text:'「好呀，那就麻烦你了」',fx:{social:+4,mood:+2},hint:'社交+4 心情+2'},
+        {text:'「谢谢你一直这么照顾我」',fx:{social:+3,confidence:+3},hint:'社交+3 自信+3'},
+      ]
+    },
     60:{id:'bond_akai_60',speaker:'同事阿凯',avatar:'👨‍💻',type:'positive',
       lines:[
         {text:'「小萤，我发现你现在越来越熟练了！」阿凯笑着递给你一杯奶茶。',who:'同事阿凯',expr:'happy'},
@@ -4875,7 +5590,7 @@ function checkBondMilestones(){
   const pending=[];
   Object.keys(BOND_EVENTS).forEach(npc=>{
     const v=bonds[npc]||0;
-    [60,80].forEach(th=>{
+    [40,60,80].forEach(th=>{
       const key=npc+'_'+th;
       if(v>=th&&!GS.bondMilestones[key]){
         GS.bondMilestones[key]=true;
