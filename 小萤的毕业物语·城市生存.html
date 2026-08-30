@@ -2609,7 +2609,7 @@ const DEFAULT_STATE = {
   storyStage:0,storyFlags:{},storyTriggeredToday:false,
   eventLog:[],triggeredEvents:[],triggeredDialogues:[],
   travelsCompleted:0,totalEventsTriggered:0,
-  gameOver:false,selectedDest:null,doneActivities:{},achievements:[],visitedLocations:['home'],weather:'sunny',usedItems:{},bonds:{小雨:30,林薇:10,阿凯:5},bondMilestones:{}
+  gameOver:false,selectedDest:null,doneActivities:{},achievements:[],visitedLocations:['home'],weather:'sunny',usedItems:{},bonds:{小雨:30,林薇:18,阿凯:10},bondMilestones:{}
 };
 
 // ============================================================
@@ -2620,10 +2620,10 @@ const ACHIEVEMENTS = [
   {id:'city_walker',name:'城市漫步者',icon:'🚶',desc:'累计出行10次',cond:()=>GS.travelsCompleted>=10,reward:{money:+30}},
   {id:'explorer',name:'城市探索家',icon:'🗺️',desc:'到访全部12个地点',cond:()=>(GS.visitedLocations||[]).length>=12,reward:{confidence:+5}},
   {id:'event_veteran',name:'事件老手',icon:'🎲',desc:'触发10次随机事件',cond:()=>GS.totalEventsTriggered>=10,reward:{skill:+3}},
-  {id:'confident',name:'自信满满',icon:'💪',desc:'自信达到70',cond:()=>GS.confidence>=70,reward:{money:+20}},
-  {id:'pro',name:'专业高手',icon:'📚',desc:'专业达到70',cond:()=>GS.skill>=70,reward:{money:+20}},
-  {id:'socialite',name:'人脉达人',icon:'💬',desc:'社交达到70',cond:()=>GS.social>=70,reward:{money:+20}},
-  {id:'independent',name:'独立自主',icon:'🏠',desc:'独立达到70',cond:()=>GS.independence>=70,reward:{money:+20}},
+  {id:'confident',name:'自信满满',icon:'💪',desc:'自信达到70',cond:()=>GS.confidence>=70,reward:{mood:+12}},
+  {id:'pro',name:'专业高手',icon:'📚',desc:'专业达到70',cond:()=>GS.skill>=70,reward:{money:+35}},
+  {id:'socialite',name:'人脉达人',icon:'💬',desc:'社交达到70',cond:()=>GS.social>=70,reward:{mood:+6,social:+3}},
+  {id:'independent',name:'独立自主',icon:'🏠',desc:'独立达到70',cond:()=>GS.independence>=70,reward:{confidence:+8}},
   {id:'graduate',name:'职场新星',icon:'🌟',desc:'完成入职主线',cond:()=>GS.storyStage>=6,reward:{confidence:+10,skill:+10}},
   {id:'survivor',name:'生存达人',icon:'🏆',desc:'坚持到第7天',cond:()=>GS.day>=7,reward:{money:+50}},
   {id:'soulmate',name:'挚友',icon:'💞',desc:'与某位朋友羁绊达到60',cond:()=>Object.values(GS.bonds||{}).some(v=>v>=60),reward:{social:+5,mood:+5}},
@@ -2674,7 +2674,7 @@ function addLog(text){GS.eventLog.unshift({time:GS.time,day:GS.day,text});if(GS.
 
 function rollAttributes(){
   let a,b,c;
-  do{a=rand(1,5);b=rand(1,5);c=12-a-b;}while(c<1||c>6);
+  do{a=rand(1,5);b=rand(1,5);c=12-a-b;}while(c<1||c>6||(a<5&&b<5&&c<5));
   const arr=[a,b,c];for(let i=arr.length-1;i>0;i--){const j=rand(0,i);[arr[i],arr[j]]=[arr[j],arr[i]];}
   return{perception:arr[0],toolUse:arr[1],communication:arr[2]};
 }
